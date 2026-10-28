@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Office temporary files
+~$*
+
+# DSH render/preview temp
+.dsh-office.*

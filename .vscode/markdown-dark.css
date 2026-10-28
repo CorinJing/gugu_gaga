@@ -1,0 +1,115 @@
+/* Dark reading theme for VS Code's built-in Markdown preview. */
+html,
+body {
+  background-color: #1b1b1b !important;
+  color: #d6d2c8 !important;
+}
+
+body {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2.2rem 3rem 4rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Songti SC", "Noto Serif CJK SC", serif;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #ece2ca !important;
+  border-bottom-color: #3a3a3a !important;
+}
+
+h1 { font-size: 2.1em; }
+h2 { font-size: 1.55em; }
+h3 { font-size: 1.25em; }
+
+a {
+  color: #d9a441 !important;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  color: #f0e6d2;
+}
+
+code {
+  background: #2a2a2a !important;
+  color: #e0b98a !important;
+  border: 1px solid #383838;
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+}
+
+pre {
+  background: #151515 !important;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+}
+
+pre code {
+  background: transparent !important;
+  border: 0;
+  padding: 0;
+  color: #d6d2c8 !important;
+}
+
+blockquote {
+  background: #222 !important;
+  color: #b9b1a2 !important;
+  border-left: 4px solid #8a6a3a !important;
+  margin-left: 0;
+  padding: 0.6em 1em;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.2em 0;
+}
+
+th {
+  background: #2a2a2a !important;
+  color: #f0e6d2 !important;
+  border: 1px solid #3a3a3a !important;
+}
+
+td {
+  border: 1px solid #3a3a3a !important;
+}
+
+tr:nth-child(even) td {
+  background: #202020;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #3a3a3a;
+  margin: 2em 0;
+}
+
+ul, ol {
+  padding-left: 1.6em;
+}
+
+li::marker {
+  color: #b58a4a;
+}
+
+img {
+  opacity: 0.95;
+  border-radius: 3px;
+}
+
+/* Optional: preserve readable code when printing / PDF export. */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #222222 !important;
+  }
+}

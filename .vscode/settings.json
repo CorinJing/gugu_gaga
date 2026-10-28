@@ -1,0 +1,10 @@
+{
+  "markdown.styles": [
+    ".vscode/markdown-dark.css"
+  ],
+  "markdown.preview.breaks": true,
+  "markdown.preview.fontSize": 16,
+  "markdown.preview.lineHeight": 1.75,
+  "markdown-preview-enhanced.previewTheme": "github-dark.css",
+  "markdown-preview-enhanced.codeBlockTheme": "monokai.css"
+}
