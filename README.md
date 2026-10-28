@@ -1,8 +1,8 @@
 # 《盐月旅馆》文本与策划交付
 
-> 版本：v0.2 整体框架工作稿  
+> 版本：v0.3 Godot 原型  
 > 日期：2026-10-28  
-> 阶段：整体框架 / 文本阶段（已删除旧 Godot 工程文件）
+> 阶段：整体框架 / 文本 / Godot 原型（旧工程文件已删除，现为新建工程）
 
 ---
 
@@ -18,6 +18,37 @@
 从这一版开始，**先锁定文本，再谈实现**。  
 **当前制作范围只到第一章**；角色、配音、立绘也只做序章与第一章会出现的角色。  
 当前以 `策划案/06_当前版本策划案_v1.md` 为准：只做序章 + 第一章，第二章可选。旧七夜框架仅作参考。
+
+---
+
+## Godot 原型
+
+当前已建立最小 Godot 4.7 工程，用占位色块验证第一人称点击流程。
+
+```text
+project.godot
+scenes/main.tscn                 标题画面
+scenes/prologue/boat_cabin.tscn  船舱：点击窗户、看见海面
+scenes/prologue/shore.tscn       靠岸占位场景
+scripts/autoload/game_state.gd   旗标与物品栏
+assets/theme/game_theme.tres     中文字体主题
+```
+
+运行方式：
+
+```bash
+open -a /Users/shiqi/Downloads/Godot.app --args --path /Users/shiqi/game-001-demo
+```
+
+或在 Godot 里打开 `project.godot`，按 `F5`。
+
+当前流程：
+
+```text
+标题 → 开始 → 船舱 → 点击窗户 → 看见海面 → 继续 → 靠岸占位
+```
+
+目前场景使用色块占位，还没有接入角色立绘与背景图。
 
 ---
 
