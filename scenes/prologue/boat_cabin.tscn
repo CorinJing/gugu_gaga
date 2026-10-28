@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/prologue/boat_cabin.gd" id="1_boat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
 
 [node name="BoatCabin" type="Control"]
 layout_mode = 3
@@ -174,90 +175,6 @@ offset_bottom = 332.0
 mouse_filter = 2
 color = Color(0.909804, 0.87451, 0.784314, 1)
 
-[node name="Sidebar" type="ColorRect" parent="."]
-layout_mode = 0
-offset_left = 960.0
-offset_right = 1280.0
-offset_bottom = 720.0
-mouse_filter = 2
-color = Color(0.0823529, 0.113725, 0.105882, 1)
-
-[node name="SidebarTitle" type="Label" parent="."]
-layout_mode = 0
-offset_left = 990.0
-offset_top = 38.0
-offset_right = 1250.0
-offset_bottom = 78.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
-theme_override_font_sizes/font_size = 23
-text = "物品栏"
-
-[node name="SidebarLine" type="ColorRect" parent="."]
-layout_mode = 0
-offset_left = 990.0
-offset_top = 92.0
-offset_right = 1250.0
-offset_bottom = 93.0
-mouse_filter = 2
-color = Color(0.290196, 0.25098, 0.203922, 1)
-
-[node name="SidebarHint" type="Label" parent="."]
-layout_mode = 0
-offset_left = 990.0
-offset_top = 110.0
-offset_right = 1250.0
-offset_bottom = 145.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.541176, 0.505882, 0.443137, 1)
-theme_override_font_sizes/font_size = 14
-text = "空"
-
-[node name="SidebarText" type="Label" parent="."]
-layout_mode = 0
-offset_left = 990.0
-offset_top = 160.0
-offset_right = 1250.0
-offset_bottom = 340.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.435294, 0.415686, 0.360784, 1)
-theme_override_font_sizes/font_size = 13
-text = "点击场景中的物件。"
-autowrap_mode = 3
-
-[node name="StageTitle" type="Label" parent="."]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 24.0
-offset_right = 420.0
-offset_bottom = 56.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.721569, 0.662745, 0.552941, 1)
-theme_override_font_sizes/font_size = 16
-text = "序章 · 船舱"
-
-[node name="PromptBg" type="ColorRect" parent="."]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 640.0
-offset_right = 928.0
-offset_bottom = 692.0
-mouse_filter = 2
-color = Color(0.0392157, 0.0509804, 0.0470588, 0.9)
-
-[node name="PromptLabel" type="Label" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 48.0
-offset_top = 650.0
-offset_right = 912.0
-offset_bottom = 684.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.878431, 0.843137, 0.752941, 1)
-theme_override_font_sizes/font_size = 18
-text = "点击窗户，把它拉开。"
-vertical_alignment = 1
-
 [node name="WindowHotspot" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -294,18 +211,4 @@ offset_right = 840.0
 offset_bottom = 390.0
 mouse_default_cursor_shape = 2
 
-[node name="ContinueButton" type="Button" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = 720.0
-offset_top = 580.0
-offset_right = 928.0
-offset_bottom = 628.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
-theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
-theme_override_font_sizes/font_size = 17
-flat = true
-text = "继续"
+[node name="GameHUD" parent="." instance=ExtResource("2_hud")]
