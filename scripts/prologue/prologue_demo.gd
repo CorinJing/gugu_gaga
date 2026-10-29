@@ -157,7 +157,7 @@ func _layout() -> void:
 
 		# Same panel geometry as GameHUD, so the character never hides behind it.
 		var ph: float = clampf(vp.y - 40.0, 480.0, 760.0)
-		var pw: float = ph * (358.0 / 1508.0)
+		var pw: float = ph * (381.0 / 1514.0)
 		var safe_right: float = vp.x - pw - 16.0
 		var local_safe: float = (safe_right - stage_pos.x) / cover_scale
 		character.position.x = minf(base_x, maxf(8.0, local_safe - actual_w))

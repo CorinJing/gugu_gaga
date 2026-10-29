@@ -8,7 +8,7 @@ const ICONS := {
 	"fish": preload("res://assets/art/ui/item_fish.png"),
 	"coin": preload("res://assets/art/items/coin_front_cut.png"),
 }
-const SLOT_CENTERS := [0.105, 0.286, 0.457, 0.633, 0.856]
+const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 
 @onready var panel: TextureRect = %InventoryPanel
 @onready var slot_icons: Array[TextureRect] = [%Slot0Icon, %Slot1Icon, %Slot2Icon, %Slot3Icon, %Slot4Icon]
@@ -69,7 +69,7 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 
 	# Tall 1x5 frame, anchored to the far right edge.
 	var ph: float = clampf(vp.y - 40.0, 480.0, 760.0)
-	var pw: float = ph * (358.0 / 1508.0)
+	var pw: float = ph * (381.0 / 1514.0)
 	var panel_rect := Rect2(vp.x - pw - 12.0, (vp.y - ph) * 0.5, pw, ph)
 	panel.position = panel_rect.position
 	panel.size = panel_rect.size
