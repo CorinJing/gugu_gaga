@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/prologue/prologue_demo.gd" id="1_demo"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
+
+[node name="PrologueDemo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_demo")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.0392157, 0.0509804, 0.0470588, 1)
+
+[node name="Background" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="WatermarkMask" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 700.0
+offset_top = 640.0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.0392157, 0.0509804, 0.0470588, 1)
+
+[node name="CoinOverlay" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 760.0
+offset_top = 470.0
+offset_right = 824.0
+offset_bottom = 534.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WindowHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 55.0
+offset_top = 80.0
+offset_right = 255.0
+offset_bottom = 330.0
+mouse_default_cursor_shape = 2
+
+[node name="SuitcaseHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 45.0
+offset_top = 555.0
+offset_right = 275.0
+offset_bottom = 705.0
+mouse_default_cursor_shape = 2
+
+[node name="HeronHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 750.0
+offset_top = 185.0
+offset_right = 905.0
+offset_bottom = 610.0
+mouse_default_cursor_shape = 2
+
+[node name="FishHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 645.0
+offset_top = 485.0
+offset_right = 760.0
+offset_bottom = 620.0
+mouse_default_cursor_shape = 2
+
+[node name="DoorHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 515.0
+offset_top = 145.0
+offset_right = 645.0
+offset_bottom = 510.0
+mouse_default_cursor_shape = 2
+
+[node name="FerrymanHotspot" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 210.0
+offset_top = 0.0
+offset_right = 750.0
+offset_bottom = 720.0
+mouse_default_cursor_shape = 2
+
+[node name="GameHUD" parent="." instance=ExtResource("2_hud")]

@@ -23,20 +23,41 @@
 
 ## Godot 原型
 
-当前 Godot 4.7 工程已可完整走通序章，场景仍使用占位色块。
+当前 Godot 4.7 工程已接入桌面素材，可完整走通序章的**画面 demo**：
 
 ```text
 project.godot
-scenes/main.tscn                        标题画面
-scenes/ui/game_hud.tscn                 共享 HUD：提示与物品栏
-scenes/prologue/boat_cabin.tscn         船舱：开窗、找小刀、割床垫取硬币
-scenes/prologue/shore.tscn              船头：把硬币交给船夫
-scenes/prologue/hotel_exterior.tscn     旅馆门前：把手、摇柄、钥匙、时间锁
-scenes/prologue/prologue_end.tscn       序章结束
-scripts/autoload/game_state.gd          旗标与物品栏
-scripts/ui/game_hud.gd                  HUD 逻辑
-assets/theme/game_theme.tres            中文字体主题
+scenes/main.tscn                         标题画面
+scenes/prologue/prologue_demo.tscn       当前序章 demo：船舱 → 船侧 → 码头 → 船夫 → 白鹭
+scenes/prologue/prologue_end.tscn        序章结束
+scenes/ui/game_hud.tscn                  共享 HUD：提示与物品栏
+scripts/prologue/prologue_demo.gd        demo 状态流
+assets/art/backgrounds/                  船舱关窗/开窗、船行驶、码头
+assets/art/characters/                   白鹭夫人、船夫、服务生
+assets/art/items/                        硬币正反面与透明硬币
 ```
+
+当前 demo 流程：
+
+```text
+标题
+  → 船舱（关窗）
+  → 点击窗户（开窗）
+  → 行李箱拿小刀 / 水桶拿鱼 / 喂白鹭得硬币
+  → 离开船舱
+  → 船侧行驶镜头
+  → 码头
+  → 船头（付船费）
+  → 白鹭夫人：“你回来了。”
+  → 序章结束
+```
+
+说明：
+
+- 这一版是**美术接入 demo**，先把现有图跑起来。
+- 旅馆门前“衣冠不整”的门锁、大厅和 113 还没接入这版 demo；旧 `hotel_exterior` 代码仍保留。
+- 图上的 AI 水印在底部用暗角/提示条处理，正式版仍需重绘或去水印。
+- 角色图目前是 3:4 居中展示，不是抠图；正式版需要透明切图。
 
 运行方式：
 
@@ -45,17 +66,6 @@ open -a /Users/shiqi/Downloads/Godot.app --args --path /Users/shiqi/game-001-dem
 ```
 
 或在 Godot 里打开 `project.godot`，按 `F5`。
-
-当前流程：
-
-```text
-标题 → 船舱（开窗 / 找小刀 / 割床垫取硬币）
-     → 船头（付船费）
-     → 旅馆门前（白鹭把手 / 信箱摇柄 / 门垫钥匙 / 盐封钥匙孔 / 3、1、3 时间锁）
-     → 进门 → 序章结束
-```
-
-目前场景使用色块占位，还没有接入角色立绘与背景图。
 
 ---
 

@@ -12,7 +12,7 @@ func _ready() -> void:
 
 func _on_start_pressed() -> void:
 	GameState.reset()
-	get_tree().change_scene_to_file("res://scenes/prologue/boat_cabin.tscn")
+	get_tree().change_scene_to_file("res://scenes/prologue/prologue_demo.tscn")
 
 
 func _on_quit_pressed() -> void:
