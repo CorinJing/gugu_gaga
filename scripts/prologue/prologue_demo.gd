@@ -133,10 +133,12 @@ func _layout() -> void:
 	if vp.x <= 1.0 or vp.y <= 1.0:
 		return
 
-	# Background covers the whole window; the inventory frame overlays the right edge.
-	var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
+	# The game world owns the left area; the inventory column owns the right edge.
+	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
+	var area := Rect2(0.0, 0.0, vp.x - column_w, vp.y)
+	var cover_scale: float = maxf(area.size.x / 960.0, area.size.y / 720.0)
 	var stage_size := Vector2(960.0, 720.0) * cover_scale
-	var stage_pos := (vp - stage_size) * 0.5
+	var stage_pos := area.position + (area.size - stage_size) * 0.5
 	stage.position = stage_pos
 	stage.scale = Vector2(cover_scale, cover_scale)
 
@@ -155,15 +157,11 @@ func _layout() -> void:
 		var tex := character.texture
 		var actual_w: float = character.size.y * float(tex.get_width()) / float(tex.get_height())
 
-		# Same panel geometry as GameHUD, so the character never hides behind it.
-		var ph: float = clampf(vp.y - 40.0, 480.0, 760.0)
-		var pw: float = ph * (381.0 / 1514.0)
-		var safe_right: float = vp.x - pw - 16.0
+		var safe_right: float = area.size.x - 16.0
 		var local_safe: float = (safe_right - stage_pos.x) / cover_scale
 		character.position.x = minf(base_x, maxf(8.0, local_safe - actual_w))
 
-		# Keep the full body above the prompt bar, even when cover-cropped vertically.
-		var ui_s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
+		var ui_s: float = clampf(minf(area.size.x / 960.0, vp.y / 720.0), 0.62, 2.2)
 		var prompt_screen: float = vp.y - 80.0 * ui_s
 		var top_local: float = maxf(0.0, -stage_pos.y) / cover_scale
 		var bottom_local: float = minf(stage_size.y, (prompt_screen - stage_pos.y) / cover_scale - 8.0)

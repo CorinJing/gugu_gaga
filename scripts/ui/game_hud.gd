@@ -11,6 +11,7 @@ const ICONS := {
 const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 
 @onready var panel: TextureRect = %InventoryPanel
+@onready var inventory_column: ColorRect = $InventoryColumn
 @onready var slot_icons: Array[TextureRect] = [%Slot0Icon, %Slot1Icon, %Slot2Icon, %Slot3Icon, %Slot4Icon]
 @onready var slot_labels: Array[Label] = [%Slot0Label, %Slot1Label, %Slot2Label, %Slot3Label, %Slot4Label]
 @onready var prompt_label: Label = %PromptLabel
@@ -65,12 +66,14 @@ func _refresh_inventory() -> void:
 
 func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect2) -> void:
 	var vp := viewport_size
-	var s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
+	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
+	var column := Rect2(vp.x - column_w, 0.0, column_w, vp.y)
+	inventory_column.position = column.position
+	inventory_column.size = column.size
 
-	# Tall 1x5 frame, anchored to the far right edge.
-	var ph: float = clampf(vp.y - 40.0, 480.0, 760.0)
+	var ph: float = minf(column_w / (381.0 / 1514.0), vp.y - 20.0)
 	var pw: float = ph * (381.0 / 1514.0)
-	var panel_rect := Rect2(vp.x - pw - 12.0, (vp.y - ph) * 0.5, pw, ph)
+	var panel_rect := Rect2(column.position.x + (column_w - pw) * 0.5, (vp.y - ph) * 0.5, pw, ph)
 	panel.position = panel_rect.position
 	panel.size = panel_rect.size
 
@@ -86,11 +89,14 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 		slot_labels[i].size = rect.size
 		slot_labels[i].add_theme_font_size_override("font_size", icon_font)
 
-	var safe_right: float = panel_rect.position.x - 16.0
+	var safe_right: float = column.position.x - 16.0
+	var ui_w: float = maxf(1.0, safe_right)
+	var s: float = clampf(minf(ui_w / 960.0, vp.y / 720.0), 0.62, 2.2)
+
 	location_bg.position = Vector2(28.0 * s, 16.0 * s)
 	location_bg.size = Vector2(272.0, 42.0) * s
 	location_label.position = Vector2(40.0 * s, 24.0 * s)
-	location_label.size = Vector2(250.0, 32.0) * s
+	location_label.size = Vector2(minf(250.0, ui_w - 40.0), 32.0 * s)
 	location_label.add_theme_font_size_override("font_size", int(16.0 * s))
 
 	var prompt_y: float = vp.y - 80.0 * s
