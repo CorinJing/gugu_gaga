@@ -11,6 +11,8 @@ const EGRET := preload("res://assets/art/characters/egret.png")
 const COIN := preload("res://assets/art/items/coin_front_cut.png")
 
 @onready var hud: Control = $GameHUD
+@onready var stage: Control = $Stage
+@onready var backdrop: TextureRect = $Backdrop
 @onready var background: TextureRect = %Background
 @onready var coin_overlay: TextureRect = %CoinOverlay
 @onready var window_hotspot: Control = %WindowHotspot
@@ -32,8 +34,10 @@ func _ready() -> void:
 	door_hotspot.gui_input.connect(_on_door_input)
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	hud.action_pressed.connect(_on_action_pressed)
+	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
+	_layout()
 
 
 func _is_left_click(event: InputEvent) -> bool:
@@ -100,6 +104,51 @@ func _set_state(next: State) -> void:
 			hud.set_location("序章 · 旅馆门口")
 			hud.set_prompt("你回来了。房间一直给你留着。")
 			hud.set_action("序章结束")
+	_layout()
+
+
+func _layout() -> void:
+	var vp := get_viewport_rect().size
+	if vp.x <= 1.0 or vp.y <= 1.0:
+		return
+
+	var aspect := vp.x / vp.y
+	var sidebar_rect: Rect2
+	var stage_size: Vector2
+	var stage_pos: Vector2
+	var scale: float = 1.0
+
+	if aspect >= 1.45:
+		# Wide: stage + right sidebar.
+		var sw: float = clampf(vp.x * 0.25, 260.0, 380.0)
+		sidebar_rect = Rect2(vp.x - sw, 0.0, sw, vp.y)
+		var area := Rect2(0.0, 0.0, vp.x - sw, vp.y)
+		scale = minf(area.size.x / 960.0, area.size.y / 720.0)
+		stage_size = Vector2(960.0, 720.0) * scale
+		stage_pos = area.position + (area.size - stage_size) * 0.5
+	elif aspect >= 1.30:
+		# Near-4:3: stage fills the window, inventory becomes a top bar.
+		var top_h: float = clampf(vp.y * 0.11, 70.0, 100.0)
+		sidebar_rect = Rect2(0.0, 0.0, vp.x, top_h)
+		var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
+		stage_size = Vector2(960.0, 720.0) * cover_scale
+		stage_pos = (vp - stage_size) * 0.5
+	else:
+		# Portrait / square: stage on top, inventory at the bottom.
+		var sh: float = clampf(vp.y * 0.24, 140.0, 220.0)
+		sidebar_rect = Rect2(0.0, vp.y - sh, vp.x, sh)
+		var area := Rect2(0.0, 0.0, vp.x, vp.y - sh)
+		scale = minf(area.size.x / 960.0, area.size.y / 720.0)
+		stage_size = Vector2(960.0, 720.0) * scale
+		stage_pos = area.position + (area.size - stage_size) * 0.5
+
+	stage.position = stage_pos
+	stage.scale = Vector2(scale, scale)
+	backdrop.position = Vector2.ZERO
+	backdrop.size = vp
+	backdrop.texture = background.texture
+	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
+	hud.apply_layout(Rect2(stage_pos, stage_size), vp, sidebar_rect)
 
 
 func _show_coin() -> void:
