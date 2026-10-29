@@ -141,31 +141,52 @@ func _layout() -> void:
 	var top_h: float = 0.0
 
 	if aspect >= 1.45:
-		# Wide: stage + right sidebar.
-		var sw: float = clampf(vp.x * 0.25, 260.0, 380.0)
-		sidebar_rect = Rect2(vp.x - sw, 0.0, sw, vp.y)
-		var area := Rect2(0.0, 0.0, vp.x - sw, vp.y)
-		scale = minf(area.size.x / 960.0, area.size.y / 720.0)
+		# Wide: stage fills the left area, sidebar fills the rest edge-to-edge.
+		var max_stage_w: float = vp.x - 260.0
+		scale = minf(vp.y / 720.0, max_stage_w / 960.0)
 		stage_size = Vector2(960.0, 720.0) * scale
-		stage_pos = area.position + (area.size - stage_size) * 0.5
+		stage_pos = Vector2(0.0, (vp.y - stage_size.y) * 0.5)
+		sidebar_rect = Rect2(stage_size.x, 0.0, vp.x - stage_size.x, vp.y)
 	elif aspect >= 1.30:
 		# Near-4:3: stage fills the window, inventory becomes a top bar.
 		top_h = clampf(vp.y * 0.11, 70.0, 100.0)
 		sidebar_rect = Rect2(0.0, 0.0, vp.x, top_h)
 		var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
+		scale = cover_scale
 		stage_size = Vector2(960.0, 720.0) * cover_scale
 		stage_pos = (vp - stage_size) * 0.5
 	else:
-		# Portrait / square: stage on top, inventory at the bottom.
+		# Portrait / square: stage covers the area, inventory at the bottom.
 		var sh: float = clampf(vp.y * 0.24, 140.0, 220.0)
 		sidebar_rect = Rect2(0.0, vp.y - sh, vp.x, sh)
 		var area := Rect2(0.0, 0.0, vp.x, vp.y - sh)
-		scale = minf(area.size.x / 960.0, area.size.y / 720.0)
-		stage_size = Vector2(960.0, 720.0) * scale
+		var cover_scale: float = maxf(area.size.x / 960.0, area.size.y / 720.0)
+		scale = cover_scale
+		stage_size = Vector2(960.0, 720.0) * cover_scale
 		stage_pos = area.position + (area.size - stage_size) * 0.5
 
 	stage.position = stage_pos
 	stage.scale = Vector2(scale, scale)
+
+	if character.visible:
+		if stage_size.x > vp.x:
+			# Cover mode crops the sides; keep portrait characters inside the visible slice.
+			match state:
+				State.FERRYMAN:
+					character.position.x = 200.0
+				State.WAITER:
+					character.position.x = 250.0
+				State.EGRET:
+					character.position.x = 360.0
+		else:
+			match state:
+				State.FERRYMAN:
+					character.position.x = 200.0
+				State.WAITER:
+					character.position.x = 350.0
+				State.EGRET:
+					character.position.x = 550.0
+
 	if character.visible and top_h > 0.0:
 		character.position.y = top_h
 		character.size.y = maxf(120.0, 632.0 - top_h)

@@ -48,7 +48,11 @@ func _refresh_inventory() -> void:
 
 
 func apply_layout(stage_rect: Rect2, viewport_size: Vector2, sidebar_rect: Rect2) -> void:
-	var s: float = clampf(stage_rect.size.y / 720.0, 0.62, 2.2)
+	# The stage may be larger than the window (cover mode). HUD must use the
+	# visible intersection, never negative off-screen stage coordinates.
+	var visible_rect := stage_rect.intersection(Rect2(Vector2.ZERO, viewport_size))
+	var s: float = clampf(minf(visible_rect.size.y / 720.0, visible_rect.size.x / 960.0), 0.62, 2.2)
+
 	sidebar.position = sidebar_rect.position
 	sidebar.size = sidebar_rect.size
 
@@ -90,23 +94,26 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, sidebar_rect: Rect2
 		inventory_label.size = Vector2(sw - 60.0 * uis, sh - 140.0 * uis)
 		inventory_label.add_theme_font_size_override("font_size", int(15.0 * uis))
 
-	var loc_y := sidebar_rect.end.y + 12.0 if top_mode else stage_rect.position.y + 16.0 * s
-	location_bg.position = Vector2(stage_rect.position.x + 28.0 * s, loc_y)
+	var loc_y := sidebar_rect.end.y + 12.0 if top_mode else visible_rect.position.y + 16.0 * s
+	location_bg.position = Vector2(visible_rect.position.x + 28.0 * s, loc_y)
 	location_bg.size = Vector2(272.0, 42.0) * s
-	location_label.position = Vector2(stage_rect.position.x + 40.0 * s, loc_y + 8.0 * s)
+	location_label.position = Vector2(visible_rect.position.x + 40.0 * s, loc_y + 8.0 * s)
 	location_label.size = Vector2(250.0, 32.0) * s
 	location_label.add_theme_font_size_override("font_size", int(16.0 * s))
 
-	prompt_bg.position = stage_rect.position + Vector2(32.0, 640.0) * s
-	prompt_bg.size = Vector2(896.0, 52.0) * s
-	prompt_label.position = stage_rect.position + Vector2(48.0, 650.0) * s
-	prompt_label.size = Vector2(864.0, 34.0) * s
+	var prompt_y: float = visible_rect.position.y + 640.0 * s
+	if bottom_mode:
+		prompt_y = minf(prompt_y, sidebar_rect.position.y - 64.0 * s)
+	var prompt_w: float = minf(896.0 * s, visible_rect.size.x - 64.0 * s)
+	prompt_bg.position = Vector2(visible_rect.position.x + 32.0 * s, prompt_y)
+	prompt_bg.size = Vector2(prompt_w, 52.0 * s)
+	prompt_label.position = Vector2(visible_rect.position.x + 48.0 * s, prompt_y + 10.0 * s)
+	prompt_label.size = Vector2(prompt_w - 32.0 * s, 34.0 * s)
 	prompt_label.add_theme_font_size_override("font_size", int(18.0 * s))
 
-	action_button.position = stage_rect.position + Vector2(780.0, 580.0) * s
+	action_button.position = Vector2(visible_rect.end.x - (148.0 + 16.0) * s, prompt_y - 60.0 * s)
 	action_button.size = Vector2(148.0, 48.0) * s
 	action_button.add_theme_font_size_override("font_size", int(17.0 * s))
 
-	# Keep this corner cover on the actual stage edge, never on a hard-coded 1280x720 spot.
-	corner_mask.position = stage_rect.position + Vector2(900.0, 680.0) * s
+	corner_mask.position = visible_rect.end - Vector2(60.0, 40.0) * s
 	corner_mask.size = Vector2(60.0, 40.0) * s
