@@ -47,6 +47,11 @@ func set_location(text: String) -> void:
 	location_label.text = text
 
 
+func set_location_visible(value: bool) -> void:
+	location_bg.visible = value
+	location_label.visible = value
+
+
 func set_prompt(text: String) -> void:
 	prompt_label.text = text
 

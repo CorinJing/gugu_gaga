@@ -1,9 +1,11 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
+const SUITCASE := preload("res://assets/art/backgrounds/suitcase_open.png")
+const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
@@ -26,9 +28,13 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var fish_hotspot: Control = %FishHotspot
 @onready var door_hotspot: Control = %DoorHotspot
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
+@onready var suitcase_knife: TextureRect = %SuitcaseKnife
+@onready var suitcase_knife_hotspot: Control = %SuitcaseKnifeHotspot
+@onready var back_arrow: Button = $BackArrow
 @onready var voice: AudioStreamPlayer = $Voice
 
 var state: State = State.CABIN_CLOSED
+var _cabin_return_state: State = State.CABIN_OPEN
 var _speech_generation := 0
 
 
@@ -42,6 +48,9 @@ func _ready() -> void:
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
+	back_arrow.pressed.connect(_on_back_pressed)
+	suitcase_knife_hotspot.gui_input.connect(_on_suitcase_knife_input)
+	suitcase_knife.texture = KNIFE_ICON
 	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
@@ -55,6 +64,10 @@ func _is_left_click(event: InputEvent) -> bool:
 func _set_state(next: State) -> void:
 	state = next
 	character.material = null
+	back_arrow.visible = false
+	suitcase_knife.visible = false
+	suitcase_knife_hotspot.visible = false
+	hud.set_location_visible(true)
 	_speech_generation += 1
 	voice.stop()
 	hud.hide_speech()
@@ -91,6 +104,18 @@ func _set_state(next: State) -> void:
 				hud.set_action("离开船舱")
 			else:
 				hud.hide_action()
+		State.SUITCASE_VIEW:
+			background.texture = SUITCASE
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			back_arrow.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+			if not GameState.has_flag("knife_taken"):
+				suitcase_knife.visible = true
+				suitcase_knife_hotspot.visible = true
+				hud.set_prompt("箱子开着。小刀放在里面。")
+			else:
+				hud.set_prompt("箱子里只剩旧衣服和几封没拆的信。")
 		State.BOAT:
 			background.texture = BOAT
 			hud.set_location("序章 · 船上")
@@ -191,6 +216,11 @@ func _layout() -> void:
 		character.position.y = top_local
 		character.size.y = body_h
 
+	var back_s: float = clampf(minf(area.size.x / 960.0, vp.y / 720.0), 0.62, 2.2)
+	back_arrow.position = Vector2(18.0 * back_s, 18.0 * back_s)
+	back_arrow.size = Vector2(48.0, 48.0) * back_s
+	back_arrow.add_theme_font_size_override("font_size", int(26.0 * back_s))
+
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
 
 
@@ -209,11 +239,28 @@ func _on_window_input(event: InputEvent) -> void:
 func _on_suitcase_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
-	if not GameState.has_item("knife"):
-		GameState.add_item("knife")
-		hud.set_prompt("你从行李箱里找到一把小折刀。")
-	else:
-		hud.set_prompt("行李箱里只剩旧衣服和几封没拆的信。")
+	if state != State.CABIN_CLOSED and state != State.CABIN_OPEN:
+		return
+	_cabin_return_state = state
+	_set_state(State.SUITCASE_VIEW)
+
+
+func _on_back_pressed() -> void:
+	if state == State.SUITCASE_VIEW:
+		_set_state(_cabin_return_state)
+
+
+func _on_suitcase_knife_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.SUITCASE_VIEW:
+		return
+	if GameState.has_flag("knife_taken"):
+		hud.set_prompt("箱子里的刀已经拿走了。")
+		return
+	GameState.set_flag("knife_taken")
+	GameState.add_item("knife")
+	suitcase_knife.visible = false
+	suitcase_knife_hotspot.visible = false
+	hud.set_prompt("你从箱子夹层里拿起一把小折刀。")
 
 
 func _on_fish_input(event: InputEvent) -> void:
