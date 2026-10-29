@@ -106,8 +106,8 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			character.texture = FERRYMAN_CUTOUT
 			character.visible = true
-			character.position = Vector2(620.0, 80.0)
-			character.size = Vector2(400.0, 560.0)
+			character.position = Vector2(620.0, 180.0)
+			character.size = Vector2(400.0, 320.0)
 			var occlude := ShaderMaterial.new()
 			occlude.shader = OCCLUDE_SHADER
 			character.material = occlude
@@ -160,11 +160,11 @@ func _layout() -> void:
 	if state == State.FERRYMAN and character.visible and character.texture != null:
 		# Stand at the stern (rightmost deck), behind the near gunwale.
 		var ftex := character.texture
-		var fw: float = 560.0 * float(ftex.get_width()) / float(ftex.get_height())
+		var fw: float = 320.0 * float(ftex.get_width()) / float(ftex.get_height())
 		var fsafe_right: float = area.size.x - 16.0
 		var flocal_safe: float = (fsafe_right - stage_pos.x) / cover_scale
-		character.position = Vector2(minf(620.0, maxf(8.0, flocal_safe - fw)), 80.0)
-		character.size = Vector2(400.0, 560.0)
+		character.position = Vector2(minf(620.0, maxf(8.0, flocal_safe - fw)), 180.0)
+		character.size = Vector2(400.0, 320.0)
 	elif character.visible and character.texture != null:
 		var base_x: float = 200.0
 		match state:
