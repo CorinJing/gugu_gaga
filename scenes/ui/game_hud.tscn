@@ -155,6 +155,31 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
+[node name="Slot0Hit" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+
+[node name="Slot1Hit" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+
+[node name="Slot2Hit" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+
+[node name="Slot3Hit" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+
+[node name="Slot4Hit" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+
 [node name="LocationBg" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 28.0
@@ -215,3 +240,38 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_action_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_action")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_action")
 text = "继续"
+
+[node name="DragPreview" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 100
+layout_mode = 0
+mouse_filter = 2
+
+[node name="DragPreviewBg" type="ColorRect" parent="DragPreview"]
+layout_mode = 0
+offset_right = 76.0
+offset_bottom = 76.0
+mouse_filter = 2
+color = Color(0.86, 0.78, 0.62, 0.94)
+
+[node name="DragPreviewIcon" type="TextureRect" parent="DragPreview"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 72.0
+offset_bottom = 72.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DragPreviewLabel" type="Label" parent="DragPreview"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 72.0
+offset_bottom = 72.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.18, 0.14, 0.1, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

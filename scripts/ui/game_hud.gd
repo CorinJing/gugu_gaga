@@ -1,6 +1,7 @@
 extends Control
 
 signal action_pressed
+signal drag_released(item_id: String, slot_index: int, screen_pos: Vector2)
 
 const PANEL := preload("res://assets/art/ui/inventory_panel.png")
 const ICONS := {
@@ -19,12 +20,23 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 @onready var location_label: Label = %LocationLabel
 @onready var location_bg: ColorRect = $LocationBg
 @onready var prompt_bg: ColorRect = $PromptBg
+@onready var slot_hits: Array[Control] = [$Slot0Hit, $Slot1Hit, $Slot2Hit, $Slot3Hit, $Slot4Hit]
+@onready var drag_preview: Control = %DragPreview
+@onready var drag_preview_icon: TextureRect = %DragPreviewIcon
+@onready var drag_preview_label: Label = %DragPreviewLabel
+
+var _dragging := false
+var _drag_item := ""
+var _drag_slot := -1
 
 
 func _ready() -> void:
 	panel.texture = PANEL
 	GameState.inventory_changed.connect(_refresh_inventory)
 	action_button.pressed.connect(func() -> void: action_pressed.emit())
+	for i in 5:
+		slot_hits[i].gui_input.connect(_on_slot_gui_input.bind(i))
+	drag_preview.visible = false
 	_refresh_inventory()
 
 
@@ -49,6 +61,7 @@ func _refresh_inventory() -> void:
 	for i in 5:
 		var id: String = GameState.slots[i] if i < GameState.slots.size() else ""
 		var icon := ICONS.get(id) as Texture2D
+		slot_hits[i].mouse_filter = Control.MOUSE_FILTER_STOP if not id.is_empty() else Control.MOUSE_FILTER_IGNORE
 		if id.is_empty():
 			slot_icons[i].texture = null
 			slot_icons[i].visible = false
@@ -88,6 +101,8 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 		slot_labels[i].position = rect.position
 		slot_labels[i].size = rect.size
 		slot_labels[i].add_theme_font_size_override("font_size", icon_font)
+		slot_hits[i].position = rect.position
+		slot_hits[i].size = rect.size
 
 	var safe_right: float = column.position.x - 16.0
 	var ui_w: float = maxf(1.0, safe_right)
@@ -110,3 +125,59 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 	action_button.position = Vector2(safe_right - (148.0 + 16.0) * s, prompt_y - 60.0 * s)
 	action_button.size = Vector2(148.0, 48.0) * s
 	action_button.add_theme_font_size_override("font_size", int(17.0 * s))
+
+
+func _on_slot_gui_input(event: InputEvent, index: int) -> void:
+	if _dragging:
+		return
+	if not (event is InputEventMouseButton):
+		return
+	var mouse := event as InputEventMouseButton
+	if mouse.button_index != MOUSE_BUTTON_LEFT or not mouse.pressed:
+		return
+	var id: String = GameState.slots[index] if index < GameState.slots.size() else ""
+	if id.is_empty():
+		return
+	_start_drag(id, index, mouse.position)
+	get_viewport().set_input_as_handled()
+
+
+func _start_drag(id: String, index: int, mouse_pos: Vector2) -> void:
+	_dragging = true
+	_drag_item = id
+	_drag_slot = index
+	var icon := ICONS.get(id) as Texture2D
+	if icon != null:
+		drag_preview_icon.texture = icon
+		drag_preview_icon.visible = true
+		drag_preview_label.visible = false
+	else:
+		drag_preview_icon.texture = null
+		drag_preview_icon.visible = false
+		drag_preview_label.text = GameState.item_name(id)
+		drag_preview_label.visible = true
+	drag_preview.visible = true
+	_move_preview(mouse_pos)
+
+
+func _move_preview(mouse_pos: Vector2) -> void:
+	drag_preview.position = mouse_pos - Vector2(36.0, 36.0)
+
+
+func _input(event: InputEvent) -> void:
+	if not _dragging:
+		return
+	if event is InputEventMouseMotion:
+		_move_preview((event as InputEventMouseMotion).position)
+	elif event is InputEventMouseButton:
+		var mouse := event as InputEventMouseButton
+		if mouse.button_index == MOUSE_BUTTON_LEFT and not mouse.pressed:
+			var item := _drag_item
+			var slot := _drag_slot
+			var pos := mouse.position
+			_dragging = false
+			_drag_item = ""
+			_drag_slot = -1
+			drag_preview.visible = false
+			get_viewport().set_input_as_handled()
+			drag_released.emit(item, slot, pos)

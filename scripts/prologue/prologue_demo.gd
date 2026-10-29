@@ -36,6 +36,7 @@ func _ready() -> void:
 	door_hotspot.gui_input.connect(_on_door_input)
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	hud.action_pressed.connect(_on_action_pressed)
+	hud.drag_released.connect(_on_item_dropped)
 	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
@@ -100,11 +101,8 @@ func _set_state(next: State) -> void:
 			character.size = Vector2(600.0, 632.0)
 			ferryman_hotspot.visible = true
 			hud.set_location("序章 · 船头")
-			hud.set_prompt("你还没付钱。")
-			if GameState.has_item("coin"):
-				hud.set_action("付船费")
-			else:
-				hud.hide_action()
+			hud.set_prompt("你还没付钱。把硬币拖给船夫。")
+			hud.hide_action()
 		State.WAITER:
 			background.texture = DOCK
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -209,19 +207,52 @@ func _on_heron_input(event: InputEvent) -> void:
 		return
 	if GameState.has_flag("heron_fed"):
 		hud.set_prompt("白鹭一动不动。")
+	elif not GameState.has_flag("heron_cut"):
+		hud.set_prompt("白鹭的喙被红线缝住了。把小刀拖到喙上。")
+	else:
+		hud.set_prompt("喙张开了。它好像在等一条鱼。把鱼拖进嘴里。")
+
+
+func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if heron_hotspot.visible and heron_hotspot.get_global_rect().has_point(screen_pos):
+		_use_on_heron(item_id)
+	elif state == State.FERRYMAN and ferryman_hotspot.visible and ferryman_hotspot.get_global_rect().has_point(screen_pos):
+		_use_on_ferryman(item_id)
+	else:
+		hud.set_prompt("这里用不了这个东西。")
+
+
+func _use_on_heron(item_id: String) -> void:
+	if item_id == "knife":
+		if GameState.has_flag("heron_cut"):
+			hud.set_prompt("红线已经割开了。")
+			return
+		GameState.remove_item("knife")
+		GameState.set_flag("heron_cut")
+		hud.set_prompt("你用刀割开喙上的红线。白鹭慢慢张开嘴。")
 		return
-	if not GameState.has_item("knife"):
-		hud.set_prompt("白鹭的喙被红线缝住了。")
+	if item_id == "fish":
+		if not GameState.has_flag("heron_cut"):
+			hud.set_prompt("喙还缝着。先用小刀割开红线。")
+			return
+		if GameState.has_flag("heron_fed"):
+			hud.set_prompt("它已经吃饱了。")
+			return
+		GameState.remove_item("fish")
+		GameState.set_flag("heron_fed")
+		GameState.add_item("coin")
+		_show_coin()
+		hud.set_prompt("白鹭仰起脖子，吞下鱼。它抖了抖尾巴，下了一枚黄铜硬币。")
+		hud.set_action("离开船舱")
 		return
-	if not GameState.has_item("fish"):
-		hud.set_prompt("喙张开了。它好像在等一条鱼。")
+	hud.set_prompt("白鹭对这个东西不感兴趣。")
+
+
+func _use_on_ferryman(item_id: String) -> void:
+	if item_id == "coin":
+		_pay_ferryman()
 		return
-	GameState.remove_item("fish")
-	GameState.set_flag("heron_fed")
-	GameState.add_item("coin")
-	_show_coin()
-	hud.set_prompt("白鹭仰起脖子，吞下鱼。它抖了抖尾巴，下了一枚黄铜硬币。")
-	hud.set_action("离开船舱")
+	hud.set_prompt("船夫不需要这个。")
 
 
 func _on_door_input(event: InputEvent) -> void:
@@ -249,7 +280,7 @@ func _on_ferryman_input(event: InputEvent) -> void:
 	if GameState.has_flag("ferry_paid"):
 		hud.set_prompt("船夫已经让开了。")
 	else:
-		_pay_ferryman()
+		hud.set_prompt("把硬币拖给船夫。")
 
 
 func _on_action_pressed() -> void:
@@ -264,8 +295,6 @@ func _on_action_pressed() -> void:
 		State.FERRYMAN:
 			if GameState.has_flag("ferry_paid"):
 				_set_state(State.WAITER)
-			elif GameState.has_item("coin"):
-				_pay_ferryman()
 		State.WAITER:
 			_set_state(State.EGRET)
 		State.EGRET:
