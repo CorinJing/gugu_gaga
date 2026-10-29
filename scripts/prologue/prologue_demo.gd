@@ -133,71 +133,45 @@ func _layout() -> void:
 	if vp.x <= 1.0 or vp.y <= 1.0:
 		return
 
-	var aspect := vp.x / vp.y
-	var sidebar_rect: Rect2
-	var stage_size: Vector2
-	var stage_pos: Vector2
-	var scale: float = 1.0
-	var top_h: float = 0.0
-
-	if aspect >= 1.45:
-		# Wide: stage fills the left area, sidebar fills the rest edge-to-edge.
-		var max_stage_w: float = vp.x - 260.0
-		scale = minf(vp.y / 720.0, max_stage_w / 960.0)
-		stage_size = Vector2(960.0, 720.0) * scale
-		stage_pos = Vector2(0.0, (vp.y - stage_size.y) * 0.5)
-		sidebar_rect = Rect2(stage_size.x, 0.0, vp.x - stage_size.x, vp.y)
-	elif aspect >= 1.30:
-		# Near-4:3: stage fills the window, inventory becomes a top bar.
-		top_h = clampf(vp.y * 0.11, 70.0, 100.0)
-		sidebar_rect = Rect2(0.0, 0.0, vp.x, top_h)
-		var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
-		scale = cover_scale
-		stage_size = Vector2(960.0, 720.0) * cover_scale
-		stage_pos = (vp - stage_size) * 0.5
-	else:
-		# Portrait / square: stage covers the area, inventory at the bottom.
-		var sh: float = clampf(vp.y * 0.24, 140.0, 220.0)
-		sidebar_rect = Rect2(0.0, vp.y - sh, vp.x, sh)
-		var area := Rect2(0.0, 0.0, vp.x, vp.y - sh)
-		var cover_scale: float = maxf(area.size.x / 960.0, area.size.y / 720.0)
-		scale = cover_scale
-		stage_size = Vector2(960.0, 720.0) * cover_scale
-		stage_pos = area.position + (area.size - stage_size) * 0.5
-
+	# Background covers the whole window; the inventory frame overlays the right edge.
+	var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
+	var stage_size := Vector2(960.0, 720.0) * cover_scale
+	var stage_pos := (vp - stage_size) * 0.5
 	stage.position = stage_pos
-	stage.scale = Vector2(scale, scale)
+	stage.scale = Vector2(cover_scale, cover_scale)
 
-	if character.visible:
-		if stage_size.x > vp.x:
-			# Cover mode crops the sides; keep portrait characters inside the visible slice.
-			match state:
-				State.FERRYMAN:
-					character.position.x = 200.0
-				State.WAITER:
-					character.position.x = 250.0
-				State.EGRET:
-					character.position.x = 360.0
-		else:
-			match state:
-				State.FERRYMAN:
-					character.position.x = 200.0
-				State.WAITER:
-					character.position.x = 350.0
-				State.EGRET:
-					character.position.x = 550.0
-
-	if character.visible and top_h > 0.0:
-		character.position.y = top_h
-		character.size.y = maxf(120.0, 632.0 - top_h)
-	elif character.visible:
-		character.position.y = 0.0
-		character.size.y = 632.0
 	backdrop.position = Vector2.ZERO
 	backdrop.size = vp
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
-	hud.apply_layout(Rect2(stage_pos, stage_size), vp, sidebar_rect)
+
+	if character.visible and character.texture != null:
+		var base_x: float = 200.0
+		match state:
+			State.WAITER:
+				base_x = 350.0
+			State.EGRET:
+				base_x = 550.0
+		var tex := character.texture
+		var actual_w: float = character.size.y * float(tex.get_width()) / float(tex.get_height())
+
+		# Same panel geometry as GameHUD, so the character never hides behind it.
+		var ph: float = clampf(vp.y - 40.0, 480.0, 760.0)
+		var pw: float = ph * (358.0 / 1508.0)
+		var safe_right: float = vp.x - pw - 16.0
+		var local_safe: float = (safe_right - stage_pos.x) / cover_scale
+		character.position.x = minf(base_x, maxf(8.0, local_safe - actual_w))
+
+		# Keep the full body above the prompt bar, even when cover-cropped vertically.
+		var ui_s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
+		var prompt_screen: float = vp.y - 80.0 * ui_s
+		var top_local: float = maxf(0.0, -stage_pos.y) / cover_scale
+		var bottom_local: float = minf(stage_size.y, (prompt_screen - stage_pos.y) / cover_scale - 8.0)
+		var body_h: float = maxf(180.0, minf(632.0, bottom_local - top_local))
+		character.position.y = top_local
+		character.size.y = body_h
+
+	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
 
 
 func _show_coin() -> void:

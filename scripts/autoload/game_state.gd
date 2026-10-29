@@ -7,6 +7,7 @@ signal flag_changed(id: String, value: bool)
 
 const ITEM_NAMES := {
 	"knife": "小折刀",
+	"fish": "死鱼",
 	"coin": "旧硬币",
 	"pocket_watch": "怀表",
 	"door_handle": "白鹭把手",
@@ -14,13 +15,25 @@ const ITEM_NAMES := {
 	"brass_key": "黄铜钥匙",
 }
 
+const SLOT_COUNT := 5
+
 var flags: Dictionary = {}
-var inventory: Array[String] = []
+var slots: Array[String] = ["", "", "", "", ""]
+var next_slot := 0
+
+var inventory: Array[String]:
+	get:
+		var out: Array[String] = []
+		for id in slots:
+			if not id.is_empty():
+				out.append(id)
+		return out
 
 
 func reset() -> void:
 	flags.clear()
-	inventory.clear()
+	slots = ["", "", "", "", ""]
+	next_slot = 0
 	inventory_changed.emit()
 
 
@@ -34,19 +47,27 @@ func has_flag(id: String) -> bool:
 
 
 func add_item(id: String) -> void:
-	if not inventory.has(id):
-		inventory.append(id)
-		inventory_changed.emit()
+	if has_item(id):
+		return
+	var index := next_slot
+	if index >= SLOT_COUNT:
+		index = slots.find("")
+	if index < 0 or index >= SLOT_COUNT:
+		return
+	slots[index] = id
+	next_slot = maxi(next_slot, index + 1)
+	inventory_changed.emit()
 
 
 func remove_item(id: String) -> void:
-	if inventory.has(id):
-		inventory.erase(id)
+	var index := slots.find(id)
+	if index >= 0:
+		slots[index] = ""
 		inventory_changed.emit()
 
 
 func has_item(id: String) -> bool:
-	return inventory.has(id)
+	return slots.has(id)
 
 
 func item_name(id: String) -> String:

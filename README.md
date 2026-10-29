@@ -35,6 +35,7 @@ scripts/prologue/prologue_demo.gd        demo 状态流
 assets/art/backgrounds/                  船舱关窗/开窗、船行驶、码头
 assets/art/characters/                   白鹭夫人、船夫、服务生（含透明切图）
 assets/art/items/                        硬币正反面与透明硬币
+assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 ```
 
 ### 屏幕适配
@@ -44,6 +45,13 @@ assets/art/items/                        硬币正反面与透明硬币
 - **竖屏 / 方形**：舞台 cover 铺满上方，物品栏在底部。
 - 背景按窗口 cover 裁切，不拉伸；竖屏角色会自动收进可见区域。
 - 最小窗口 960×540。
+
+### 道具栏规则
+
+- 道具栏固定在游戏**最右侧**，使用 `assets/art/ui/inventory_panel.png` 的 1 列 5 行框。
+- 获得道具按获得顺序从上到下放入空位。
+- 道具使用后只清空该格，其他道具不移动。
+- 没有图标的道具显示名称文字，有图标的显示图标。
 
 ### 屏幕适配回归
 
