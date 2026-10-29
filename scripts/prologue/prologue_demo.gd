@@ -10,6 +10,8 @@ const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.pn
 const WAITER_CUTOUT := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET_CUTOUT := preload("res://assets/art/characters/egret_cutout.png")
 const COIN := preload("res://assets/art/items/coin_front_cut.png")
+const FERRYMAN_01 := preload("res://assets/audio/npc/ferryman_01_unpaid.mp3")
+const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
@@ -23,8 +25,11 @@ const COIN := preload("res://assets/art/items/coin_front_cut.png")
 @onready var fish_hotspot: Control = %FishHotspot
 @onready var door_hotspot: Control = %DoorHotspot
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
+@onready var voice: AudioStreamPlayer = $Voice
 
 var state: State = State.CABIN_CLOSED
+var _ferryman_progress := 0
+var _speech_generation := 0
 
 
 func _ready() -> void:
@@ -49,6 +54,9 @@ func _is_left_click(event: InputEvent) -> bool:
 
 func _set_state(next: State) -> void:
 	state = next
+	_speech_generation += 1
+	voice.stop()
+	hud.hide_speech()
 	coin_overlay.visible = false
 	character.visible = false
 	window_hotspot.visible = false
@@ -101,7 +109,7 @@ func _set_state(next: State) -> void:
 			character.size = Vector2(600.0, 632.0)
 			ferryman_hotspot.visible = true
 			hud.set_location("序章 · 船头")
-			hud.set_prompt("你还没付钱。把硬币拖给船夫。")
+			hud.set_prompt("把硬币拖给船夫。点击船夫可以交谈。")
 			hud.hide_action()
 		State.WAITER:
 			background.texture = DOCK
@@ -277,10 +285,27 @@ func _pay_ferryman() -> void:
 func _on_ferryman_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.FERRYMAN:
 		return
-	if GameState.has_flag("ferry_paid"):
-		hud.set_prompt("船夫已经让开了。")
-	else:
-		hud.set_prompt("把硬币拖给船夫。")
+	# First click: line 1. Second and all later clicks: last line only.
+	var index: int = mini(_ferryman_progress, 1)
+	_ferryman_progress = mini(_ferryman_progress + 1, 1)
+	_say_ferryman(index)
+
+
+func _say_ferryman(index: int) -> void:
+	var line: Dictionary = [
+		{"text": "你还没有付船费", "audio": FERRYMAN_01},
+		{"text": "希望你能找到你所希望的答案", "audio": FERRYMAN_02},
+	][index]
+	hud.show_speech(str(line["text"]), character.get_global_rect())
+	voice.stop()
+	voice.stream = line["audio"]
+	voice.play()
+	_speech_generation += 1
+	var generation := _speech_generation
+	var duration: float = (line["audio"] as AudioStream).get_length()
+	await get_tree().create_timer(duration + 0.8).timeout
+	if generation == _speech_generation and state == State.FERRYMAN:
+		hud.hide_speech()
 
 
 func _on_action_pressed() -> void:

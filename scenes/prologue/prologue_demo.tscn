@@ -12,6 +12,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_demo")
 
+[node name="Voice" type="AudioStreamPlayer" parent="."]
+volume_db = -3.0
+
 [node name="Backdrop" type="TextureRect" parent="."]
 layout_mode = 0
 offset_right = 960.0

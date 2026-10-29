@@ -24,6 +24,9 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 @onready var drag_preview: Control = %DragPreview
 @onready var drag_preview_icon: TextureRect = %DragPreviewIcon
 @onready var drag_preview_label: Label = %DragPreviewLabel
+@onready var speech_bubble: Panel = %SpeechBubble
+@onready var speech_label: Label = %SpeechLabel
+@onready var speech_pointer: Polygon2D = %SpeechPointer
 
 var _dragging := false
 var _drag_item := ""
@@ -181,3 +184,29 @@ func _input(event: InputEvent) -> void:
 			drag_preview.visible = false
 			get_viewport().set_input_as_handled()
 			drag_released.emit(item, slot, pos)
+
+
+func show_speech(text: String, anchor_rect: Rect2) -> void:
+	var vp := get_viewport_rect().size
+	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
+	var area_right: float = vp.x - column_w - 16.0
+	var s: float = clampf(minf(area_right / 960.0, vp.y / 720.0), 0.62, 2.2)
+	var w: float = clampf(330.0 * s, 260.0, minf(480.0, area_right - 32.0))
+	var h: float = 96.0 * s
+	var x: float = clampf(anchor_rect.get_center().x - w * 0.5, 16.0, maxf(16.0, area_right - w - 16.0))
+	var y: float = anchor_rect.position.y - h - 12.0 * s
+	if y < 16.0:
+		y = anchor_rect.position.y + 18.0 * s
+		y = clampf(y, 16.0, vp.y - h - 100.0 * s)
+	speech_bubble.position = Vector2(x, y)
+	speech_bubble.size = Vector2(w, h)
+	speech_label.position = Vector2(16.0 * s, 10.0 * s)
+	speech_label.size = Vector2(w - 32.0 * s, h - 20.0 * s)
+	speech_label.add_theme_font_size_override("font_size", int(16.0 * s))
+	speech_label.text = text
+	speech_pointer.position = Vector2(w * 0.5, h - 1.0)
+	speech_bubble.visible = true
+
+
+func hide_speech() -> void:
+	speech_bubble.visible = false
