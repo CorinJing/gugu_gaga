@@ -106,7 +106,7 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			character.texture = FERRYMAN_CUTOUT
 			character.visible = true
-			character.position = Vector2(620.0, 210.0)
+			character.position = Vector2(560.0, 250.0)
 			character.size = Vector2(400.0, 320.0)
 			var occlude := ShaderMaterial.new()
 			occlude.shader = OCCLUDE_SHADER
@@ -163,8 +163,12 @@ func _layout() -> void:
 		var fw: float = 320.0 * float(ftex.get_width()) / float(ftex.get_height())
 		var fsafe_right: float = area.size.x - 16.0
 		var flocal_safe: float = (fsafe_right - stage_pos.x) / cover_scale
-		character.position = Vector2(minf(620.0, maxf(8.0, flocal_safe - fw)), 210.0)
+		character.position = Vector2(minf(560.0, maxf(8.0, flocal_safe - fw)), 250.0)
 		character.size = Vector2(400.0, 320.0)
+		# Keep the clickable area glued to the visible ferryman, not the old stage rect.
+		var image_left: float = character.position.x + (character.size.x - fw) * 0.5
+		ferryman_hotspot.position = Vector2(image_left - 12.0, character.position.y - 12.0)
+		ferryman_hotspot.size = Vector2(fw + 24.0, character.size.y + 24.0)
 	elif character.visible and character.texture != null:
 		var base_x: float = 200.0
 		match state:
