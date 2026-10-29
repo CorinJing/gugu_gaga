@@ -28,7 +28,6 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var voice: AudioStreamPlayer = $Voice
 
 var state: State = State.CABIN_CLOSED
-var _ferryman_progress := 0
 var _speech_generation := 0
 
 
@@ -278,6 +277,9 @@ func _pay_ferryman() -> void:
 		return
 	GameState.remove_item("coin")
 	GameState.set_flag("ferry_paid")
+	_speech_generation += 1
+	voice.stop()
+	hud.hide_speech()
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
 	hud.set_action("进入旅馆")
 
@@ -285,10 +287,9 @@ func _pay_ferryman() -> void:
 func _on_ferryman_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.FERRYMAN:
 		return
-	# First click: line 1. Second and all later clicks: last line only.
-	var index: int = mini(_ferryman_progress, 1)
-	_ferryman_progress = mini(_ferryman_progress + 1, 1)
-	_say_ferryman(index)
+	# The line is gated by payment, not by click count.
+	# Unpaid: line 1 only. Paid: line 2 only.
+	_say_ferryman(1 if GameState.has_flag("ferry_paid") else 0)
 
 
 func _say_ferryman(index: int) -> void:
