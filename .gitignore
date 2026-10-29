@@ -21,3 +21,6 @@ __pycache__/
 
 # Local GitHub SSH key
 .ssh/
+
+# Local git bundle backups
+*.bundle

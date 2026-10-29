@@ -33,7 +33,7 @@ scenes/prologue/prologue_end.tscn        序章结束
 scenes/ui/game_hud.tscn                  共享 HUD：提示与物品栏
 scripts/prologue/prologue_demo.gd        demo 状态流
 assets/art/backgrounds/                  船舱关窗/开窗、船行驶、码头
-assets/art/characters/                   白鹭夫人、船夫、服务生
+assets/art/characters/                   白鹭夫人、船夫、服务生（含透明切图）
 assets/art/items/                        硬币正反面与透明硬币
 ```
 
@@ -56,6 +56,7 @@ assets/art/items/                        硬币正反面与透明硬币
   → 船侧行驶镜头
   → 码头
   → 船头（付船费）
+  → 服务生：“欢迎。请登记。”
   → 白鹭夫人：“你回来了。”
   → 序章结束
 ```
@@ -65,7 +66,7 @@ assets/art/items/                        硬币正反面与透明硬币
 - 这一版是**美术接入 demo**，先把现有图跑起来。
 - 旅馆门前“衣冠不整”的门锁、大厅和 113 还没接入这版 demo；旧 `hotel_exterior` 代码仍保留。
 - 图上的 AI 水印在底部用暗角/提示条处理，正式版仍需重绘或去水印。
-- 角色图目前是 3:4 居中展示，不是抠图；正式版需要透明切图。
+- 三个 NPC 的透明切图已接入 `assets/art/characters/*_cutout.png`；原矩形图保留作参考。
 
 运行方式：
 

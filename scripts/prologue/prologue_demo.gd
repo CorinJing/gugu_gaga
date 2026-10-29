@@ -1,19 +1,21 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, BOAT, DOCK, FERRYMAN, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
-const FERRYMAN := preload("res://assets/art/characters/ferryman.png")
-const EGRET := preload("res://assets/art/characters/egret.png")
+const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
+const WAITER_CUTOUT := preload("res://assets/art/characters/waiter_cutout.png")
+const EGRET_CUTOUT := preload("res://assets/art/characters/egret_cutout.png")
 const COIN := preload("res://assets/art/items/coin_front_cut.png")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
 @onready var backdrop: TextureRect = $Backdrop
 @onready var background: TextureRect = %Background
+@onready var character: TextureRect = %Character
 @onready var coin_overlay: TextureRect = %CoinOverlay
 @onready var window_hotspot: Control = %WindowHotspot
 @onready var suitcase_hotspot: Control = %SuitcaseHotspot
@@ -47,6 +49,7 @@ func _is_left_click(event: InputEvent) -> bool:
 func _set_state(next: State) -> void:
 	state = next
 	coin_overlay.visible = false
+	character.visible = false
 	window_hotspot.visible = false
 	suitcase_hotspot.visible = false
 	heron_hotspot.visible = false
@@ -89,8 +92,12 @@ func _set_state(next: State) -> void:
 			hud.set_prompt("船靠岸了。")
 			hud.set_action("上岸")
 		State.FERRYMAN:
-			background.texture = FERRYMAN
-			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			background.texture = DOCK
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			character.texture = FERRYMAN_CUTOUT
+			character.visible = true
+			character.position = Vector2(200.0, 0.0)
+			character.size = Vector2(600.0, 632.0)
 			ferryman_hotspot.visible = true
 			hud.set_location("序章 · 船头")
 			hud.set_prompt("你还没付钱。")
@@ -98,9 +105,23 @@ func _set_state(next: State) -> void:
 				hud.set_action("付船费")
 			else:
 				hud.hide_action()
+		State.WAITER:
+			background.texture = DOCK
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			character.texture = WAITER_CUTOUT
+			character.visible = true
+			character.position = Vector2(350.0, 0.0)
+			character.size = Vector2(500.0, 632.0)
+			hud.set_location("序章 · 旅馆门口")
+			hud.set_prompt("欢迎。请登记。")
+			hud.set_action("进入旅馆")
 		State.EGRET:
-			background.texture = EGRET
-			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			background.texture = DOCK
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			character.texture = EGRET_CUTOUT
+			character.visible = true
+			character.position = Vector2(550.0, 0.0)
+			character.size = Vector2(350.0, 632.0)
 			hud.set_location("序章 · 旅馆门口")
 			hud.set_prompt("你回来了。房间一直给你留着。")
 			hud.set_action("序章结束")
@@ -242,8 +263,10 @@ func _on_action_pressed() -> void:
 			_set_state(State.FERRYMAN)
 		State.FERRYMAN:
 			if GameState.has_flag("ferry_paid"):
-				_set_state(State.EGRET)
+				_set_state(State.WAITER)
 			elif GameState.has_item("coin"):
 				_pay_ferryman()
+		State.WAITER:
+			_set_state(State.EGRET)
 		State.EGRET:
 			get_tree().change_scene_to_file("res://scenes/prologue/prologue_end.tscn")

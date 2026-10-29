@@ -145,3 +145,12 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_action_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_action")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_action")
 text = "继续"
+
+[node name="CornerMask" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 900.0
+offset_top = 680.0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.0392157, 0.0509804, 0.0470588, 1)

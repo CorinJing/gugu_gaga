@@ -37,6 +37,16 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
+[node name="Character" type="TextureRect" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="WatermarkMask" type="ColorRect" parent="Stage"]
 layout_mode = 0
 offset_left = 700.0
