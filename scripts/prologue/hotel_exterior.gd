@@ -172,7 +172,7 @@ func _on_clock_input(event: InputEvent) -> void:
 
 func _on_action_pressed() -> void:
 	if GameState.has_flag("hotel_door_open"):
-		get_tree().change_scene_to_file("res://scenes/prologue/prologue_end.tscn")
+		SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn")
 	elif GameState.has_flag("prologue_dial_solved"):
 		_open_door()
 

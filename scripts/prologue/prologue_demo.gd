@@ -61,6 +61,12 @@ func _is_left_click(event: InputEvent) -> bool:
 	return event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 
 
+func _transition_to(next: State) -> void:
+	if next == state:
+		return
+	await SceneTransition.transition(func() -> void: _set_state(next))
+
+
 func _set_state(next: State) -> void:
 	state = next
 	character.material = null
@@ -233,7 +239,7 @@ func _on_window_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.CABIN_CLOSED:
 		return
 	GameState.set_flag("prologue_window_open")
-	_set_state(State.CABIN_OPEN)
+	_transition_to(State.CABIN_OPEN)
 
 
 func _on_suitcase_input(event: InputEvent) -> void:
@@ -242,12 +248,12 @@ func _on_suitcase_input(event: InputEvent) -> void:
 	if state != State.CABIN_CLOSED and state != State.CABIN_OPEN:
 		return
 	_cabin_return_state = state
-	_set_state(State.SUITCASE_VIEW)
+	_transition_to(State.SUITCASE_VIEW)
 
 
 func _on_back_pressed() -> void:
 	if state == State.SUITCASE_VIEW:
-		_set_state(_cabin_return_state)
+		_transition_to(_cabin_return_state)
 
 
 func _on_suitcase_knife_input(event: InputEvent) -> void:
@@ -330,7 +336,7 @@ func _on_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
 	if GameState.has_item("coin"):
-		_set_state(State.BOAT)
+		_transition_to(State.BOAT)
 	else:
 		hud.set_prompt("船夫还在等船费。")
 
@@ -378,15 +384,15 @@ func _on_action_pressed() -> void:
 	match state:
 		State.CABIN_OPEN:
 			if GameState.has_item("coin"):
-				_set_state(State.BOAT)
+				_transition_to(State.BOAT)
 		State.BOAT:
-			_set_state(State.DOCK)
+			_transition_to(State.DOCK)
 		State.DOCK:
-			_set_state(State.FERRYMAN)
+			_transition_to(State.FERRYMAN)
 		State.FERRYMAN:
 			if GameState.has_flag("ferry_paid"):
-				_set_state(State.WAITER)
+				_transition_to(State.WAITER)
 		State.WAITER:
-			_set_state(State.EGRET)
+			_transition_to(State.EGRET)
 		State.EGRET:
-			get_tree().change_scene_to_file("res://scenes/prologue/prologue_end.tscn")
+			SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn")

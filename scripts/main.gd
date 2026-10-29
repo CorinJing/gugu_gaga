@@ -60,7 +60,7 @@ func _layout() -> void:
 
 func _on_start_pressed() -> void:
 	GameState.reset()
-	get_tree().change_scene_to_file("res://scenes/prologue/prologue_demo.tscn")
+	SceneTransition.change_scene("res://scenes/prologue/prologue_demo.tscn")
 
 
 func _on_quit_pressed() -> void:

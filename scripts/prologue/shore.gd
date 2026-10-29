@@ -56,6 +56,6 @@ func _on_ferryman_input(event: InputEvent) -> void:
 
 func _on_action_pressed() -> void:
 	if GameState.has_flag("ferry_paid"):
-		get_tree().change_scene_to_file("res://scenes/prologue/hotel_exterior.tscn")
+		SceneTransition.change_scene("res://scenes/prologue/hotel_exterior.tscn")
 	else:
-		get_tree().change_scene_to_file("res://scenes/prologue/boat_cabin.tscn")
+		SceneTransition.change_scene("res://scenes/prologue/boat_cabin.tscn")

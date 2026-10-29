@@ -98,4 +98,4 @@ func _on_table_input(event: InputEvent) -> void:
 
 func _on_action_pressed() -> void:
 	if GameState.has_flag("prologue_window_open"):
-		get_tree().change_scene_to_file("res://scenes/prologue/shore.tscn")
+		SceneTransition.change_scene("res://scenes/prologue/shore.tscn")
