@@ -138,6 +138,7 @@ func _layout() -> void:
 	var stage_size: Vector2
 	var stage_pos: Vector2
 	var scale: float = 1.0
+	var top_h: float = 0.0
 
 	if aspect >= 1.45:
 		# Wide: stage + right sidebar.
@@ -149,7 +150,7 @@ func _layout() -> void:
 		stage_pos = area.position + (area.size - stage_size) * 0.5
 	elif aspect >= 1.30:
 		# Near-4:3: stage fills the window, inventory becomes a top bar.
-		var top_h: float = clampf(vp.y * 0.11, 70.0, 100.0)
+		top_h = clampf(vp.y * 0.11, 70.0, 100.0)
 		sidebar_rect = Rect2(0.0, 0.0, vp.x, top_h)
 		var cover_scale: float = maxf(vp.x / 960.0, vp.y / 720.0)
 		stage_size = Vector2(960.0, 720.0) * cover_scale
@@ -165,6 +166,12 @@ func _layout() -> void:
 
 	stage.position = stage_pos
 	stage.scale = Vector2(scale, scale)
+	if character.visible and top_h > 0.0:
+		character.position.y = top_h
+		character.size.y = maxf(120.0, 632.0 - top_h)
+	elif character.visible:
+		character.position.y = 0.0
+		character.size.y = 632.0
 	backdrop.position = Vector2.ZERO
 	backdrop.size = vp
 	backdrop.texture = background.texture

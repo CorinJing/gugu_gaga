@@ -11,6 +11,7 @@ signal action_pressed
 @onready var sidebar_line: ColorRect = $SidebarLine
 @onready var location_bg: ColorRect = $LocationBg
 @onready var prompt_bg: ColorRect = $PromptBg
+@onready var corner_mask: ColorRect = $CornerMask
 
 
 func _ready() -> void:
@@ -105,3 +106,7 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, sidebar_rect: Rect2
 	action_button.position = stage_rect.position + Vector2(780.0, 580.0) * s
 	action_button.size = Vector2(148.0, 48.0) * s
 	action_button.add_theme_font_size_override("font_size", int(17.0 * s))
+
+	# Keep this corner cover on the actual stage edge, never on a hard-coded 1280x720 spot.
+	corner_mask.position = stage_rect.position + Vector2(900.0, 680.0) * s
+	corner_mask.size = Vector2(60.0, 40.0) * s
