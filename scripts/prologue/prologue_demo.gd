@@ -272,16 +272,17 @@ func _on_door_input(event: InputEvent) -> void:
 
 
 func _pay_ferryman() -> void:
+	if GameState.has_flag("ferry_paid"):
+		return
 	if not GameState.has_item("coin"):
 		hud.set_prompt("你还没付钱。")
 		return
 	GameState.remove_item("coin")
 	GameState.set_flag("ferry_paid")
-	_speech_generation += 1
-	voice.stop()
-	hud.hide_speech()
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
 	hud.set_action("进入旅馆")
+	# Payment itself triggers the second line; no extra click required.
+	_say_ferryman(1)
 
 
 func _on_ferryman_input(event: InputEvent) -> void:
