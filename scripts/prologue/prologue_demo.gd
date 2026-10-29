@@ -10,6 +10,7 @@ const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.pn
 const WAITER_CUTOUT := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET_CUTOUT := preload("res://assets/art/characters/egret_cutout.png")
 const COIN := preload("res://assets/art/items/coin_front_cut.png")
+const OCCLUDE_SHADER := preload("res://assets/shaders/occlude_bottom.gdshader")
 const FERRYMAN_01 := preload("res://assets/audio/npc/ferryman_01_unpaid.mp3")
 const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 
@@ -53,6 +54,7 @@ func _is_left_click(event: InputEvent) -> bool:
 
 func _set_state(next: State) -> void:
 	state = next
+	character.material = null
 	_speech_generation += 1
 	voice.stop()
 	hud.hide_speech()
@@ -104,8 +106,11 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			character.texture = FERRYMAN_CUTOUT
 			character.visible = true
-			character.position = Vector2(200.0, 0.0)
-			character.size = Vector2(600.0, 632.0)
+			character.position = Vector2(300.0, 80.0)
+			character.size = Vector2(400.0, 560.0)
+			var occlude := ShaderMaterial.new()
+			occlude.shader = OCCLUDE_SHADER
+			character.material = occlude
 			ferryman_hotspot.visible = true
 			hud.set_location("序章 · 船头")
 			hud.set_prompt("把硬币拖给船夫。点击船夫可以交谈。")
@@ -152,7 +157,11 @@ func _layout() -> void:
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
 
-	if character.visible and character.texture != null:
+	if state == State.FERRYMAN and character.visible and character.texture != null:
+		# Stand on the boat deck, behind the near gunwale. Foreground occludes the legs.
+		character.position = Vector2(300.0, 80.0)
+		character.size = Vector2(400.0, 560.0)
+	elif character.visible and character.texture != null:
 		var base_x: float = 200.0
 		match state:
 			State.WAITER:
