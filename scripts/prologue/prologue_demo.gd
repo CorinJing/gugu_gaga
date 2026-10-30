@@ -121,7 +121,7 @@ func _set_state(next: State) -> void:
 			fish_hotspot.visible = true
 			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
-			hud.set_prompt("白鹭张开了嘴。")
+			hud.set_prompt("白鹭张开了嘴。把鱼喂给它。")
 			hud.hide_action()
 		State.SUITCASE_VIEW:
 			background.texture = SUITCASE
@@ -250,7 +250,7 @@ func _drop_coin_from_beak() -> void:
 	coin_overlay.position = Vector2(791.0, 157.0)
 	coin_overlay.rotation = 0.0
 	coin_overlay.visible = true
-	hud.set_prompt("白鹭张着嘴。一枚硬币从它嘴里掉出来。")
+	hud.set_prompt("白鹭吞下鱼。一枚硬币从它嘴里掉出来。")
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -347,15 +347,18 @@ func _use_on_heron(item_id: String) -> void:
 		GameState.set_flag("heron_cut")
 		hud.set_prompt("你用刀割开喙上的红线。白鹭慢慢张开嘴。")
 		await _transition_to(State.CABIN_BEAK)
-		await _drop_coin_from_beak()
 		return
 	if item_id == "fish":
 		if not GameState.has_flag("heron_cut"):
 			hud.set_prompt("喙还缝着。先用小刀割开红线。")
-		elif coin_hotspot.visible or GameState.has_item("coin"):
-			hud.set_prompt("它已经不需要鱼了。")
-		else:
-			hud.set_prompt("它现在对鱼不感兴趣。")
+			return
+		if GameState.has_flag("heron_fed") or coin_hotspot.visible or GameState.has_item("coin"):
+			hud.set_prompt("它已经吃饱了。")
+			return
+		GameState.remove_item("fish")
+		GameState.set_flag("heron_fed")
+		hud.set_prompt("白鹭吞下鱼。它抖了抖脖子。")
+		await _drop_coin_from_beak()
 		return
 	hud.set_prompt("白鹭对这个东西不感兴趣。")
 
