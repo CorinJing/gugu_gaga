@@ -34,6 +34,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
 @onready var cabin_hotspot: Control = %CabinHotspot
 @onready var hotel_hotspot: Control = %HotelHotspot
+@onready var boat_click_hotspot: Control = %BoatClickHotspot
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -56,6 +57,7 @@ func _ready() -> void:
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	cabin_hotspot.gui_input.connect(_on_cabin_hotspot_input)
 	hotel_hotspot.gui_input.connect(_on_hotel_hotspot_input)
+	boat_click_hotspot.gui_input.connect(_on_boat_click)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -68,11 +70,6 @@ func _ready() -> void:
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
 	_layout()
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if state == State.BOAT and _is_left_click(event):
-		_transition_to(State.FERRYMAN)
 
 
 func _is_left_click(event: InputEvent) -> bool:
@@ -108,6 +105,7 @@ func _set_state(next: State) -> void:
 	ferryman_hotspot.visible = false
 	cabin_hotspot.visible = false
 	hotel_hotspot.visible = false
+	boat_click_hotspot.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -166,6 +164,7 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.BOAT:
 			background.texture = BOAT
+			boat_click_hotspot.visible = true
 			hud.set_location("序章 · 船上")
 			hud.set_prompt("船正在行驶。")
 			hud.hide_action()
@@ -327,6 +326,19 @@ func _on_coin_pickup(event: InputEvent) -> void:
 	GameState.add_item("coin")
 	hud.set_prompt("你从地板上捡起一枚黄铜硬币。")
 	hud.set_action("离开船舱")
+
+
+var _dock_advancing := false
+
+func _on_boat_click(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.BOAT or _dock_advancing:
+		return
+	_dock_advancing = true
+	await _transition_to(State.DOCK)
+	await get_tree().create_timer(0.8).timeout
+	if state == State.DOCK:
+		_transition_to(State.FERRYMAN)
+	_dock_advancing = false
 
 
 func _on_window_input(event: InputEvent) -> void:
