@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/prologue/prologue_demo.gd" id="1_demo"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
+[ext_resource type="Shader" path="res://assets/shaders/watermark_vignette.gdshader" id="3_vignette"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back"]
 bg_color = Color(0.0392157, 0.0509804, 0.0470588, 0.92)
@@ -26,6 +27,9 @@ corner_radius_top_left = 22
 corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("3_vignette")
 
 [node name="PrologueDemo" type="Control"]
 layout_mode = 3
@@ -73,15 +77,6 @@ offset_bottom = 720.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-
-[node name="WatermarkMask" type="ColorRect" parent="Stage"]
-layout_mode = 0
-offset_left = 700.0
-offset_top = 640.0
-offset_right = 960.0
-offset_bottom = 720.0
-mouse_filter = 2
-color = Color(0.0392157, 0.0509804, 0.0470588, 1)
 
 [node name="CoinOverlay" type="TextureRect" parent="Stage"]
 unique_name_in_owner = true
@@ -211,6 +206,14 @@ offset_top = 360.0
 offset_right = 820.0
 offset_bottom = 570.0
 mouse_default_cursor_shape = 2
+
+[node name="WatermarkVignette" type="ColorRect" parent="Stage"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+material = SubResource("ShaderMaterial_vignette")
+color = Color(1, 1, 1, 1)
 
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
