@@ -182,6 +182,16 @@ offset_right = 750.0
 offset_bottom = 720.0
 mouse_default_cursor_shape = 2
 
+[node name="CabinHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 470.0
+offset_top = 300.0
+offset_right = 655.0
+offset_bottom = 565.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="BackArrow" type="Button" parent="."]

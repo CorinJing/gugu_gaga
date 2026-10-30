@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_BEAK, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -30,6 +30,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var fish_hotspot: Control = %FishHotspot
 @onready var door_hotspot: Control = %DoorHotspot
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
+@onready var cabin_hotspot: Control = %CabinHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
 @onready var suitcase_knife_hotspot: Control = %SuitcaseKnifeHotspot
 @onready var back_arrow: Button = $BackArrow
@@ -48,6 +49,7 @@ func _ready() -> void:
 	fish_hotspot.gui_input.connect(_on_fish_input)
 	door_hotspot.gui_input.connect(_on_door_input)
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
+	cabin_hotspot.gui_input.connect(_on_cabin_hotspot_input)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -89,40 +91,45 @@ func _set_state(next: State) -> void:
 	fish_hotspot.visible = false
 	door_hotspot.visible = false
 	ferryman_hotspot.visible = false
+	cabin_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 	match state:
 		State.CABIN_CLOSED:
 			background.texture = CABIN_CLOSED
 			window_hotspot.visible = true
-			suitcase_hotspot.visible = true
-			heron_hotspot.visible = true
-			fish_hotspot.visible = true
-			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("点击窗户，把它拉开。")
 			hud.hide_action()
 		State.CABIN_OPEN:
+			background.texture = CABIN_OPEN
+			door_hotspot.visible = true
+			hud.set_location("序章 · 船舱")
+			hud.set_prompt("窗开了。该离开船舱了。")
+			hud.set_action("离开船舱")
+		State.CABIN_SEARCH:
 			background.texture = CABIN_OPEN
 			suitcase_hotspot.visible = true
 			heron_hotspot.visible = true
 			fish_hotspot.visible = true
 			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
-			hud.set_prompt("海面很静。船身的影子停在水里，没有跟着船走。")
+			hud.set_prompt("船夫说要付船费。找找船舱里能换钱的东西。")
 			if GameState.has_item("coin"):
 				hud.set_action("离开船舱")
 			else:
 				hud.hide_action()
 		State.CABIN_BEAK:
 			background.texture = CABIN_BEAK
-			suitcase_hotspot.visible = true
 			heron_hotspot.visible = true
 			fish_hotspot.visible = true
 			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("白鹭张开了嘴。把鱼喂给它。")
-			hud.hide_action()
+			if GameState.has_item("coin"):
+				hud.set_action("离开船舱")
+			else:
+				hud.hide_action()
 		State.SUITCASE_VIEW:
 			background.texture = SUITCASE
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -156,8 +163,14 @@ func _set_state(next: State) -> void:
 			occlude.shader = OCCLUDE_SHADER
 			character.material = occlude
 			ferryman_hotspot.visible = true
+			cabin_hotspot.visible = GameState.has_flag("knows_coin_needed") and not GameState.has_flag("ferry_paid")
 			hud.set_location("序章 · 船头")
-			hud.set_prompt("把硬币拖给船夫。点击船夫可以交谈。")
+			if GameState.has_flag("ferry_paid"):
+				hud.set_prompt("船夫已经让开了。")
+			elif GameState.has_flag("knows_coin_needed"):
+				hud.set_prompt("把硬币拖给船夫。点击船舱可以回去找。")
+			else:
+				hud.set_prompt("点击船夫与他交谈。")
 			hud.hide_action()
 		State.WAITER:
 			background.texture = DOCK
@@ -282,11 +295,9 @@ func _on_window_input(event: InputEvent) -> void:
 
 
 func _on_suitcase_input(event: InputEvent) -> void:
-	if not _is_left_click(event):
+	if not _is_left_click(event) or state != State.CABIN_SEARCH:
 		return
-	if state != State.CABIN_CLOSED and state != State.CABIN_OPEN:
-		return
-	_cabin_return_state = state
+	_cabin_return_state = State.CABIN_SEARCH
 	_transition_to(State.SUITCASE_VIEW)
 
 
@@ -373,10 +384,13 @@ func _use_on_ferryman(item_id: String) -> void:
 func _on_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
-	if GameState.has_item("coin"):
+	if state == State.CABIN_OPEN:
 		_transition_to(State.BOAT)
-	else:
-		hud.set_prompt("船夫还在等船费。")
+	elif state == State.CABIN_SEARCH or state == State.CABIN_BEAK:
+		if GameState.has_item("coin"):
+			_transition_to(State.BOAT)
+		else:
+			hud.set_prompt("船夫还在等船费。")
 
 
 func _pay_ferryman() -> void:
@@ -387,6 +401,7 @@ func _pay_ferryman() -> void:
 		return
 	GameState.remove_item("coin")
 	GameState.set_flag("ferry_paid")
+	cabin_hotspot.visible = false
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
 	hud.set_action("进入旅馆")
 	# Payment itself triggers the second line; no extra click required.
@@ -396,9 +411,21 @@ func _pay_ferryman() -> void:
 func _on_ferryman_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.FERRYMAN:
 		return
-	# The line is gated by payment, not by click count.
-	# Unpaid: line 1 only. Paid: line 2 only.
-	_say_ferryman(1 if GameState.has_flag("ferry_paid") else 0)
+	if not GameState.has_flag("ferry_paid"):
+		GameState.set_flag("knows_coin_needed")
+		cabin_hotspot.visible = true
+		hud.set_prompt("船夫说要付船费。点击船舱回去找硬币。")
+		_say_ferryman(0)
+	else:
+		_say_ferryman(1)
+
+
+func _on_cabin_hotspot_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.FERRYMAN:
+		return
+	if not GameState.has_flag("knows_coin_needed") or GameState.has_flag("ferry_paid"):
+		return
+	_transition_to(State.CABIN_SEARCH)
 
 
 func _say_ferryman(index: int) -> void:
@@ -421,6 +448,11 @@ func _say_ferryman(index: int) -> void:
 func _on_action_pressed() -> void:
 	match state:
 		State.CABIN_OPEN:
+			_transition_to(State.BOAT)
+		State.CABIN_SEARCH:
+			if GameState.has_item("coin"):
+				_transition_to(State.BOAT)
+		State.CABIN_BEAK:
 			if GameState.has_item("coin"):
 				_transition_to(State.BOAT)
 		State.BOAT:
