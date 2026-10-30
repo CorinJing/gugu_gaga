@@ -35,6 +35,7 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 @onready var window_hint: Panel = %WindowHint
 @onready var window_hint_label: Label = %WindowHintLabel
 @onready var window_hint_tail: Polygon2D = %WindowHintTail
+@onready var boat_hint: Label = %BoatHint
 
 var _dragging := false
 var _drag_item := ""
@@ -54,6 +55,8 @@ func _ready() -> void:
 	note_overlay.visible = false
 	note_overlay.gui_input.connect(_on_note_input)
 	window_hint.visible = false
+	boat_hint.visible = false
+	action_button.visible = false
 	location_bg.visible = false
 	location_label.visible = false
 	prompt_bg.visible = false
@@ -75,9 +78,9 @@ func set_prompt(text: String) -> void:
 	prompt_label.text = text
 
 
-func set_action(text: String) -> void:
-	action_button.text = text
-	action_button.visible = not text.is_empty()
+func set_action(_text: String) -> void:
+	# The bottom-right action box has been removed from the game UI.
+	action_button.visible = false
 
 
 func hide_action() -> void:
@@ -163,6 +166,7 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 	action_button.position = Vector2(safe_right - (148.0 + 16.0) * s, prompt_y - 60.0 * s)
 	action_button.size = Vector2(148.0, 48.0) * s
 	action_button.add_theme_font_size_override("font_size", int(17.0 * s))
+	action_button.visible = false
 	if note_overlay.visible:
 		_layout_note()
 
@@ -286,6 +290,14 @@ func _on_note_input(event: InputEvent) -> void:
 
 
 func show_window_hint(anchor_rect: Rect2) -> void:
+	_show_hint("点击以打开窗户", anchor_rect)
+
+
+func show_door_hint(anchor_rect: Rect2) -> void:
+	_show_hint("点击以离开船仓", anchor_rect)
+
+
+func _show_hint(text: String, anchor_rect: Rect2) -> void:
 	var vp := get_viewport_rect().size
 	var s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
 	var w: float = minf(300.0 * s, vp.x - 40.0 * s)
@@ -297,10 +309,26 @@ func show_window_hint(anchor_rect: Rect2) -> void:
 	window_hint_label.position = Vector2(10.0 * s, 0.0)
 	window_hint_label.size = Vector2(w - 20.0 * s, h)
 	window_hint_label.add_theme_font_size_override("font_size", int(16.0 * s))
-	window_hint_label.text = "点击以打开窗户"
+	window_hint_label.text = text
 	window_hint_tail.position = Vector2(w * 0.5, h - 1.0)
 	window_hint.visible = true
 
 
 func hide_window_hint() -> void:
 	window_hint.visible = false
+
+
+func show_boat_hint() -> void:
+	var vp := get_viewport_rect().size
+	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
+	var area_w: float = vp.x - column_w
+	var s: float = clampf(minf(area_w / 960.0, vp.y / 720.0), 0.62, 2.2)
+	boat_hint.position = Vector2(0.0, vp.y - 80.0 * s)
+	boat_hint.size = Vector2(area_w, 40.0 * s)
+	boat_hint.add_theme_font_size_override("font_size", int(20.0 * s))
+	boat_hint.text = "点击任意处继续"
+	boat_hint.visible = true
+
+
+func hide_boat_hint() -> void:
+	boat_hint.visible = false

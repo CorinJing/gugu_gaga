@@ -70,6 +70,11 @@ func _ready() -> void:
 	_layout()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if state == State.BOAT and _is_left_click(event):
+		_transition_to(State.FERRYMAN)
+
+
 func _is_left_click(event: InputEvent) -> bool:
 	return event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 
@@ -91,6 +96,7 @@ func _set_state(next: State) -> void:
 	voice.stop()
 	hud.hide_speech()
 	hud.hide_window_hint()
+	hud.hide_boat_hint()
 	coin_overlay.visible = false
 	coin_hotspot.visible = false
 	character.visible = false
@@ -119,7 +125,7 @@ func _set_state(next: State) -> void:
 			nightstand_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("窗开了。该离开船舱了。")
-			hud.set_action("离开船舱")
+			hud.hide_action()
 		State.CABIN_SEARCH:
 			background.texture = CABIN_OPEN
 			nightstand_hotspot.visible = true
@@ -129,10 +135,7 @@ func _set_state(next: State) -> void:
 			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("船夫说要付船费。找找船舱里能换钱的东西。")
-			if GameState.has_item("coin"):
-				hud.set_action("离开船舱")
-			else:
-				hud.hide_action()
+			hud.hide_action()
 		State.CABIN_BEAK:
 			background.texture = CABIN_BEAK
 			heron_hotspot.visible = true
@@ -140,10 +143,7 @@ func _set_state(next: State) -> void:
 			door_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("白鹭张开了嘴。把鱼喂给它。")
-			if GameState.has_item("coin"):
-				hud.set_action("离开船舱")
-			else:
-				hud.hide_action()
+			hud.hide_action()
 		State.SUITCASE_VIEW:
 			background.texture = SUITCASE
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -168,7 +168,7 @@ func _set_state(next: State) -> void:
 			background.texture = BOAT
 			hud.set_location("序章 · 船上")
 			hud.set_prompt("船正在行驶。")
-			hud.set_action("继续")
+			hud.hide_action()
 		State.DOCK:
 			background.texture = DOCK
 			hud.set_location("序章 · 码头")
@@ -285,8 +285,17 @@ func _layout() -> void:
 
 	if state == State.CABIN_CLOSED:
 		hud.show_window_hint(window_hotspot.get_global_rect())
+	elif state == State.CABIN_OPEN:
+		hud.show_door_hint(door_hotspot.get_global_rect())
+	elif (state == State.CABIN_SEARCH or state == State.CABIN_BEAK) and GameState.has_item("coin"):
+		hud.show_door_hint(door_hotspot.get_global_rect())
 	else:
 		hud.hide_window_hint()
+
+	if state == State.BOAT:
+		hud.show_boat_hint()
+	else:
+		hud.hide_boat_hint()
 
 
 func _drop_coin_from_beak() -> void:
