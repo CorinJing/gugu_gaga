@@ -203,6 +203,16 @@ offset_right = 820.0
 offset_bottom = 570.0
 mouse_default_cursor_shape = 2
 
+[node name="HotelHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 730.0
+offset_top = 110.0
+offset_right = 960.0
+offset_bottom = 520.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="BackArrow" type="Button" parent="."]

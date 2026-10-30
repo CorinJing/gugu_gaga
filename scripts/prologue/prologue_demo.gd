@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -10,6 +10,7 @@ const NIGHTSTAND := preload("res://assets/art/backgrounds/nightstand_closeup.png
 const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
+const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
 const WAITER_CUTOUT := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET_CUTOUT := preload("res://assets/art/characters/egret_cutout.png")
@@ -32,6 +33,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var door_hotspot: Control = %DoorHotspot
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
 @onready var cabin_hotspot: Control = %CabinHotspot
+@onready var hotel_hotspot: Control = %HotelHotspot
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -53,6 +55,7 @@ func _ready() -> void:
 	door_hotspot.gui_input.connect(_on_door_input)
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	cabin_hotspot.gui_input.connect(_on_cabin_hotspot_input)
+	hotel_hotspot.gui_input.connect(_on_hotel_hotspot_input)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -98,6 +101,7 @@ func _set_state(next: State) -> void:
 	door_hotspot.visible = false
 	ferryman_hotspot.visible = false
 	cabin_hotspot.visible = false
+	hotel_hotspot.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -182,6 +186,7 @@ func _set_state(next: State) -> void:
 			character.material = occlude
 			ferryman_hotspot.visible = true
 			cabin_hotspot.visible = GameState.has_flag("knows_coin_needed") and not GameState.has_flag("ferry_paid")
+			hotel_hotspot.visible = GameState.has_flag("ferry_paid")
 			hud.set_location("序章 · 船头")
 			if GameState.has_flag("ferry_paid"):
 				hud.set_prompt("船夫已经让开了。")
@@ -189,6 +194,11 @@ func _set_state(next: State) -> void:
 				hud.set_prompt("把硬币拖给船夫。点击船舱可以回去找。")
 			else:
 				hud.set_prompt("点击船夫与他交谈。")
+			hud.hide_action()
+		State.HOTEL_EXTERIOR:
+			background.texture = HOTEL
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			hud.set_location("序章 · 旅馆正门")
 			hud.hide_action()
 		State.WAITER:
 			background.texture = DOCK
@@ -443,7 +453,8 @@ func _pay_ferryman() -> void:
 	GameState.set_flag("ferry_paid")
 	cabin_hotspot.visible = false
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
-	hud.set_action("进入旅馆")
+	hud.hide_action()
+	hotel_hotspot.visible = false
 	# Payment itself triggers the second line; no extra click required.
 	_say_ferryman(1)
 
@@ -483,6 +494,16 @@ func _say_ferryman(index: int) -> void:
 	await get_tree().create_timer(duration + 0.8).timeout
 	if generation == _speech_generation and state == State.FERRYMAN:
 		hud.hide_speech()
+		if GameState.has_flag("ferry_paid"):
+			hotel_hotspot.visible = true
+
+
+func _on_hotel_hotspot_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.FERRYMAN:
+		return
+	if not GameState.has_flag("ferry_paid"):
+		return
+	_transition_to(State.HOTEL_EXTERIOR)
 
 
 func _on_action_pressed() -> void:
@@ -499,9 +520,6 @@ func _on_action_pressed() -> void:
 			_transition_to(State.DOCK)
 		State.DOCK:
 			_transition_to(State.FERRYMAN)
-		State.FERRYMAN:
-			if GameState.has_flag("ferry_paid"):
-				_transition_to(State.WAITER)
 		State.WAITER:
 			_transition_to(State.EGRET)
 		State.EGRET:
