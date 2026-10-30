@@ -192,6 +192,16 @@ offset_right = 655.0
 offset_bottom = 565.0
 mouse_default_cursor_shape = 2
 
+[node name="NightstandHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 430.0
+offset_top = 420.0
+offset_right = 640.0
+offset_bottom = 675.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="BackArrow" type="Button" parent="."]

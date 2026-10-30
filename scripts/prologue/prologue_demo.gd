@@ -1,11 +1,12 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
 const CABIN_BEAK := preload("res://assets/art/backgrounds/cabin_open_beak.png")
 const SUITCASE := preload("res://assets/art/backgrounds/suitcase_open.png")
+const NIGHTSTAND := preload("res://assets/art/backgrounds/nightstand_closeup.png")
 const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
@@ -31,6 +32,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var door_hotspot: Control = %DoorHotspot
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
 @onready var cabin_hotspot: Control = %CabinHotspot
+@onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
 @onready var suitcase_knife_hotspot: Control = %SuitcaseKnifeHotspot
 @onready var back_arrow: Button = $BackArrow
@@ -55,6 +57,7 @@ func _ready() -> void:
 	back_arrow.pressed.connect(_on_back_pressed)
 	suitcase_knife_hotspot.gui_input.connect(_on_suitcase_knife_input)
 	coin_hotspot.gui_input.connect(_on_coin_pickup)
+	nightstand_hotspot.gui_input.connect(_on_nightstand_input)
 	suitcase_knife.texture = KNIFE_ICON
 	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
@@ -92,6 +95,7 @@ func _set_state(next: State) -> void:
 	door_hotspot.visible = false
 	ferryman_hotspot.visible = false
 	cabin_hotspot.visible = false
+	nightstand_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 	match state:
@@ -104,11 +108,13 @@ func _set_state(next: State) -> void:
 		State.CABIN_OPEN:
 			background.texture = CABIN_OPEN
 			door_hotspot.visible = true
+			nightstand_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
 			hud.set_prompt("窗开了。该离开船舱了。")
 			hud.set_action("离开船舱")
 		State.CABIN_SEARCH:
 			background.texture = CABIN_OPEN
+			nightstand_hotspot.visible = true
 			suitcase_hotspot.visible = true
 			heron_hotspot.visible = true
 			fish_hotspot.visible = true
@@ -142,6 +148,13 @@ func _set_state(next: State) -> void:
 				hud.set_prompt("箱子开着。小刀放在里面。")
 			else:
 				hud.set_prompt("箱子里只剩旧衣服和几封没拆的信。")
+		State.NIGHTSTAND_VIEW:
+			background.texture = NIGHTSTAND
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			back_arrow.visible = true
+			hud.set_location_visible(false)
+			hud.set_prompt("床头柜上有一盏灯和几张纸。")
+			hud.hide_action()
 		State.BOAT:
 			background.texture = BOAT
 			hud.set_location("序章 · 船上")
@@ -302,7 +315,7 @@ func _on_suitcase_input(event: InputEvent) -> void:
 
 
 func _on_back_pressed() -> void:
-	if state == State.SUITCASE_VIEW:
+	if state == State.SUITCASE_VIEW or state == State.NIGHTSTAND_VIEW:
 		_transition_to(_cabin_return_state)
 
 
@@ -379,6 +392,15 @@ func _use_on_ferryman(item_id: String) -> void:
 		_pay_ferryman()
 		return
 	hud.set_prompt("船夫不需要这个。")
+
+
+func _on_nightstand_input(event: InputEvent) -> void:
+	if not _is_left_click(event):
+		return
+	if state != State.CABIN_OPEN and state != State.CABIN_SEARCH:
+		return
+	_cabin_return_state = state
+	_transition_to(State.NIGHTSTAND_VIEW)
 
 
 func _on_door_input(event: InputEvent) -> void:
