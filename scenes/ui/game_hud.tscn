@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/game_hud.gd" id="1_hud"]
 
@@ -49,6 +49,22 @@ content_margin_left = 14.0
 content_margin_top = 10.0
 content_margin_right = 14.0
 content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_note"]
+bg_color = Color(0.878431, 0.827451, 0.690196, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.356863, 0.278431, 0.188235, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
 
 [node name="GameHUD" type="Control"]
 layout_mode = 3
@@ -313,3 +329,39 @@ theme_override_colors/font_color = Color(0.168627, 0.129412, 0.0862745, 1)
 theme_override_font_sizes/font_size = 16
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="NoteOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 300
+layout_mode = 0
+mouse_filter = 0
+
+[node name="NoteDim" type="ColorRect" parent="NoteOverlay"]
+layout_mode = 0
+mouse_filter = 2
+color = Color(0.015, 0.02, 0.018, 0.68)
+
+[node name="NotePaper" type="Panel" parent="NoteOverlay"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_note")
+
+[node name="NoteLabel" type="Label" parent="NoteOverlay/NotePaper"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.168627, 0.129412, 0.0862745, 1)
+theme_override_font_sizes/font_size = 20
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="NoteHint" type="Label" parent="NoteOverlay"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.86, 0.81, 0.69, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+text = "点击任意处关闭"

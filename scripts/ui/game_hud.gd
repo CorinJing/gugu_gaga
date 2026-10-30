@@ -27,6 +27,11 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 @onready var speech_bubble: Panel = %SpeechBubble
 @onready var speech_label: Label = %SpeechLabel
 @onready var speech_pointer: Polygon2D = %SpeechPointer
+@onready var note_overlay: Control = %NoteOverlay
+@onready var note_dim: ColorRect = $NoteOverlay/NoteDim
+@onready var note_paper: Panel = %NotePaper
+@onready var note_label: Label = %NoteLabel
+@onready var note_hint: Label = %NoteHint
 
 var _dragging := false
 var _drag_item := ""
@@ -43,6 +48,8 @@ func _ready() -> void:
 	for i in 5:
 		slot_hits[i].gui_input.connect(_on_slot_gui_input.bind(i))
 	drag_preview.visible = false
+	note_overlay.visible = false
+	note_overlay.gui_input.connect(_on_note_input)
 	_refresh_inventory()
 
 
@@ -143,6 +150,8 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 	action_button.position = Vector2(safe_right - (148.0 + 16.0) * s, prompt_y - 60.0 * s)
 	action_button.size = Vector2(148.0, 48.0) * s
 	action_button.add_theme_font_size_override("font_size", int(17.0 * s))
+	if note_overlay.visible:
+		_layout_note()
 
 
 func _on_slot_gui_input(event: InputEvent, index: int) -> void:
@@ -225,3 +234,39 @@ func show_speech(text: String, anchor_rect: Rect2) -> void:
 
 func hide_speech() -> void:
 	speech_bubble.visible = false
+
+
+func show_note(text: String) -> void:
+	note_label.text = text
+	note_overlay.visible = true
+	_layout_note()
+
+
+func hide_note() -> void:
+	note_overlay.visible = false
+
+
+func _layout_note() -> void:
+	var vp := get_viewport_rect().size
+	var s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
+	var w: float = minf(680.0 * s, vp.x - 80.0 * s)
+	var h: float = 300.0 * s
+	note_overlay.position = Vector2.ZERO
+	note_overlay.size = vp
+	note_dim.position = Vector2.ZERO
+	note_dim.size = vp
+	note_paper.position = Vector2((vp.x - w) * 0.5, (vp.y - h) * 0.5)
+	note_paper.size = Vector2(w, h)
+	note_label.position = Vector2(28.0 * s, 24.0 * s)
+	note_label.size = Vector2(w - 56.0 * s, h - 48.0 * s)
+	note_label.set_deferred("size", Vector2(w - 56.0 * s, h - 48.0 * s))
+	note_label.add_theme_font_size_override("font_size", int(20.0 * s))
+	note_hint.position = Vector2(0.0, note_paper.position.y + h + 14.0 * s)
+	note_hint.size = Vector2(vp.x, 24.0 * s)
+	note_hint.add_theme_font_size_override("font_size", int(13.0 * s))
+
+
+func _on_note_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		hide_note()
+		get_viewport().set_input_as_handled()

@@ -33,6 +33,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var ferryman_hotspot: Control = %FerrymanHotspot
 @onready var cabin_hotspot: Control = %CabinHotspot
 @onready var nightstand_hotspot: Control = %NightstandHotspot
+@onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
 @onready var suitcase_knife_hotspot: Control = %SuitcaseKnifeHotspot
 @onready var back_arrow: Button = $BackArrow
@@ -58,6 +59,7 @@ func _ready() -> void:
 	suitcase_knife_hotspot.gui_input.connect(_on_suitcase_knife_input)
 	coin_hotspot.gui_input.connect(_on_coin_pickup)
 	nightstand_hotspot.gui_input.connect(_on_nightstand_input)
+	note_hotspot.gui_input.connect(_on_note_hotspot_input)
 	suitcase_knife.texture = KNIFE_ICON
 	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
@@ -96,6 +98,7 @@ func _set_state(next: State) -> void:
 	ferryman_hotspot.visible = false
 	cabin_hotspot.visible = false
 	nightstand_hotspot.visible = false
+	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 	match state:
@@ -153,7 +156,8 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			back_arrow.visible = true
 			hud.set_location_visible(false)
-			hud.set_prompt("床头柜上有一盏灯和几张纸。")
+			note_hotspot.visible = true
+			hud.set_prompt("床头柜上有一盏灯和一张纸条。")
 			hud.hide_action()
 		State.BOAT:
 			background.texture = BOAT
@@ -392,6 +396,12 @@ func _use_on_ferryman(item_id: String) -> void:
 		_pay_ferryman()
 		return
 	hud.set_prompt("船夫不需要这个。")
+
+
+func _on_note_hotspot_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.NIGHTSTAND_VIEW:
+		return
+	hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
 
 
 func _on_nightstand_input(event: InputEvent) -> void:
