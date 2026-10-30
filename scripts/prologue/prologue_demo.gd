@@ -1,9 +1,10 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_BEAK, SUITCASE_VIEW, BOAT, DOCK, FERRYMAN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
+const CABIN_BEAK := preload("res://assets/art/backgrounds/cabin_open_beak.png")
 const SUITCASE := preload("res://assets/art/backgrounds/suitcase_open.png")
 const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
@@ -22,6 +23,7 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var background: TextureRect = %Background
 @onready var character: TextureRect = %Character
 @onready var coin_overlay: TextureRect = %CoinOverlay
+@onready var coin_hotspot: Control = %CoinHotspot
 @onready var window_hotspot: Control = %WindowHotspot
 @onready var suitcase_hotspot: Control = %SuitcaseHotspot
 @onready var heron_hotspot: Control = %HeronHotspot
@@ -50,6 +52,7 @@ func _ready() -> void:
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
 	suitcase_knife_hotspot.gui_input.connect(_on_suitcase_knife_input)
+	coin_hotspot.gui_input.connect(_on_coin_pickup)
 	suitcase_knife.texture = KNIFE_ICON
 	get_viewport().size_changed.connect(_layout)
 	hud.set_location("序章 · 船舱")
@@ -78,6 +81,7 @@ func _set_state(next: State) -> void:
 	voice.stop()
 	hud.hide_speech()
 	coin_overlay.visible = false
+	coin_hotspot.visible = false
 	character.visible = false
 	window_hotspot.visible = false
 	suitcase_hotspot.visible = false
@@ -110,6 +114,15 @@ func _set_state(next: State) -> void:
 				hud.set_action("离开船舱")
 			else:
 				hud.hide_action()
+		State.CABIN_BEAK:
+			background.texture = CABIN_BEAK
+			suitcase_hotspot.visible = true
+			heron_hotspot.visible = true
+			fish_hotspot.visible = true
+			door_hotspot.visible = true
+			hud.set_location("序章 · 船舱")
+			hud.set_prompt("白鹭张开了嘴。")
+			hud.hide_action()
 		State.SUITCASE_VIEW:
 			background.texture = SUITCASE
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -230,9 +243,35 @@ func _layout() -> void:
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
 
 
-func _show_coin() -> void:
+func _drop_coin_from_beak() -> void:
 	coin_overlay.texture = COIN
+	coin_overlay.size = Vector2(46.0, 46.0)
+	coin_overlay.pivot_offset = Vector2(23.0, 23.0)
+	coin_overlay.position = Vector2(782.0, 148.0)
+	coin_overlay.rotation = 0.0
 	coin_overlay.visible = true
+	hud.set_prompt("白鹭张着嘴。一枚硬币从它嘴里掉出来。")
+
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(coin_overlay, "position", Vector2(670.0, 566.0), 0.85)
+	tween.parallel().tween_property(coin_overlay, "rotation", TAU * 1.6, 0.85)
+	await tween.finished
+
+	coin_hotspot.position = Vector2(630.0, 526.0)
+	coin_hotspot.size = Vector2(84.0, 84.0)
+	coin_hotspot.visible = true
+	hud.set_prompt("硬币落在地板上。点击它捡起来。")
+
+
+func _on_coin_pickup(event: InputEvent) -> void:
+	if not _is_left_click(event) or not coin_hotspot.visible:
+		return
+	coin_hotspot.visible = false
+	coin_overlay.visible = false
+	GameState.add_item("coin")
+	hud.set_prompt("你从地板上捡起一枚黄铜硬币。")
+	hud.set_action("离开船舱")
 
 
 func _on_window_input(event: InputEvent) -> void:
@@ -307,20 +346,16 @@ func _use_on_heron(item_id: String) -> void:
 		GameState.remove_item("knife")
 		GameState.set_flag("heron_cut")
 		hud.set_prompt("你用刀割开喙上的红线。白鹭慢慢张开嘴。")
+		await _transition_to(State.CABIN_BEAK)
+		await _drop_coin_from_beak()
 		return
 	if item_id == "fish":
 		if not GameState.has_flag("heron_cut"):
 			hud.set_prompt("喙还缝着。先用小刀割开红线。")
-			return
-		if GameState.has_flag("heron_fed"):
-			hud.set_prompt("它已经吃饱了。")
-			return
-		GameState.remove_item("fish")
-		GameState.set_flag("heron_fed")
-		GameState.add_item("coin")
-		_show_coin()
-		hud.set_prompt("白鹭仰起脖子，吞下鱼。它抖了抖尾巴，下了一枚黄铜硬币。")
-		hud.set_action("离开船舱")
+		elif coin_hotspot.visible or GameState.has_item("coin"):
+			hud.set_prompt("它已经不需要鱼了。")
+		else:
+			hud.set_prompt("它现在对鱼不感兴趣。")
 		return
 	hud.set_prompt("白鹭对这个东西不感兴趣。")
 
