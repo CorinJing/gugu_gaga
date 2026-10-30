@@ -388,7 +388,9 @@ func _on_door_input(event: InputEvent) -> void:
 		_transition_to(State.BOAT)
 	elif state == State.CABIN_SEARCH or state == State.CABIN_BEAK:
 		if GameState.has_item("coin"):
-			_transition_to(State.BOAT)
+			# The boat is already docked; returning from the cabin goes straight
+			# back to the ferryman, not through the moving-boat screen again.
+			_transition_to(State.FERRYMAN)
 		else:
 			hud.set_prompt("船夫还在等船费。")
 
@@ -451,10 +453,10 @@ func _on_action_pressed() -> void:
 			_transition_to(State.BOAT)
 		State.CABIN_SEARCH:
 			if GameState.has_item("coin"):
-				_transition_to(State.BOAT)
+				_transition_to(State.FERRYMAN)
 		State.CABIN_BEAK:
 			if GameState.has_item("coin"):
-				_transition_to(State.BOAT)
+				_transition_to(State.FERRYMAN)
 		State.BOAT:
 			_transition_to(State.DOCK)
 		State.DOCK:
