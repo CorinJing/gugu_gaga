@@ -254,11 +254,11 @@ func _drop_coin_from_beak() -> void:
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.tween_property(coin_overlay, "position", Vector2(678.0, 572.0), 0.85)
+	tween.tween_property(coin_overlay, "position", Vector2(560.0, 590.0), 0.85)
 	tween.parallel().tween_property(coin_overlay, "rotation", TAU * 1.6, 0.85)
 	await tween.finished
 
-	coin_hotspot.position = Vector2(650.0, 544.0)
+	coin_hotspot.position = Vector2(532.0, 562.0)
 	coin_hotspot.size = Vector2(56.0, 56.0)
 	coin_hotspot.visible = true
 	hud.set_prompt("硬币落在地板上。点击它捡起来。")
