@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/game_hud.gd" id="1_hud"]
 
@@ -65,6 +65,18 @@ content_margin_left = 18.0
 content_margin_top = 18.0
 content_margin_right = 18.0
 content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window_hint"]
+bg_color = Color(0.06, 0.08, 0.07, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.76, 0.627451, 0.439216, 0.55)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="GameHUD" type="Control"]
 layout_mode = 3
@@ -365,3 +377,25 @@ theme_override_colors/font_color = Color(0.86, 0.81, 0.69, 1)
 theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 text = "点击任意处关闭"
+
+[node name="WindowHint" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 40
+layout_mode = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_window_hint")
+
+[node name="WindowHintLabel" type="Label" parent="WindowHint"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.93, 0.89, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WindowHintTail" type="Polygon2D" parent="WindowHint"]
+unique_name_in_owner = true
+color = Color(0.06, 0.08, 0.07, 0.72)
+polygon = PackedVector2Array(-9, 0, 9, 0, 0, 12)

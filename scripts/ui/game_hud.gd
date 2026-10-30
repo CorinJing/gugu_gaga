@@ -32,6 +32,9 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 @onready var note_paper: Panel = %NotePaper
 @onready var note_label: Label = %NoteLabel
 @onready var note_hint: Label = %NoteHint
+@onready var window_hint: Panel = %WindowHint
+@onready var window_hint_label: Label = %WindowHintLabel
+@onready var window_hint_tail: Polygon2D = %WindowHintTail
 
 var _dragging := false
 var _drag_item := ""
@@ -50,6 +53,11 @@ func _ready() -> void:
 	drag_preview.visible = false
 	note_overlay.visible = false
 	note_overlay.gui_input.connect(_on_note_input)
+	window_hint.visible = false
+	location_bg.visible = false
+	location_label.visible = false
+	prompt_bg.visible = false
+	prompt_label.visible = false
 	_refresh_inventory()
 
 
@@ -57,9 +65,10 @@ func set_location(text: String) -> void:
 	location_label.text = text
 
 
-func set_location_visible(value: bool) -> void:
-	location_bg.visible = value
-	location_label.visible = value
+func set_location_visible(_value: bool) -> void:
+	# Chapter/location labels are intentionally disabled for the whole game.
+	location_bg.visible = false
+	location_label.visible = false
 
 
 func set_prompt(text: String) -> void:
@@ -135,17 +144,21 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 
 	location_bg.position = Vector2(28.0 * s, 16.0 * s)
 	location_bg.size = Vector2(272.0, 42.0) * s
+	location_bg.visible = false
 	location_label.position = Vector2(40.0 * s, 24.0 * s)
 	location_label.size = Vector2(minf(250.0, ui_w - 40.0), 32.0 * s)
 	location_label.add_theme_font_size_override("font_size", int(16.0 * s))
+	location_label.visible = false
 
 	var prompt_y: float = vp.y - 80.0 * s
 	var prompt_w: float = minf(896.0 * s, safe_right - 32.0 * s)
 	prompt_bg.position = Vector2(32.0 * s, prompt_y)
 	prompt_bg.size = Vector2(prompt_w, 52.0 * s)
+	prompt_bg.visible = false
 	prompt_label.position = Vector2(48.0 * s, prompt_y + 10.0 * s)
 	prompt_label.size = Vector2(prompt_w - 32.0 * s, 34.0 * s)
 	prompt_label.add_theme_font_size_override("font_size", int(18.0 * s))
+	prompt_label.visible = false
 
 	action_button.position = Vector2(safe_right - (148.0 + 16.0) * s, prompt_y - 60.0 * s)
 	action_button.size = Vector2(148.0, 48.0) * s
@@ -270,3 +283,24 @@ func _on_note_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		hide_note()
 		get_viewport().set_input_as_handled()
+
+
+func show_window_hint(anchor_rect: Rect2) -> void:
+	var vp := get_viewport_rect().size
+	var s: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.68, 2.2)
+	var w: float = minf(300.0 * s, vp.x - 40.0 * s)
+	var h: float = 62.0 * s
+	var x: float = clampf(anchor_rect.get_center().x - w * 0.5, 12.0 * s, vp.x - w - 12.0 * s)
+	var y: float = clampf(anchor_rect.position.y + 26.0 * s, 12.0 * s, vp.y - h - 24.0 * s)
+	window_hint.position = Vector2(x, y)
+	window_hint.size = Vector2(w, h)
+	window_hint_label.position = Vector2(10.0 * s, 0.0)
+	window_hint_label.size = Vector2(w - 20.0 * s, h)
+	window_hint_label.add_theme_font_size_override("font_size", int(16.0 * s))
+	window_hint_label.text = "点击以打开窗户"
+	window_hint_tail.position = Vector2(w * 0.5, h - 1.0)
+	window_hint.visible = true
+
+
+func hide_window_hint() -> void:
+	window_hint.visible = false

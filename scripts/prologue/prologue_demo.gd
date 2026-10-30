@@ -87,6 +87,7 @@ func _set_state(next: State) -> void:
 	_speech_generation += 1
 	voice.stop()
 	hud.hide_speech()
+	hud.hide_window_hint()
 	coin_overlay.visible = false
 	coin_hotspot.visible = false
 	character.visible = false
@@ -271,6 +272,11 @@ func _layout() -> void:
 	back_arrow.add_theme_font_size_override("font_size", int(26.0 * back_s))
 
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
+
+	if state == State.CABIN_CLOSED:
+		hud.show_window_hint(window_hotspot.get_global_rect())
+	else:
+		hud.hide_window_hint()
 
 
 func _drop_coin_from_beak() -> void:
