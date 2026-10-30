@@ -328,17 +328,11 @@ func _on_coin_pickup(event: InputEvent) -> void:
 	hud.set_action("离开船舱")
 
 
-var _dock_advancing := false
-
 func _on_boat_click(event: InputEvent) -> void:
-	if not _is_left_click(event) or state != State.BOAT or _dock_advancing:
+	if not _is_left_click(event) or state != State.BOAT:
 		return
-	_dock_advancing = true
-	await _transition_to(State.DOCK)
-	await get_tree().create_timer(0.8).timeout
-	if state == State.DOCK:
-		_transition_to(State.FERRYMAN)
-	_dock_advancing = false
+	# The boat is already arriving: go straight to the dock WITH the ferryman.
+	_transition_to(State.FERRYMAN)
 
 
 func _on_window_input(event: InputEvent) -> void:
