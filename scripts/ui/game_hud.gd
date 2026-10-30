@@ -31,6 +31,9 @@ const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 var _dragging := false
 var _drag_item := ""
 var _drag_slot := -1
+var _has_layout := false
+var _last_stage_rect := Rect2()
+var _last_viewport := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -83,10 +86,15 @@ func _refresh_inventory() -> void:
 			slot_icons[i].visible = false
 			slot_labels[i].text = GameState.item_name(id)
 			slot_labels[i].visible = true
+	if _has_layout:
+		apply_layout(_last_stage_rect, _last_viewport, Rect2())
 
 
 func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect2) -> void:
 	var vp := viewport_size
+	_last_stage_rect = stage_rect
+	_last_viewport = viewport_size
+	_has_layout = true
 	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
 	var column := Rect2(vp.x - column_w, 0.0, column_w, vp.y)
 	inventory_column.position = column.position
@@ -103,14 +111,16 @@ func apply_layout(stage_rect: Rect2, viewport_size: Vector2, _sidebar_rect: Rect
 	for i in 5:
 		var cx := panel_rect.position.x + pw * 0.5
 		var cy := panel_rect.position.y + ph * float(SLOT_CENTERS[i])
-		var rect := Rect2(cx - icon_size * 0.5, cy - icon_size * 0.5, icon_size, icon_size)
+		var is_coin: bool = GameState.slots[i] == "coin"
+		var draw_size: float = icon_size * (0.52 if is_coin else 1.0)
+		var rect := Rect2(cx - draw_size * 0.5, cy - draw_size * 0.5, draw_size, draw_size)
 		slot_icons[i].position = rect.position
 		slot_icons[i].size = rect.size
-		slot_labels[i].position = rect.position
-		slot_labels[i].size = rect.size
+		slot_labels[i].position = Rect2(cx - icon_size * 0.5, cy - icon_size * 0.5, icon_size, icon_size).position
+		slot_labels[i].size = Vector2(icon_size, icon_size)
 		slot_labels[i].add_theme_font_size_override("font_size", icon_font)
-		slot_hits[i].position = rect.position
-		slot_hits[i].size = rect.size
+		slot_hits[i].position = Rect2(cx - icon_size * 0.5, cy - icon_size * 0.5, icon_size, icon_size).position
+		slot_hits[i].size = Vector2(icon_size, icon_size)
 
 	var safe_right: float = column.position.x - 16.0
 	var ui_w: float = maxf(1.0, safe_right)
