@@ -19,7 +19,6 @@ const SLOT_COUNT := 5
 
 var flags: Dictionary = {}
 var slots: Array[String] = ["", "", "", "", ""]
-var next_slot := 0
 
 var inventory: Array[String]:
 	get:
@@ -33,7 +32,6 @@ var inventory: Array[String]:
 func reset() -> void:
 	flags.clear()
 	slots = ["", "", "", "", ""]
-	next_slot = 0
 	inventory_changed.emit()
 
 
@@ -49,13 +47,11 @@ func has_flag(id: String) -> bool:
 func add_item(id: String) -> void:
 	if has_item(id):
 		return
-	var index := next_slot
-	if index >= SLOT_COUNT:
-		index = slots.find("")
-	if index < 0 or index >= SLOT_COUNT:
+	# New items always fill the first empty slot from top to bottom.
+	var index := slots.find("")
+	if index < 0:
 		return
 	slots[index] = id
-	next_slot = maxi(next_slot, index + 1)
 	inventory_changed.emit()
 
 
