@@ -7,7 +7,6 @@
 .godot-home/
 *.translation
 export.cfg
-export_presets.cfg
 
 # Python
 __pycache__/
@@ -24,3 +23,6 @@ __pycache__/
 
 # Local git bundle backups
 *.bundle
+
+# Export builds
+build/

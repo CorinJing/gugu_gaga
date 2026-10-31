@@ -53,6 +53,22 @@ assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 3. 架构选 `x86_64`。
 4. 导出 `.exe`，是否嵌入 PCK 都可以。
 
+### 导出构建
+
+本机已完成两个版本：
+
+```text
+build/macos/SaltMoonHotel.zip      macOS 通用版（x86_64 + arm64）
+build/windows/SaltMoonHotel.exe    Windows x86_64
+```
+
+说明：
+
+- macOS 版为 ad-hoc 签名，未做 Apple 公证；首次打开可能需要右键 → 打开。
+- Windows 版未做代码签名，SmartScreen 可能提示“未知发布者”。
+- Windows 版已在 macOS 上验证为 `PE32+ x86-64`，未在真实 Windows 机器上启动测试。
+- `build/` 为本地构建产物，不提交进 Git。
+
 ### 屏幕适配
 
 - 游戏画面占据窗口左侧，按 cover 铺满剩余区域。
@@ -107,6 +123,22 @@ assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 2. 在 Godot 里添加 `Windows Desktop` 导出预设。
 3. 架构选 `x86_64`。
 4. 导出 `.exe`，是否嵌入 PCK 都可以。
+
+### 导出构建
+
+本机已完成两个版本：
+
+```text
+build/macos/SaltMoonHotel.zip      macOS 通用版（x86_64 + arm64）
+build/windows/SaltMoonHotel.exe    Windows x86_64
+```
+
+说明：
+
+- macOS 版为 ad-hoc 签名，未做 Apple 公证；首次打开可能需要右键 → 打开。
+- Windows 版未做代码签名，SmartScreen 可能提示“未知发布者”。
+- Windows 版已在 macOS 上验证为 `PE32+ x86-64`，未在真实 Windows 机器上启动测试。
+- `build/` 为本地构建产物，不提交进 Git。
 
 ### 屏幕适配回归
 
