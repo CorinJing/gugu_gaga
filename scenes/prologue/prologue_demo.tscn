@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/prologue/prologue_demo.gd" id="1_demo"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
-[ext_resource type="PackedScene" path="res://scenes/prologue/hotel_shadow_puzzle.tscn" id="3_puzzle"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back"]
 bg_color = Color(0.0392157, 0.0509804, 0.0470588, 0.92)
@@ -181,9 +180,6 @@ offset_top = 0.0
 offset_right = 750.0
 offset_bottom = 720.0
 mouse_default_cursor_shape = 2
-
-[node name="HotelPuzzle" parent="Stage" instance=ExtResource("3_puzzle")]
-visible = false
 
 [node name="CabinHotspot" type="Control" parent="Stage"]
 unique_name_in_owner = true

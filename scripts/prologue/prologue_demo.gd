@@ -35,7 +35,6 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var cabin_hotspot: Control = %CabinHotspot
 @onready var hotel_hotspot: Control = %HotelHotspot
 @onready var boat_click_hotspot: Control = %BoatClickHotspot
-@onready var hotel_puzzle: Control = $Stage/HotelPuzzle
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -58,8 +57,6 @@ func _ready() -> void:
 	ferryman_hotspot.gui_input.connect(_on_ferryman_input)
 	cabin_hotspot.gui_input.connect(_on_cabin_hotspot_input)
 	hotel_hotspot.gui_input.connect(_on_hotel_hotspot_input)
-	hotel_puzzle.hint_requested.connect(func(text: String) -> void: hud.show_note(text))
-	hotel_puzzle.finished.connect(func() -> void: SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn"))
 	boat_click_hotspot.gui_input.connect(_on_boat_click)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
@@ -109,7 +106,6 @@ func _set_state(next: State) -> void:
 	cabin_hotspot.visible = false
 	hotel_hotspot.visible = false
 	boat_click_hotspot.visible = false
-	hotel_puzzle.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -200,9 +196,8 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.HOTEL_EXTERIOR:
 			background.texture = HOTEL
-			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			hotel_puzzle.visible = true
-			hotel_puzzle.show_intro()
+			# Show the entire hotel image; do not crop it to fill the stage.
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			hud.set_location("序章 · 旅馆正门")
 			hud.hide_action()
 		State.WAITER:
