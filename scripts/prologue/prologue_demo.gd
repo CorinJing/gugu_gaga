@@ -12,7 +12,6 @@ const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
 const HOTEL_NO_MAILBOX := preload("res://assets/art/backgrounds/hotel_no_mailbox.png")
-const LETTER_ICON := preload("res://assets/art/ui/item_letter.png")
 const MAILBOX_CLOSED := preload("res://assets/art/backgrounds/mailbox_closed.png")
 const MAILBOX_OPEN := preload("res://assets/art/backgrounds/mailbox_open.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
@@ -42,8 +41,6 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var mailbox_hotspot: Control = %MailboxHotspot
 @onready var mailbox_closeup_hotspot: Control = %MailboxCloseupHotspot
 @onready var mailbox_open_drop_hotspot: Control = %MailboxOpenDropHotspot
-@onready var letter_pickup: TextureRect = %LetterPickup
-@onready var letter_hotspot: Control = %LetterHotspot
 @onready var hotel_return_arrow: Button = %HotelReturnArrow
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
@@ -70,9 +67,7 @@ func _ready() -> void:
 	boat_click_hotspot.gui_input.connect(_on_boat_click)
 	mailbox_hotspot.gui_input.connect(_on_mailbox_input)
 	mailbox_closeup_hotspot.gui_input.connect(_on_mailbox_closeup_input)
-	letter_hotspot.gui_input.connect(_on_letter_input)
 	hotel_return_arrow.pressed.connect(_on_hotel_return_pressed)
-	letter_pickup.texture = LETTER_ICON
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -124,8 +119,6 @@ func _set_state(next: State) -> void:
 	mailbox_hotspot.visible = false
 	mailbox_closeup_hotspot.visible = false
 	mailbox_open_drop_hotspot.visible = false
-	letter_pickup.visible = false
-	letter_hotspot.visible = false
 	hotel_return_arrow.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
@@ -147,9 +140,6 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.CABIN_SEARCH:
 			background.texture = CABIN_OPEN
-			if not GameState.has_flag("letter_taken"):
-				letter_pickup.visible = true
-				letter_hotspot.visible = true
 			nightstand_hotspot.visible = true
 			suitcase_hotspot.visible = true
 			heron_hotspot.visible = true
@@ -160,9 +150,6 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.CABIN_BEAK:
 			background.texture = CABIN_BEAK
-			if not GameState.has_flag("letter_taken"):
-				letter_pickup.visible = true
-				letter_hotspot.visible = true
 			heron_hotspot.visible = true
 			fish_hotspot.visible = true
 			door_hotspot.visible = true
@@ -186,7 +173,8 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			back_arrow.visible = true
 			hud.set_location_visible(false)
-			note_hotspot.visible = true
+			if not GameState.has_flag("letter_taken"):
+				note_hotspot.visible = true
 			hud.set_prompt("床头柜上有一盏灯和一张纸条。")
 			hud.hide_action()
 		State.BOAT:
@@ -491,31 +479,20 @@ func _use_on_ferryman(item_id: String) -> void:
 func _on_note_hotspot_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.NIGHTSTAND_VIEW:
 		return
-	hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
+	if not GameState.has_flag("letter_read"):
+		GameState.set_flag("letter_read")
+		hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
+		return
+	if GameState.has_flag("letter_taken"):
+		return
+	GameState.set_flag("letter_taken")
+	GameState.add_item("letter")
+	note_hotspot.visible = false
 
 
 func _on_hotel_return_pressed() -> void:
 	if state == State.HOTEL_EXTERIOR:
 		_transition_to(State.DOCK)
-
-
-func _on_letter_input(event: InputEvent) -> void:
-	if not _is_left_click(event):
-		return
-	if not GameState.has_flag("letter_read"):
-		GameState.set_flag("letter_read")
-		hud.show_note("盐月旅馆 · 113\n致继承人：\n如果你读到这里，请在盐月朔日前把信投进旅馆的信箱。\n信箱会认得它。")
-		return
-	_take_letter()
-
-
-func _take_letter() -> void:
-	if GameState.has_flag("letter_taken"):
-		return
-	GameState.set_flag("letter_taken")
-	GameState.add_item("letter")
-	letter_pickup.visible = false
-	letter_hotspot.visible = false
 
 
 func _post_letter() -> void:

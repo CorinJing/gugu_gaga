@@ -118,29 +118,6 @@ offset_right = 716.0
 offset_bottom = 612.0
 mouse_default_cursor_shape = 2
 
-[node name="LetterPickup" type="TextureRect" parent="Stage"]
-unique_name_in_owner = true
-visible = false
-z_index = 3
-layout_mode = 0
-offset_left = 188.0
-offset_top = 430.0
-offset_right = 296.0
-offset_bottom = 520.0
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LetterHotspot" type="Control" parent="Stage"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = 170.0
-offset_top = 410.0
-offset_right = 316.0
-offset_bottom = 540.0
-mouse_default_cursor_shape = 2
-
 [node name="MailboxOpenDropHotspot" type="Control" parent="Stage"]
 unique_name_in_owner = true
 visible = false
