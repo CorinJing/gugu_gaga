@@ -38,6 +38,21 @@ assets/art/items/                        硬币正反面与透明硬币
 assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 ```
 
+### Windows 适配
+
+源工程没有 macOS 专用代码，Godot 4.7.2 的 Windows 版可以直接打开运行。
+
+- 字体已加入 `Microsoft YaHei`、`SimHei`、`SimSun` 回退，避免 Windows 上中文变成方框。
+- 鼠标输入、PNG/JPG 背景、MP3 配音和 `gl_compatibility` 渲染器都跨平台。
+- 窗口尺寸和 UI 由实际视口计算，不依赖 macOS 分辨率。
+
+当前仓库没有提交 `.exe`，本机也没有安装 Windows 导出模板。要生成 Windows 版，需要：
+
+1. 安装 Godot 4.7.2 的 Export Templates。
+2. 在 Godot 里添加 `Windows Desktop` 导出预设。
+3. 架构选 `x86_64`。
+4. 导出 `.exe`，是否嵌入 PCK 都可以。
+
 ### 屏幕适配
 
 - 游戏画面占据窗口左侧，按 cover 铺满剩余区域。
@@ -77,6 +92,21 @@ assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 - 标题 → 序章、序章内场景切换、序章 → 结束页、结束页 → 标题，统一使用黑场渐变。
 - 场景内切换（船舱/箱子/船侧/码头/船夫/服务生/白鹭）先淡出，再切画面，再淡入。
 - 渐变期间会暂时拦截点击，避免重复触发。
+
+### Windows 适配
+
+源工程没有 macOS 专用代码，Godot 4.7.2 的 Windows 版可以直接打开运行。
+
+- 字体已加入 `Microsoft YaHei`、`SimHei`、`SimSun` 回退，避免 Windows 上中文变成方框。
+- 鼠标输入、PNG/JPG 背景、MP3 配音和 `gl_compatibility` 渲染器都跨平台。
+- 窗口尺寸和 UI 由实际视口计算，不依赖 macOS 分辨率。
+
+当前仓库没有提交 `.exe`，本机也没有安装 Windows 导出模板。要生成 Windows 版，需要：
+
+1. 安装 Godot 4.7.2 的 Export Templates。
+2. 在 Godot 里添加 `Windows Desktop` 导出预设。
+3. 架构选 `x86_64`。
+4. 导出 `.exe`，是否嵌入 PCK 都可以。
 
 ### 屏幕适配回归
 
