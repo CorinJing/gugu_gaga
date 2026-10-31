@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, HOTEL_NO_MAILBOX, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -11,6 +11,8 @@ const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
+const HOTEL_NO_MAILBOX := preload("res://assets/art/backgrounds/hotel_no_mailbox.png")
+const LETTER_ICON := preload("res://assets/art/ui/item_letter.png")
 const MAILBOX_CLOSED := preload("res://assets/art/backgrounds/mailbox_closed.png")
 const MAILBOX_OPEN := preload("res://assets/art/backgrounds/mailbox_open.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
@@ -39,6 +41,10 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var boat_click_hotspot: Control = %BoatClickHotspot
 @onready var mailbox_hotspot: Control = %MailboxHotspot
 @onready var mailbox_closeup_hotspot: Control = %MailboxCloseupHotspot
+@onready var mailbox_open_drop_hotspot: Control = %MailboxOpenDropHotspot
+@onready var letter_pickup: TextureRect = %LetterPickup
+@onready var letter_hotspot: Control = %LetterHotspot
+@onready var hotel_return_arrow: Button = %HotelReturnArrow
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -49,6 +55,8 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 var state: State = State.CABIN_CLOSED
 var _cabin_return_state: State = State.CABIN_OPEN
 var _speech_generation := 0
+var _letter_dragging := false
+var _letter_drag_start := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -64,6 +72,9 @@ func _ready() -> void:
 	boat_click_hotspot.gui_input.connect(_on_boat_click)
 	mailbox_hotspot.gui_input.connect(_on_mailbox_input)
 	mailbox_closeup_hotspot.gui_input.connect(_on_mailbox_closeup_input)
+	letter_hotspot.gui_input.connect(_on_letter_input)
+	hotel_return_arrow.pressed.connect(_on_hotel_return_pressed)
+	letter_pickup.texture = LETTER_ICON
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -76,6 +87,15 @@ func _ready() -> void:
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
 	_layout()
+
+
+func _input(event: InputEvent) -> void:
+	if _letter_dragging:
+		if event is InputEventMouseMotion:
+			if get_viewport().get_mouse_position().distance_to(_letter_drag_start) > 36.0:
+				_take_letter()
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			_letter_dragging = false
 
 
 func _is_left_click(event: InputEvent) -> bool:
@@ -114,6 +134,10 @@ func _set_state(next: State) -> void:
 	boat_click_hotspot.visible = false
 	mailbox_hotspot.visible = false
 	mailbox_closeup_hotspot.visible = false
+	mailbox_open_drop_hotspot.visible = false
+	letter_pickup.visible = false
+	letter_hotspot.visible = false
+	hotel_return_arrow.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -134,6 +158,9 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.CABIN_SEARCH:
 			background.texture = CABIN_OPEN
+			if not GameState.has_flag("letter_taken"):
+				letter_pickup.visible = true
+				letter_hotspot.visible = true
 			nightstand_hotspot.visible = true
 			suitcase_hotspot.visible = true
 			heron_hotspot.visible = true
@@ -144,6 +171,9 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.CABIN_BEAK:
 			background.texture = CABIN_BEAK
+			if not GameState.has_flag("letter_taken"):
+				letter_pickup.visible = true
+				letter_hotspot.visible = true
 			heron_hotspot.visible = true
 			fish_hotspot.visible = true
 			door_hotspot.visible = true
@@ -178,9 +208,9 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.DOCK:
 			background.texture = DOCK
+			cabin_hotspot.visible = true
 			hud.set_location("序章 · 码头")
-			hud.set_prompt("船靠岸了。")
-			hud.set_action("上岸")
+			hud.hide_action()
 		State.FERRYMAN:
 			background.texture = DOCK
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -207,6 +237,7 @@ func _set_state(next: State) -> void:
 			# Show the entire hotel image; do not crop it to fill the stage.
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			mailbox_hotspot.visible = true
+			hotel_return_arrow.visible = true
 			hud.set_location("序章 · 旅馆正门")
 			hud.hide_action()
 		State.MAILBOX_CLOSED:
@@ -220,6 +251,15 @@ func _set_state(next: State) -> void:
 			background.texture = MAILBOX_OPEN
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			back_arrow.visible = true
+			mailbox_open_drop_hotspot.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.HOTEL_NO_MAILBOX:
+			background.texture = HOTEL_NO_MAILBOX
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			if not GameState.has_flag("mailbox_key_taken"):
+				GameState.set_flag("mailbox_key_taken")
+				GameState.add_item("mailbox_key")
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.WAITER:
@@ -303,13 +343,17 @@ func _layout() -> void:
 	back_arrow.size = Vector2(48.0, 48.0) * back_s
 	back_arrow.add_theme_font_size_override("font_size", int(26.0 * back_s))
 
+	hotel_return_arrow.position = Vector2(18.0 * back_s, vp.y - 66.0 * back_s)
+	hotel_return_arrow.size = Vector2(48.0, 48.0) * back_s
+	hotel_return_arrow.add_theme_font_size_override("font_size", int(24.0 * back_s))
+
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
 
 	if state == State.CABIN_CLOSED:
 		hud.show_window_hint(window_hotspot.get_global_rect())
 	elif state == State.CABIN_OPEN:
 		hud.show_door_hint(door_hotspot.get_global_rect())
-	elif (state == State.CABIN_SEARCH or state == State.CABIN_BEAK) and GameState.has_item("coin"):
+	elif (state == State.CABIN_SEARCH or state == State.CABIN_BEAK) and (GameState.has_item("coin") or GameState.has_flag("ferry_paid")):
 		hud.show_door_hint(door_hotspot.get_global_rect())
 	else:
 		hud.hide_window_hint()
@@ -412,6 +456,9 @@ func _on_heron_input(event: InputEvent) -> void:
 
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if state == State.MAILBOX_OPEN and item_id == "letter" and mailbox_open_drop_hotspot.get_global_rect().has_point(screen_pos):
+		_post_letter()
+		return
 	if heron_hotspot.visible and heron_hotspot.get_global_rect().has_point(screen_pos):
 		_use_on_heron(item_id)
 	elif state == State.FERRYMAN and ferryman_hotspot.visible and ferryman_hotspot.get_global_rect().has_point(screen_pos):
@@ -458,8 +505,41 @@ func _on_note_hotspot_input(event: InputEvent) -> void:
 	hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
 
 
+func _on_hotel_return_pressed() -> void:
+	if state == State.HOTEL_EXTERIOR:
+		_transition_to(State.DOCK)
+
+
+func _on_letter_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_letter_dragging = true
+		_letter_drag_start = get_viewport().get_mouse_position()
+		get_viewport().set_input_as_handled()
+
+
+func _take_letter() -> void:
+	if GameState.has_flag("letter_taken"):
+		return
+	GameState.set_flag("letter_taken")
+	GameState.add_item("letter")
+	letter_pickup.visible = false
+	letter_hotspot.visible = false
+	_letter_dragging = false
+
+
+func _post_letter() -> void:
+	if not GameState.has_item("letter"):
+		return
+	GameState.remove_item("letter")
+	GameState.set_flag("mailbox_letter")
+	_transition_to(State.HOTEL_EXTERIOR)
+
+
 func _on_mailbox_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.HOTEL_EXTERIOR:
+		return
+	if GameState.has_flag("mailbox_letter"):
+		_transition_to(State.HOTEL_NO_MAILBOX)
 		return
 	_cabin_return_state = State.HOTEL_EXTERIOR
 	_transition_to(State.MAILBOX_CLOSED)
@@ -486,9 +566,9 @@ func _on_door_input(event: InputEvent) -> void:
 	if state == State.CABIN_OPEN:
 		_transition_to(State.BOAT)
 	elif state == State.CABIN_SEARCH or state == State.CABIN_BEAK:
-		if GameState.has_item("coin"):
-			# The boat is already docked; returning from the cabin goes straight
-			# back to the ferryman, not through the moving-boat screen again.
+		if GameState.has_flag("ferry_paid"):
+			_transition_to(State.HOTEL_EXTERIOR)
+		elif GameState.has_item("coin"):
 			_transition_to(State.FERRYMAN)
 		else:
 			hud.set_prompt("船夫还在等船费。")
@@ -523,7 +603,12 @@ func _on_ferryman_input(event: InputEvent) -> void:
 
 
 func _on_cabin_hotspot_input(event: InputEvent) -> void:
-	if not _is_left_click(event) or state != State.FERRYMAN:
+	if not _is_left_click(event):
+		return
+	if state == State.DOCK:
+		_transition_to(State.CABIN_SEARCH)
+		return
+	if state != State.FERRYMAN:
 		return
 	if not GameState.has_flag("knows_coin_needed") or GameState.has_flag("ferry_paid"):
 		return
@@ -562,10 +647,14 @@ func _on_action_pressed() -> void:
 		State.CABIN_OPEN:
 			_transition_to(State.BOAT)
 		State.CABIN_SEARCH:
-			if GameState.has_item("coin"):
+			if GameState.has_flag("ferry_paid"):
+				_transition_to(State.HOTEL_EXTERIOR)
+			elif GameState.has_item("coin"):
 				_transition_to(State.FERRYMAN)
 		State.CABIN_BEAK:
-			if GameState.has_item("coin"):
+			if GameState.has_flag("ferry_paid"):
+				_transition_to(State.HOTEL_EXTERIOR)
+			elif GameState.has_item("coin"):
 				_transition_to(State.FERRYMAN)
 		State.BOAT:
 			_transition_to(State.DOCK)

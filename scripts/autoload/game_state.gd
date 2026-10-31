@@ -8,6 +8,8 @@ signal flag_changed(id: String, value: bool)
 const ITEM_NAMES := {
 	"knife": "小折刀",
 	"fish": "死鱼",
+	"letter": "旧信",
+	"mailbox_key": "信箱钥匙",
 	"coin": "旧硬币",
 	"pocket_watch": "怀表",
 	"door_handle": "白鹭把手",
