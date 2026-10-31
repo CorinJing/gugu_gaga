@@ -55,8 +55,6 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 var state: State = State.CABIN_CLOSED
 var _cabin_return_state: State = State.CABIN_OPEN
 var _speech_generation := 0
-var _letter_dragging := false
-var _letter_drag_start := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -87,15 +85,6 @@ func _ready() -> void:
 	hud.set_location("序章 · 船舱")
 	_set_state(State.CABIN_CLOSED)
 	_layout()
-
-
-func _input(event: InputEvent) -> void:
-	if _letter_dragging:
-		if event is InputEventMouseMotion:
-			if get_viewport().get_mouse_position().distance_to(_letter_drag_start) > 36.0:
-				_take_letter()
-		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			_letter_dragging = false
 
 
 func _is_left_click(event: InputEvent) -> bool:
@@ -511,10 +500,13 @@ func _on_hotel_return_pressed() -> void:
 
 
 func _on_letter_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_letter_dragging = true
-		_letter_drag_start = get_viewport().get_mouse_position()
-		get_viewport().set_input_as_handled()
+	if not _is_left_click(event):
+		return
+	if not GameState.has_flag("letter_read"):
+		GameState.set_flag("letter_read")
+		hud.show_note("盐月旅馆 · 113\n致继承人：\n如果你读到这里，请在盐月朔日前把信投进旅馆的信箱。\n信箱会认得它。")
+		return
+	_take_letter()
 
 
 func _take_letter() -> void:
@@ -524,7 +516,6 @@ func _take_letter() -> void:
 	GameState.add_item("letter")
 	letter_pickup.visible = false
 	letter_hotspot.visible = false
-	_letter_dragging = false
 
 
 func _post_letter() -> void:

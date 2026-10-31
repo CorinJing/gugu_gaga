@@ -9,6 +9,7 @@ const ICONS := {
 	"fish": preload("res://assets/art/ui/item_fish.png"),
 	"coin": preload("res://assets/art/items/coin_front_cut.png"),
 	"letter": preload("res://assets/art/ui/item_letter.png"),
+	"mailbox_key": preload("res://assets/art/ui/item_mailbox_key.png"),
 }
 const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]
 
