@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, HOTEL_NO_MAILBOX, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, HOTEL_NO_MAILBOX, HOTEL_DOOR_OPEN, PROLOGUE_LOGO, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -12,6 +12,8 @@ const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
 const HOTEL_NO_MAILBOX := preload("res://assets/art/backgrounds/hotel_no_mailbox.png")
+const HOTEL_DOOR_OPEN := preload("res://assets/art/backgrounds/hotel_door_open.png")
+const LOGO := preload("res://assets/art/ui/salt_moon_logo.png")
 const MAILBOX_CLOSED := preload("res://assets/art/backgrounds/mailbox_closed.png")
 const MAILBOX_OPEN := preload("res://assets/art/backgrounds/mailbox_open.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
@@ -42,6 +44,11 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var mailbox_closeup_hotspot: Control = %MailboxCloseupHotspot
 @onready var mailbox_open_drop_hotspot: Control = %MailboxOpenDropHotspot
 @onready var hotel_return_arrow: Button = %HotelReturnArrow
+@onready var hotel_door_key_hotspot: Control = %HotelDoorKeyHotspot
+@onready var hotel_door_open_hotspot: Control = %HotelDoorOpenHotspot
+@onready var logo_overlay: Control = %LogoOverlay
+@onready var logo_bg: ColorRect = %LogoBg
+@onready var logo_image: TextureRect = %LogoImage
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -68,6 +75,8 @@ func _ready() -> void:
 	mailbox_hotspot.gui_input.connect(_on_mailbox_input)
 	mailbox_closeup_hotspot.gui_input.connect(_on_mailbox_closeup_input)
 	hotel_return_arrow.pressed.connect(_on_hotel_return_pressed)
+	hotel_door_open_hotspot.gui_input.connect(_on_hotel_door_open_input)
+	logo_image.texture = LOGO
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -120,6 +129,10 @@ func _set_state(next: State) -> void:
 	mailbox_closeup_hotspot.visible = false
 	mailbox_open_drop_hotspot.visible = false
 	hotel_return_arrow.visible = false
+	hotel_door_key_hotspot.visible = false
+	hotel_door_open_hotspot.visible = false
+	logo_overlay.visible = false
+	hud.visible = true
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -237,8 +250,20 @@ func _set_state(next: State) -> void:
 			if not GameState.has_flag("mailbox_key_taken"):
 				GameState.set_flag("mailbox_key_taken")
 				GameState.add_item("mailbox_key")
+			hotel_door_key_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
+		State.HOTEL_DOOR_OPEN:
+			background.texture = HOTEL_DOOR_OPEN
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			hotel_door_open_hotspot.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.PROLOGUE_LOGO:
+			hud.visible = false
+			logo_overlay.visible = true
+			_layout_logo()
+			_start_logo_sequence()
 		State.WAITER:
 			background.texture = DOCK
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -323,6 +348,8 @@ func _layout() -> void:
 	hotel_return_arrow.position = Vector2(18.0 * back_s, vp.y - 66.0 * back_s)
 	hotel_return_arrow.size = Vector2(48.0, 48.0) * back_s
 	hotel_return_arrow.add_theme_font_size_override("font_size", int(24.0 * back_s))
+	if logo_overlay.visible:
+		_layout_logo()
 
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
 
@@ -433,6 +460,10 @@ func _on_heron_input(event: InputEvent) -> void:
 
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if state == State.HOTEL_NO_MAILBOX and item_id == "mailbox_key" and hotel_door_key_hotspot.get_global_rect().has_point(screen_pos):
+		GameState.remove_item("mailbox_key")
+		_transition_to(State.HOTEL_DOOR_OPEN)
+		return
 	if state == State.MAILBOX_OPEN and item_id == "letter" and mailbox_open_drop_hotspot.get_global_rect().has_point(screen_pos):
 		_post_letter()
 		return
@@ -488,6 +519,29 @@ func _on_note_hotspot_input(event: InputEvent) -> void:
 	GameState.set_flag("letter_taken")
 	GameState.add_item("letter")
 	note_hotspot.visible = false
+
+
+func _on_hotel_door_open_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.HOTEL_DOOR_OPEN:
+		return
+	await SceneTransition.transition(func() -> void: _set_state(State.PROLOGUE_LOGO), 1.4, 1.2)
+
+
+func _start_logo_sequence() -> void:
+	await get_tree().create_timer(5.0).timeout
+	if state == State.PROLOGUE_LOGO:
+		SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn")
+
+
+func _layout_logo() -> void:
+	var vp := get_viewport_rect().size
+	var w: float = minf(vp.x * 0.82, 900.0)
+	var h: float = w * (276.0 / 656.0)
+	logo_overlay.size = vp
+	logo_bg.position = Vector2.ZERO
+	logo_bg.size = vp
+	logo_image.position = Vector2((vp.x - w) * 0.5, (vp.y - h) * 0.5)
+	logo_image.size = Vector2(w, h)
 
 
 func _on_hotel_return_pressed() -> void:

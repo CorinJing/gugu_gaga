@@ -29,28 +29,28 @@ func _fade_to(alpha: float, duration: float) -> void:
 	await tween.finished
 
 
-func transition(callback: Callable) -> void:
+func transition(callback: Callable, fade_out: float = FADE_OUT, fade_in: float = FADE_IN) -> void:
 	if _busy:
 		return
 	_busy = true
 	_rect.mouse_filter = Control.MOUSE_FILTER_STOP
-	await _fade_to(1.0, FADE_OUT)
+	await _fade_to(1.0, fade_out)
 	callback.call()
 	await get_tree().process_frame
-	await _fade_to(0.0, FADE_IN)
+	await _fade_to(0.0, fade_in)
 	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_busy = false
 
 
-func change_scene(path: String) -> void:
+func change_scene(path: String, fade_out: float = FADE_OUT, fade_in: float = FADE_IN) -> void:
 	if _busy:
 		return
 	_busy = true
 	_rect.mouse_filter = Control.MOUSE_FILTER_STOP
-	await _fade_to(1.0, FADE_OUT)
+	await _fade_to(1.0, fade_out)
 	get_tree().change_scene_to_file(path)
 	await get_tree().process_frame
 	await get_tree().process_frame
-	await _fade_to(0.0, FADE_IN)
+	await _fade_to(0.0, fade_in)
 	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_busy = false
