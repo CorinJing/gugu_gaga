@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -11,6 +11,8 @@ const KNIFE_ICON := preload("res://assets/art/ui/item_knife.png")
 const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
+const MAILBOX_CLOSED := preload("res://assets/art/backgrounds/mailbox_closed.png")
+const MAILBOX_OPEN := preload("res://assets/art/backgrounds/mailbox_open.png")
 const FERRYMAN_CUTOUT := preload("res://assets/art/characters/ferryman_cutout.png")
 const WAITER_CUTOUT := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET_CUTOUT := preload("res://assets/art/characters/egret_cutout.png")
@@ -35,6 +37,8 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var cabin_hotspot: Control = %CabinHotspot
 @onready var hotel_hotspot: Control = %HotelHotspot
 @onready var boat_click_hotspot: Control = %BoatClickHotspot
+@onready var mailbox_hotspot: Control = %MailboxHotspot
+@onready var mailbox_closeup_hotspot: Control = %MailboxCloseupHotspot
 @onready var nightstand_hotspot: Control = %NightstandHotspot
 @onready var note_hotspot: Control = %NoteHotspot
 @onready var suitcase_knife: TextureRect = %SuitcaseKnife
@@ -58,6 +62,8 @@ func _ready() -> void:
 	cabin_hotspot.gui_input.connect(_on_cabin_hotspot_input)
 	hotel_hotspot.gui_input.connect(_on_hotel_hotspot_input)
 	boat_click_hotspot.gui_input.connect(_on_boat_click)
+	mailbox_hotspot.gui_input.connect(_on_mailbox_input)
+	mailbox_closeup_hotspot.gui_input.connect(_on_mailbox_closeup_input)
 	hud.action_pressed.connect(_on_action_pressed)
 	hud.drag_released.connect(_on_item_dropped)
 	back_arrow.pressed.connect(_on_back_pressed)
@@ -106,6 +112,8 @@ func _set_state(next: State) -> void:
 	cabin_hotspot.visible = false
 	hotel_hotspot.visible = false
 	boat_click_hotspot.visible = false
+	mailbox_hotspot.visible = false
+	mailbox_closeup_hotspot.visible = false
 	nightstand_hotspot.visible = false
 	note_hotspot.visible = false
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -198,7 +206,21 @@ func _set_state(next: State) -> void:
 			background.texture = HOTEL
 			# Show the entire hotel image; do not crop it to fill the stage.
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			mailbox_hotspot.visible = true
 			hud.set_location("序章 · 旅馆正门")
+			hud.hide_action()
+		State.MAILBOX_CLOSED:
+			background.texture = MAILBOX_CLOSED
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			back_arrow.visible = true
+			mailbox_closeup_hotspot.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.MAILBOX_OPEN:
+			background.texture = MAILBOX_OPEN
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			back_arrow.visible = true
+			hud.set_location_visible(false)
 			hud.hide_action()
 		State.WAITER:
 			background.texture = DOCK
@@ -351,7 +373,7 @@ func _on_suitcase_input(event: InputEvent) -> void:
 
 
 func _on_back_pressed() -> void:
-	if state == State.SUITCASE_VIEW or state == State.NIGHTSTAND_VIEW:
+	if state == State.SUITCASE_VIEW or state == State.NIGHTSTAND_VIEW or state == State.MAILBOX_CLOSED or state == State.MAILBOX_OPEN:
 		_transition_to(_cabin_return_state)
 
 
@@ -434,6 +456,19 @@ func _on_note_hotspot_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.NIGHTSTAND_VIEW:
 		return
 	hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
+
+
+func _on_mailbox_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.HOTEL_EXTERIOR:
+		return
+	_cabin_return_state = State.HOTEL_EXTERIOR
+	_transition_to(State.MAILBOX_CLOSED)
+
+
+func _on_mailbox_closeup_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.MAILBOX_CLOSED:
+		return
+	_transition_to(State.MAILBOX_OPEN)
 
 
 func _on_nightstand_input(event: InputEvent) -> void:
