@@ -353,7 +353,7 @@ func _layout() -> void:
 		hud.show_window_hint(window_hotspot.get_global_rect())
 	elif state == State.CABIN_OPEN:
 		hud.show_door_hint(door_hotspot.get_global_rect())
-	elif (state == State.CABIN_SEARCH or state == State.CABIN_BEAK) and (GameState.has_item("coin") or GameState.has_flag("ferry_paid")):
+	elif (state == State.CABIN_SEARCH or state == State.CABIN_BEAK) and GameState.has_item("coin") and not GameState.has_flag("ferry_paid"):
 		hud.show_door_hint(door_hotspot.get_global_rect())
 	else:
 		hud.hide_window_hint()
