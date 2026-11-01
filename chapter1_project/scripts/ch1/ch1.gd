@@ -3,7 +3,7 @@ extends Control
 ## 第一章 · 113 号房
 ## 流程：大堂登记 → 上楼 → 113 → 白鹭夫人 → 找线 → 穿针 → 针线盒最下层 → 黄铜针 → 离开 → 前台空了
 
-enum State { LOBBY, HALL, ROOM, LOBBY_EMPTY, CHAPTER_END }
+enum State { LOBBY, FRONT_DESK, HALL, ROOM, LOBBY_EMPTY, CHAPTER_END }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const LOBBY_EMPTY_BG := preload("res://assets/art/backgrounds/ch1_lobby_empty.png")
@@ -32,6 +32,8 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 @onready var room_door_hotspot: Control = %RoomDoorHotspot
 @onready var leave_hotspot: Control = %LeaveHotspot
 @onready var voice: AudioStreamPlayer = $Voice
+@onready var desk_view: Control = %DeskView
+@onready var desk_view_back: Button = %BackButton
 
 var state: State = State.LOBBY
 var _speech_gen := 0
@@ -43,6 +45,7 @@ func _ready() -> void:
 	GameState.reset()
 	waiter_hotspot.gui_input.connect(_on_waiter_input)
 	desk_hotspot.gui_input.connect(_on_desk_input)
+	desk_view_back.pressed.connect(_on_desk_view_back)
 	register_hotspot.gui_input.connect(_on_register_input)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	door113_hotspot.gui_input.connect(_on_door113_input)
@@ -129,6 +132,7 @@ func _set_state(next: State) -> void:
 	box_hotspot.visible = false
 	room_door_hotspot.visible = false
 	leave_hotspot.visible = false
+	desk_view.visible = false
 	card.visible = false
 	hud.visible = true
 
@@ -147,6 +151,11 @@ func _set_state(next: State) -> void:
 			register_hotspot.visible = true
 			stairs_hotspot.visible = GameState.has_item("slip")
 			hud.set_prompt("前台站着一位服务生。")
+		State.FRONT_DESK:
+			background.texture = LOBBY_BG
+			desk_view.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
 		State.HALL:
 			background.texture = HALL_BG
 			door113_hotspot.visible = true
@@ -262,10 +271,13 @@ func _on_register_input(event: InputEvent) -> void:
 func _on_desk_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
-	if GameState.has_item("slip"):
-		hud.set_prompt("服务单：113 · 白鹭夫人 · 缝补")
-	else:
-		hud.set_prompt("登记簿摊开着，等一个名字。")
+	# Enter the front-desk close-up; do not grant an item.
+	_set_state(State.FRONT_DESK)
+
+
+func _on_desk_view_back() -> void:
+	if state == State.FRONT_DESK:
+		_set_state(State.LOBBY)
 
 
 func _on_stairs_input(event: InputEvent) -> void:

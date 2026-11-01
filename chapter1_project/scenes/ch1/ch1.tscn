@@ -1,9 +1,9 @@
-﻿[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://6hawn3to8taw"]
 
-[ext_resource type="Script" path="res://scripts/ch1/ch1.gd" id="1_ch1"]
+[ext_resource type="Script" uid="uid://dp0unmk5ml6to" path="res://scripts/ch1/ch1.gd" id="1_ch1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
 
-[node name="Chapter1" type="Control"]
+[node name="Chapter1" type="Control" unique_id=1286985772]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,23 +12,22 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ch1")
 
-[node name="Backdrop" type="TextureRect" parent="."]
+[node name="Backdrop" type="TextureRect" parent="." unique_id=690396090]
+modulate = Color(0.42, 0.42, 0.42, 1)
 layout_mode = 0
 offset_right = 960.0
 offset_bottom = 720.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.42, 0.42, 0.42, 1)
 
-[node name="Stage" type="Control" parent="."]
-layout_mode = 0
+[node name="Stage" type="Control" parent="." unique_id=579654819]
+anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 720.0
 mouse_filter = 2
-clip_contents = false
 
-[node name="Background" type="TextureRect" parent="Stage"]
+[node name="Background" type="TextureRect" parent="Stage" unique_id=61322233]
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 960.0
@@ -37,7 +36,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Character" type="TextureRect" parent="Stage"]
+[node name="Character" type="TextureRect" parent="Stage" unique_id=801699686]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
@@ -47,7 +46,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DeskForeground" type="TextureRect" parent="Stage"]
+[node name="DeskForeground" type="TextureRect" parent="Stage" unique_id=1789166422]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
@@ -57,104 +56,160 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="LeaveHotspot" type="Control" parent="Stage"]
+[node name="LeaveHotspot" type="Control" parent="Stage" unique_id=88720406]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 720.0
 mouse_default_cursor_shape = 2
 
-[node name="WaiterHotspot" type="Control" parent="Stage"]
+[node name="WaiterHotspot" type="Control" parent="Stage" unique_id=530673582]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 380.0
 offset_top = 200.0
 offset_right = 560.0
 offset_bottom = 700.0
 mouse_default_cursor_shape = 2
 
-[node name="DeskHotspot" type="Control" parent="Stage"]
+[node name="DeskHotspot" type="Control" parent="Stage" unique_id=1209755645]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 540.0
 offset_top = 340.0
 offset_right = 958.0
 offset_bottom = 700.0
 mouse_default_cursor_shape = 2
 
-[node name="RegisterHotspot" type="Control" parent="Stage"]
+[node name="RegisterHotspot" type="Control" parent="Stage" unique_id=1115612208]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 690.0
 offset_top = 430.0
 offset_right = 785.0
 offset_bottom = 480.0
 mouse_default_cursor_shape = 2
 
-[node name="StairsHotspot" type="Control" parent="Stage"]
+[node name="StairsHotspot" type="Control" parent="Stage" unique_id=539669903]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 265.0
 offset_top = 185.0
 offset_right = 405.0
 offset_bottom = 455.0
 mouse_default_cursor_shape = 2
 
-[node name="Door113Hotspot" type="Control" parent="Stage"]
+[node name="Door113Hotspot" type="Control" parent="Stage" unique_id=529299278]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 615.0
 offset_top = 190.0
 offset_right = 700.0
 offset_bottom = 545.0
 mouse_default_cursor_shape = 2
 
-[node name="MachineHotspot" type="Control" parent="Stage"]
+[node name="MachineHotspot" type="Control" parent="Stage" unique_id=350167786]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 395.0
 offset_top = 375.0
 offset_right = 570.0
 offset_bottom = 520.0
 mouse_default_cursor_shape = 2
 
-[node name="BoxHotspot" type="Control" parent="Stage"]
+[node name="BoxHotspot" type="Control" parent="Stage" unique_id=1911093187]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 535.0
 offset_top = 430.0
 offset_right = 650.0
 offset_bottom = 505.0
 mouse_default_cursor_shape = 2
 
-[node name="EgretHotspot" type="Control" parent="Stage"]
+[node name="EgretHotspot" type="Control" parent="Stage" unique_id=1833702399]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 570.0
 offset_top = 305.0
 offset_right = 735.0
 offset_bottom = 705.0
 mouse_default_cursor_shape = 2
 
-[node name="RoomDoorHotspot" type="Control" parent="Stage"]
+[node name="RoomDoorHotspot" type="Control" parent="Stage" unique_id=1794537534]
 unique_name_in_owner = true
 visible = false
-layout_mode = 0
+anchors_preset = 0
 offset_left = 880.0
 offset_top = 150.0
 offset_right = 958.0
 offset_bottom = 700.0
 mouse_default_cursor_shape = 2
 
-[node name="GameHUD" parent="." instance=ExtResource("2_hud")]
+[node name="GameHUD" parent="." unique_id=29373300 instance=ExtResource("2_hud")]
+layout_mode = 1
 
-[node name="Voice" type="AudioStreamPlayer" parent="."]
+[node name="Voice" type="AudioStreamPlayer" parent="." unique_id=2090357599]
+
+[node name="DeskView" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+z_index = 60
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 0
+
+[node name="Bg" type="ColorRect" parent="Stage/DeskView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.0352941, 0.054902, 0.0509804, 1)
+
+[node name="Title" type="Label" parent="Stage/DeskView"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 250.0
+offset_right = 960.0
+offset_bottom = 310.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_font_sizes/font_size = 34
+text = "前台"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="Stage/DeskView"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 320.0
+offset_right = 960.0
+offset_bottom = 360.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.690196, 0.627451, 0.517647, 1)
+theme_override_font_sizes/font_size = 17
+text = "暂无图片"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="Stage/DeskView"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
+theme_override_font_sizes/font_size = 24
+flat = true
+text = "←"

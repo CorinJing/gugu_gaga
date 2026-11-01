@@ -158,3 +158,58 @@ mouse_default_cursor_shape = 2
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
+
+[node name="DeskView" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+z_index = 60
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 0
+
+[node name="Bg" type="ColorRect" parent="Stage/DeskView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.0352941, 0.054902, 0.0509804, 1)
+
+[node name="Title" type="Label" parent="Stage/DeskView"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 250.0
+offset_right = 960.0
+offset_bottom = 310.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_font_sizes/font_size = 34
+text = "前台"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="Stage/DeskView"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 320.0
+offset_right = 960.0
+offset_bottom = 360.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.690196, 0.627451, 0.517647, 1)
+theme_override_font_sizes/font_size = 17
+text = "暂无图片"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="Stage/DeskView"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
+theme_override_font_sizes/font_size = 24
+flat = true
+text = "←"
