@@ -269,8 +269,9 @@ offset_right = 616.0
 offset_bottom = 64.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.117647, 0.0941176, 0.0627451, 1)
-theme_override_font_sizes/font_size = 24
-text = "入住旅馆注意事项"
+theme_override_font_sizes/font_size = 28
+text = "入住须知"
+horizontal_alignment = 1
 
 [node name="Body" type="Label" parent="CheckInPanel"]
 unique_name_in_owner = true
@@ -281,29 +282,39 @@ offset_right = 616.0
 offset_bottom = 490.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.176471, 0.145098, 0.0980392, 1)
-theme_override_font_sizes/font_size = 18
-text = "一、请在前台登记，领取房号与钥匙。\n二、入夜后请勿在走廊停留。\n三、请勿向戴面具的客人询问姓名。\n四、请勿在镜前整理衣冠。\n五、113 号房的缝补服务，请在午夜前完成。\n六、离店前请将钥匙留在前台。\n\n入住人："
+theme_override_font_sizes/font_size = 20
+text = "一、尊敬的客人，欢迎您入住盐月旅馆。请您先在前台完成登记。随后，您可以从旅馆服务生处得到通往一楼走廊的钥匙。\n二、在午夜时分，我们非常不建议您在旅馆内随意活动，除非您已经得到了旅馆内客人的许可。\n三、在您成功办理入住之后，您需要向已经在旅馆内入住的客人们提供一些客房服务，以换取您房间的钥匙。\n四、当您办理退房服务时，仅需要将您所持有的客房钥匙投入大海。我们会有专人前去回收。\n五、最后，衷心地祝愿您的路途愉快！！！？？"
 autowrap_mode = 3
 
-[node name="SignHint" type="Label" parent="CheckInPanel"]
+[node name="SignName" type="Label" parent="CheckInPanel"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 24.0
-offset_top = 470.0
-offset_right = 616.0
-offset_bottom = 500.0
+offset_top = 560.0
+offset_right = 140.0
+offset_bottom = 600.0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.352941, 0.286275, 0.192157, 0.8)
-theme_override_font_sizes/font_size = 14
-text = "请拖动钢笔，在下方签名"
+theme_override_colors/font_color = Color(0.176471, 0.145098, 0.0980392, 1)
+theme_override_font_sizes/font_size = 20
+text = "入住人："
+
+[node name="SignatureLine" type="ColorRect" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 120.0
+offset_top = 590.0
+offset_right = 616.0
+offset_bottom = 592.0
+mouse_filter = 2
+color = Color(0.176471, 0.145098, 0.0980392, 0.75)
 
 [node name="SignaturePad" type="Control" parent="CheckInPanel"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 24.0
+offset_left = 100.0
 offset_top = 500.0
 offset_right = 616.0
-offset_bottom = 620.0
+offset_bottom = 600.0
 mouse_filter = 2
 script = ExtResource("3_pad")
 

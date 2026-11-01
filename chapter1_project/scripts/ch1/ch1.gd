@@ -42,7 +42,8 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 @onready var checkin_paper: ColorRect = %Paper
 @onready var checkin_title: Label = %Title
 @onready var checkin_body: Label = %Body
-@onready var sign_hint: Label = %SignHint
+@onready var sign_name: Label = %SignName
+@onready var signature_line: ColorRect = %SignatureLine
 @onready var signature_pad: Control = %SignaturePad
 @onready var checkin_back: Button = %CheckInBack
 
@@ -340,19 +341,27 @@ func _layout_checkin() -> void:
 	if vp.x <= 1.0 or vp.y <= 1.0:
 		return
 	var panel_w: float = vp.x * 0.5
+	var s: float = clampf(vp.y / 720.0, 0.8, 1.25)
 	checkin_panel.position = Vector2.ZERO
 	checkin_panel.size = vp
 	checkin_paper.position = Vector2.ZERO
 	checkin_paper.size = Vector2(panel_w, vp.y)
-	checkin_title.position = Vector2(24.0, 24.0)
-	checkin_title.size = Vector2(panel_w - 48.0, 44.0)
-	checkin_body.position = Vector2(24.0, 82.0)
-	checkin_body.size = Vector2(panel_w - 48.0, maxf(180.0, vp.y - 310.0))
-	checkin_body.add_theme_font_size_override("font_size", int(18.0))
-	sign_hint.position = Vector2(24.0, vp.y - 220.0)
-	sign_hint.size = Vector2(panel_w - 48.0, 24.0)
-	signature_pad.position = Vector2(24.0, vp.y - 190.0)
-	signature_pad.size = Vector2(panel_w - 48.0, 120.0)
+	checkin_title.position = Vector2(24.0, 22.0)
+	checkin_title.size = Vector2(panel_w - 48.0, 48.0 * s)
+	checkin_title.add_theme_font_size_override("font_size", int(30.0 * s))
+	checkin_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	checkin_body.position = Vector2(24.0, 80.0)
+	checkin_body.size = Vector2(panel_w - 48.0, maxf(190.0, vp.y - 350.0))
+	checkin_body.add_theme_font_size_override("font_size", int(20.0 * s))
+	var line_y: float = vp.y - 155.0
+	sign_name.position = Vector2(24.0, line_y - 28.0)
+	sign_name.size = Vector2(100.0, 34.0)
+	sign_name.add_theme_font_size_override("font_size", int(20.0 * s))
+	signature_line.position = Vector2(112.0, line_y)
+	signature_line.size = Vector2(panel_w - 140.0, 2.0)
+	# Large invisible signing area centred on the underline.
+	signature_pad.position = Vector2(100.0, line_y - 52.0)
+	signature_pad.size = Vector2(panel_w - 124.0, 74.0)
 	checkin_back.position = Vector2(24.0, vp.y - 54.0)
 	checkin_back.size = Vector2(100.0, 40.0)
 
