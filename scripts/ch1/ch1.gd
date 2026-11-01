@@ -39,6 +39,8 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var register_back: Button = %RegisterBack
 @onready var pen_hotspot: Control = %PenHotspot
 @onready var book_hotspot: Control = %BookHotspot
+@onready var tray_hotspot: Control = %TrayHotspot
+@onready var left_door_hotspot: Control = %LeftDoorHotspot
 @onready var checkin_panel: Control = %CheckInPanel
 @onready var checkin_paper: ColorRect = %Paper
 @onready var checkin_title: Label = %Title
@@ -62,6 +64,8 @@ func _ready() -> void:
 	register_back.pressed.connect(_on_register_back)
 	pen_hotspot.gui_input.connect(_on_pen_input)
 	book_hotspot.gui_input.connect(_on_book_input)
+	tray_hotspot.gui_input.connect(_on_tray_input)
+	left_door_hotspot.gui_input.connect(_on_left_door_input)
 	checkin_back.pressed.connect(_on_checkin_back)
 	hud.drag_moved.connect(_on_drag_moved)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
@@ -158,6 +162,8 @@ func _set_state(next: State) -> void:
 	register_back.visible = false
 	pen_hotspot.visible = false
 	book_hotspot.visible = false
+	tray_hotspot.visible = false
+	left_door_hotspot.visible = false
 	checkin_panel.visible = false
 	card.visible = false
 	hud.visible = true
@@ -176,6 +182,8 @@ func _set_state(next: State) -> void:
 			stairs_hotspot.visible = GameState.has_flag("registered")
 			var waiter_ready: bool = GameState.has_flag("waiter_second_line")
 			desk_hotspot.visible = waiter_ready
+			left_door_hotspot.visible = true
+			tray_hotspot.visible = GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
@@ -273,7 +281,10 @@ func _on_waiter_input(event: InputEvent) -> void:
 		return
 	if GameState.has_flag("signed"):
 		_play_voice(VOICE_KEY)
-		_say("这是走廊的钥匙，请收好", waiter_hotspot, 4.5)
+		await _say("这是走廊的钥匙，请收好", waiter_hotspot, 4.5)
+		GameState.set_flag("key_dialogue_done")
+		if state == State.LOBBY:
+			tray_hotspot.visible = not GameState.has_item("corridor_key")
 		return
 	if not GameState.has_flag("waiter_greeted"):
 		GameState.set_flag("waiter_greeted")
@@ -294,6 +305,26 @@ func _play_voice(stream: AudioStream) -> void:
 	voice.stop()
 	voice.stream = stream
 	voice.play()
+
+
+func _on_tray_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	if not GameState.has_flag("key_dialogue_done") or GameState.has_item("corridor_key"):
+		return
+	GameState.add_item("corridor_key")
+	tray_hotspot.visible = false
+	hud.set_prompt("你从托盘上拿到了走廊钥匙。")
+
+
+func _on_left_door_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	if not GameState.has_item("corridor_key"):
+		hud.set_prompt("左侧的门锁着。")
+		return
+	GameState.remove_item("corridor_key")
+	_transition_to(State.HALL)
 
 
 func _on_pen_input(event: InputEvent) -> void:
@@ -462,6 +493,10 @@ func _on_room_door_input(event: InputEvent) -> void:
 
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if state == State.LOBBY and item_id == "corridor_key" and left_door_hotspot.get_global_rect().has_point(screen_pos):
+		GameState.remove_item("corridor_key")
+		_transition_to(State.HALL)
+		return
 	if checkin_panel.visible and item_id == "pen":
 		if signature_pad.has_ink():
 			_finish_signature()

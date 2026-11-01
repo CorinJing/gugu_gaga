@@ -11,6 +11,7 @@ const ICONS := {
 	"coin": preload("res://assets/art/items/coin_front_cut.png"),
 	"letter": preload("res://assets/art/ui/item_letter.png"),
 	"mailbox_key": preload("res://assets/art/ui/item_mailbox_key.png"),
+	"corridor_key": preload("res://assets/art/ui/item_corridor_key.png"),
 	"slip": preload("res://assets/art/ui/item_slip.png"),
 	"pen": preload("res://assets/art/ui/item_pen.png"),
 	"thread": preload("res://assets/art/ui/item_thread.png"),

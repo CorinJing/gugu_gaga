@@ -15,6 +15,7 @@ const ITEM_NAMES := {
 	"door_handle": "白鹭把手",
 	"crank": "黄铜摇柄",
 	"brass_key": "黄铜钥匙",
+	"corridor_key": "走廊钥匙",
 	"slip": "服务单",
 	"pen": "钢笔",
 	"thread": "红线",

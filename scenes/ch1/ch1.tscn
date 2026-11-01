@@ -166,6 +166,26 @@ offset_right = 620.0
 offset_bottom = 545.0
 mouse_default_cursor_shape = 2
 
+[node name="TrayHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 425.0
+offset_top = 300.0
+offset_right = 510.0
+offset_bottom = 390.0
+mouse_default_cursor_shape = 2
+
+[node name="LeftDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 55.0
+offset_top = 180.0
+offset_right = 215.0
+offset_bottom = 560.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
