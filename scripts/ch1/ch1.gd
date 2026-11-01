@@ -3,11 +3,12 @@ extends Control
 ## 第一章 · 113 号房
 ## 流程：大堂登记 → 上楼 → 113 → 白鹭夫人 → 找线 → 穿针 → 针线盒最下层 → 黄铜针 → 离开 → 前台空了
 
-enum State { LOBBY, FRONT_DESK, HALL, ROOM, LOBBY_EMPTY, CHAPTER_END }
+enum State { LOBBY, FRONT_DESK, REGISTER, HALL, ROOM, LOBBY_EMPTY, CHAPTER_END }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const LOBBY_EMPTY_BG := preload("res://assets/art/backgrounds/ch1_lobby_empty.png")
 const LOBBY_FG := preload("res://assets/art/backgrounds/ch1_lobby_fg.png")
+const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
 const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
@@ -34,6 +35,7 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 @onready var voice: AudioStreamPlayer = $Voice
 @onready var desk_view: Control = %DeskView
 @onready var desk_view_back: Button = %BackButton
+@onready var register_back: Button = %RegisterBack
 
 var state: State = State.LOBBY
 var _speech_gen := 0
@@ -46,6 +48,7 @@ func _ready() -> void:
 	waiter_hotspot.gui_input.connect(_on_waiter_input)
 	desk_hotspot.gui_input.connect(_on_desk_input)
 	desk_view_back.pressed.connect(_on_desk_view_back)
+	register_back.pressed.connect(_on_register_back)
 	register_hotspot.gui_input.connect(_on_register_input)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	door113_hotspot.gui_input.connect(_on_door113_input)
@@ -118,6 +121,7 @@ func _say(text: String, anchor: Control, seconds: float = 3.0) -> void:
 
 func _set_state(next: State) -> void:
 	state = next
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_speech_gen += 1
 	hud.hide_speech()
 	character.visible = false
@@ -133,6 +137,8 @@ func _set_state(next: State) -> void:
 	room_door_hotspot.visible = false
 	leave_hotspot.visible = false
 	desk_view.visible = false
+	desk_view_back.visible = false
+	register_back.visible = false
 	card.visible = false
 	hud.visible = true
 
@@ -154,6 +160,13 @@ func _set_state(next: State) -> void:
 		State.FRONT_DESK:
 			background.texture = LOBBY_BG
 			desk_view.visible = true
+			desk_view_back.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.REGISTER:
+			background.texture = REGISTER_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			register_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.HALL:
@@ -265,7 +278,7 @@ func _on_register_input(event: InputEvent) -> void:
 		return
 	GameState.set_flag("registered")
 	stairs_hotspot.visible = true
-	hud.set_prompt("你签下名字。113 号房，白鹭夫人。")
+	_set_state(State.REGISTER)
 
 
 func _on_desk_input(event: InputEvent) -> void:
@@ -277,6 +290,11 @@ func _on_desk_input(event: InputEvent) -> void:
 
 func _on_desk_view_back() -> void:
 	if state == State.FRONT_DESK:
+		_set_state(State.LOBBY)
+
+
+func _on_register_back() -> void:
+	if state == State.REGISTER:
 		_set_state(State.LOBBY)
 
 
