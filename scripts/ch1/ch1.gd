@@ -257,7 +257,6 @@ func _on_register_input(event: InputEvent) -> void:
 	GameState.add_item("slip")
 	stairs_hotspot.visible = true
 	hud.set_prompt("你签下名字。服务单：113 · 白鹭夫人 · 缝补")
-	_say("113 号房，白鹭夫人。她需要缝补。", waiter_hotspot, 3.4)
 
 
 func _on_desk_input(event: InputEvent) -> void:
