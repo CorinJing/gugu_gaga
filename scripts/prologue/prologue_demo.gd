@@ -530,7 +530,8 @@ func _on_hotel_door_open_input(event: InputEvent) -> void:
 func _start_logo_sequence() -> void:
 	await get_tree().create_timer(5.0).timeout
 	if state == State.PROLOGUE_LOGO:
-		SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn")
+		# 标题卡结束后直接进入第一章大堂。
+		SceneTransition.change_scene("res://scenes/ch1/ch1.tscn")
 
 
 func _layout_logo() -> void:

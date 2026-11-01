@@ -1,4 +1,4 @@
-﻿extends Control
+extends Control
 
 ## 第一章 · 113 号房
 ## 流程：大堂登记 → 上楼 → 113 → 白鹭夫人 → 找线 → 穿针 → 针线盒最下层 → 黄铜针 → 离开 → 前台空了
@@ -135,7 +135,7 @@ func _set_state(next: State) -> void:
 			character.texture = WAITER
 			character.visible = true
 			character.modulate = Color(0.82, 0.85, 0.82, 1.0)
-			character.position = Vector2(600.0, 195.0)
+			character.position = Vector2(710.0, 125.0)
 			character.size = Vector2(133.0, 409.0)
 			desk_fg.texture = LOBBY_FG
 			desk_fg.visible = true
