@@ -16,6 +16,7 @@ const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET := preload("res://assets/art/characters/egret_seated_nc.png")
 const VOICE_WELCOME := preload("res://assets/audio/npc/waiter_01_welcome.mp3")
 const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
+const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
@@ -269,6 +270,10 @@ func _layout() -> void:
 # ---------------------------------------------------------------- 大堂
 func _on_waiter_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	if GameState.has_flag("signed"):
+		_play_voice(VOICE_KEY)
+		_say("这是走廊的钥匙，请收好", waiter_hotspot, 4.5)
 		return
 	if not GameState.has_flag("waiter_greeted"):
 		GameState.set_flag("waiter_greeted")
