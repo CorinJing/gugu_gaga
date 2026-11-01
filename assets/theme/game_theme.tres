@@ -1,7 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://c7dwbnl8cj3bb"]
 
 [sub_resource type="SystemFont" id="SystemFont_cjk"]
-font_names = PackedStringArray("Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "SimSun", "PingFang SC", "Noto Sans CJK SC", "Heiti SC", "Arial Unicode MS")
+font_names = PackedStringArray("Heiti SC", "STHeiti", "Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "SimSun", "Arial Unicode MS", "PingFang SC", "Noto Sans CJK SC")
 
 [resource]
 default_font = SubResource("SystemFont_cjk")
