@@ -149,7 +149,7 @@ func _set_state(next: State) -> void:
 			waiter_hotspot.visible = true
 			desk_hotspot.visible = true
 			register_hotspot.visible = true
-			stairs_hotspot.visible = GameState.has_item("slip")
+			stairs_hotspot.visible = GameState.has_flag("registered")
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
 			background.texture = LOBBY_BG
@@ -260,12 +260,12 @@ func _on_register_input(event: InputEvent) -> void:
 	if not GameState.has_flag("waiter_greeted"):
 		hud.set_prompt("登记簿摊开着，还没有人招呼你。")
 		return
-	if GameState.has_item("slip"):
+	if GameState.has_flag("registered"):
 		hud.set_prompt("已经登记过了。")
 		return
-	GameState.add_item("slip")
+	GameState.set_flag("registered")
 	stairs_hotspot.visible = true
-	hud.set_prompt("你签下名字。服务单：113 · 白鹭夫人 · 缝补")
+	hud.set_prompt("你签下名字。113 号房，白鹭夫人。")
 
 
 func _on_desk_input(event: InputEvent) -> void:
@@ -283,7 +283,7 @@ func _on_desk_view_back() -> void:
 func _on_stairs_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
-	if not GameState.has_item("slip"):
+	if not GameState.has_flag("registered"):
 		hud.set_prompt("先在前台登记。")
 		return
 	_set_state(State.HALL)
