@@ -313,7 +313,7 @@ func _on_pen_input(event: InputEvent) -> void:
 	GameState.set_flag("pen_taken")
 	GameState.add_item("pen")
 	pen_hotspot.visible = false
-	background.texture = REGISTER_NO_PEN_BG
+	await SceneTransition.transition(func() -> void: background.texture = REGISTER_NO_PEN_BG)
 	hud.set_prompt("你拿起了桌上的钢笔。")
 
 

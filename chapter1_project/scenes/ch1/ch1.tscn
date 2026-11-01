@@ -159,7 +159,7 @@ mouse_default_cursor_shape = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
-offset_left = 645.0
+offset_left = 620.0
 offset_top = 415.0
 offset_right = 900.0
 offset_bottom = 585.0
@@ -171,7 +171,7 @@ visible = false
 layout_mode = 0
 offset_left = 185.0
 offset_top = 185.0
-offset_right = 685.0
+offset_right = 620.0
 offset_bottom = 545.0
 mouse_default_cursor_shape = 2
 
