@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cr3ssv6p2k8ir"
-path="res://.godot/imported/item_brass_needle.png-f3b1859662b69df0cc10e0049af9137d.ctex"
+uid="uid://3rwm4l8xbh5s"
+path="res://.godot/imported/item_corridor_key.png-11f8e59f812f997d2e5fabfd3314a985.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/ui/item_brass_needle.png"
-dest_files=["res://.godot/imported/item_brass_needle.png-f3b1859662b69df0cc10e0049af9137d.ctex"]
+source_file="res://assets/art/ui/item_corridor_key.png"
+dest_files=["res://.godot/imported/item_corridor_key.png-11f8e59f812f997d2e5fabfd3314a985.ctex"]
 
 [params]
 
