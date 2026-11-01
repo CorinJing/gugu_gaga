@@ -1,7 +1,8 @@
-﻿[gd_scene load_steps=3 format=3]
+﻿[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ch1/ch1.gd" id="1_ch1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
+[ext_resource type="Script" path="res://scripts/ui/signature_pad.gd" id="3_pad"]
 
 [node name="Chapter1" type="Control"]
 layout_mode = 3
@@ -155,6 +156,26 @@ offset_right = 958.0
 offset_bottom = 700.0
 mouse_default_cursor_shape = 2
 
+[node name="PenHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 645.0
+offset_top = 415.0
+offset_right = 900.0
+offset_bottom = 585.0
+mouse_default_cursor_shape = 2
+
+[node name="BookHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 185.0
+offset_top = 185.0
+offset_right = 685.0
+offset_bottom = 545.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
@@ -231,3 +252,87 @@ theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
 theme_override_font_sizes/font_size = 24
 flat = true
 text = "←"
+
+[node name="CheckInPanel" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 80
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+
+[node name="Paper" type="ColorRect" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 720.0
+mouse_filter = 0
+color = Color(0.933333, 0.87451, 0.65098, 0.9)
+
+[node name="Title" type="Label" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 616.0
+offset_bottom = 64.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.117647, 0.0941176, 0.0627451, 1)
+theme_override_font_sizes/font_size = 24
+text = "入住旅馆注意事项"
+
+[node name="Body" type="Label" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 82.0
+offset_right = 616.0
+offset_bottom = 490.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.176471, 0.145098, 0.0980392, 1)
+theme_override_font_sizes/font_size = 18
+text = "一、夜间请勿在走廊停留。
+二、请勿向镜中的客人询问姓名。
+三、离店前请将钥匙留在前台。
+四、如听见敲门声，请先确认门外是否有影子。
+
+入住人："
+autowrap_mode = 3
+
+[node name="SignHint" type="Label" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 470.0
+offset_right = 616.0
+offset_bottom = 500.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.352941, 0.286275, 0.192157, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "请拖动钢笔，在下方签名"
+
+[node name="SignaturePad" type="Control" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 500.0
+offset_right = 616.0
+offset_bottom = 620.0
+mouse_filter = 2
+script = ExtResource("3_pad")
+
+[node name="CheckInBack" type="Button" parent="CheckInPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 640.0
+offset_right = 124.0
+offset_bottom = 684.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.117647, 0.0941176, 0.0627451, 1)
+theme_override_colors/font_hover_color = Color(0.0, 0.0, 0.0, 1)
+theme_override_font_sizes/font_size = 17
+flat = true
+text = "← 返回"

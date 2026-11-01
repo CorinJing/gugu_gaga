@@ -2,6 +2,7 @@ extends Control
 
 signal action_pressed
 signal drag_released(item_id: String, slot_index: int, screen_pos: Vector2)
+signal drag_moved(item_id: String, screen_pos: Vector2)
 
 const PANEL := preload("res://assets/art/ui/inventory_panel.png")
 const ICONS := {
@@ -11,6 +12,7 @@ const ICONS := {
 	"letter": preload("res://assets/art/ui/item_letter.png"),
 	"mailbox_key": preload("res://assets/art/ui/item_mailbox_key.png"),
 	"slip": preload("res://assets/art/ui/item_slip.png"),
+	"pen": preload("res://assets/art/ui/item_pen.png"),
 	"thread": preload("res://assets/art/ui/item_thread.png"),
 	"brass_needle": preload("res://assets/art/ui/item_brass_needle.png"),
 }
@@ -218,6 +220,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		_move_preview((event as InputEventMouseMotion).position)
+		drag_moved.emit(_drag_item, (event as InputEventMouseMotion).position)
 	elif event is InputEventMouseButton:
 		var mouse := event as InputEventMouseButton
 		if mouse.button_index == MOUSE_BUTTON_LEFT and not mouse.pressed:

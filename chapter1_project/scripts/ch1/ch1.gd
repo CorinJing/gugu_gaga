@@ -36,6 +36,15 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 @onready var desk_view: Control = %DeskView
 @onready var desk_view_back: Button = %BackButton
 @onready var register_back: Button = %RegisterBack
+@onready var pen_hotspot: Control = %PenHotspot
+@onready var book_hotspot: Control = %BookHotspot
+@onready var checkin_panel: Control = %CheckInPanel
+@onready var checkin_paper: ColorRect = %Paper
+@onready var checkin_title: Label = %Title
+@onready var checkin_body: Label = %Body
+@onready var sign_hint: Label = %SignHint
+@onready var signature_pad: Control = %SignaturePad
+@onready var checkin_back: Button = %CheckInBack
 
 var state: State = State.LOBBY
 var _speech_gen := 0
@@ -49,6 +58,10 @@ func _ready() -> void:
 	desk_hotspot.gui_input.connect(_on_desk_input)
 	desk_view_back.pressed.connect(_on_desk_view_back)
 	register_back.pressed.connect(_on_register_back)
+	pen_hotspot.gui_input.connect(_on_pen_input)
+	book_hotspot.gui_input.connect(_on_book_input)
+	checkin_back.pressed.connect(_on_checkin_back)
+	hud.drag_moved.connect(_on_drag_moved)
 	register_hotspot.gui_input.connect(_on_register_input)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	door113_hotspot.gui_input.connect(_on_door113_input)
@@ -143,6 +156,9 @@ func _set_state(next: State) -> void:
 	desk_view.visible = false
 	desk_view_back.visible = false
 	register_back.visible = false
+	pen_hotspot.visible = false
+	book_hotspot.visible = false
+	checkin_panel.visible = false
 	card.visible = false
 	hud.visible = true
 
@@ -162,9 +178,12 @@ func _set_state(next: State) -> void:
 			stairs_hotspot.visible = GameState.has_flag("registered")
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
-			background.texture = LOBBY_BG
-			desk_view.visible = true
+			background.texture = REGISTER_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			desk_view.visible = false
 			desk_view_back.visible = true
+			pen_hotspot.visible = true
+			book_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.REGISTER:
@@ -285,6 +304,72 @@ func _on_register_input(event: InputEvent) -> void:
 	_transition_to(State.REGISTER)
 
 
+func _on_pen_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.FRONT_DESK:
+		return
+	if GameState.has_flag("pen_taken"):
+		return
+	GameState.set_flag("pen_taken")
+	GameState.add_item("pen")
+	pen_hotspot.visible = false
+	hud.set_prompt("你拿起了桌上的钢笔。")
+
+
+func _on_book_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.FRONT_DESK:
+		return
+	signature_pad.clear_ink()
+	checkin_panel.visible = true
+	_layout_checkin()
+	hud.set_prompt("入住须知摊开在前台桌上。")
+
+
+func _on_checkin_back() -> void:
+	checkin_panel.visible = false
+
+
+func _on_drag_moved(item_id: String, screen_pos: Vector2) -> void:
+	if not checkin_panel.visible or item_id != "pen":
+		return
+	if not signature_pad.get_global_rect().has_point(screen_pos):
+		return
+	signature_pad.add_point(screen_pos)
+
+
+func _finish_signature() -> void:
+	if not signature_pad.has_ink():
+		hud.set_prompt("请拖动钢笔，在下方签名。")
+		return
+	GameState.remove_item("pen")
+	GameState.set_flag("signed")
+	GameState.set_flag("registered")
+	checkin_panel.visible = false
+	stairs_hotspot.visible = true
+	hud.set_prompt("签名完成。")
+
+
+func _layout_checkin() -> void:
+	var vp := get_viewport_rect().size
+	if vp.x <= 1.0 or vp.y <= 1.0:
+		return
+	var panel_w: float = vp.x * 0.5
+	checkin_panel.position = Vector2.ZERO
+	checkin_panel.size = vp
+	checkin_paper.position = Vector2.ZERO
+	checkin_paper.size = Vector2(panel_w, vp.y)
+	checkin_title.position = Vector2(24.0, 24.0)
+	checkin_title.size = Vector2(panel_w - 48.0, 44.0)
+	checkin_body.position = Vector2(24.0, 82.0)
+	checkin_body.size = Vector2(panel_w - 48.0, maxf(180.0, vp.y - 310.0))
+	checkin_body.add_theme_font_size_override("font_size", int(18.0))
+	sign_hint.position = Vector2(24.0, vp.y - 220.0)
+	sign_hint.size = Vector2(panel_w - 48.0, 24.0)
+	signature_pad.position = Vector2(24.0, vp.y - 190.0)
+	signature_pad.size = Vector2(panel_w - 48.0, 120.0)
+	checkin_back.position = Vector2(24.0, vp.y - 54.0)
+	checkin_back.size = Vector2(100.0, 40.0)
+
+
 func _on_desk_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
@@ -373,6 +458,12 @@ func _on_room_door_input(event: InputEvent) -> void:
 
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if checkin_panel.visible and item_id == "pen":
+		if signature_pad.has_ink():
+			_finish_signature()
+		else:
+			hud.set_prompt("请拖动钢笔，在下方签名。")
+		return
 	if state == State.ROOM and item_id == "thread" and machine_hotspot.get_global_rect().has_point(screen_pos):
 		_thread_needle()
 		return
