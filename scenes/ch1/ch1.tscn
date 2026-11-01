@@ -157,4 +157,4 @@ mouse_default_cursor_shape = 2
 
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
-
+[node name="Voice" type="AudioStreamPlayer" parent="."]

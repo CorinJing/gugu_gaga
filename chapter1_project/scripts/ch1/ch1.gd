@@ -12,6 +12,8 @@ const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
 const EGRET := preload("res://assets/art/characters/egret_seated_nc.png")
+const VOICE_WELCOME := preload("res://assets/audio/npc/waiter_01_welcome.mp3")
+const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
@@ -29,6 +31,7 @@ const EGRET := preload("res://assets/art/characters/egret_seated_nc.png")
 @onready var box_hotspot: Control = %BoxHotspot
 @onready var room_door_hotspot: Control = %RoomDoorHotspot
 @onready var leave_hotspot: Control = %LeaveHotspot
+@onready var voice: AudioStreamPlayer = $Voice
 
 var state: State = State.LOBBY
 var _speech_gen := 0
@@ -225,14 +228,21 @@ func _on_waiter_input(event: InputEvent) -> void:
 		return
 	if not GameState.has_flag("waiter_greeted"):
 		GameState.set_flag("waiter_greeted")
-		hud.set_prompt("服务生把登记簿推到你面前。")
-		_say("欢迎。请登记。", waiter_hotspot)
+		hud.set_prompt("服务生向你问候。")
+		_play_voice(VOICE_WELCOME)
+		_say("欢迎来到盐月旅馆，远道而来的客人", waiter_hotspot, 4.5)
 		return
-	if not GameState.has_item("slip"):
-		hud.set_prompt("登记簿在前台右侧，翻开的那本。")
-		_say("请在那边的登记簿上签字。", waiter_hotspot)
+	hud.set_prompt("服务生示意你到前台登记。")
+	_play_voice(VOICE_REGISTER)
+	_say("您可以在旁边的前台进行登记入住", waiter_hotspot, 4.5)
+
+
+func _play_voice(stream: AudioStream) -> void:
+	if voice == null:
 		return
-	_say("113 号房。她在等你。", waiter_hotspot)
+	voice.stop()
+	voice.stream = stream
+	voice.play()
 
 
 func _on_register_input(event: InputEvent) -> void:
