@@ -177,6 +177,9 @@ func _set_state(next: State) -> void:
 			desk_hotspot.visible = true
 			register_hotspot.visible = true
 			stairs_hotspot.visible = GameState.has_flag("registered")
+			var waiter_ready: bool = GameState.has_flag("waiter_second_line")
+			desk_hotspot.visible = waiter_ready
+			register_hotspot.visible = waiter_ready
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
@@ -278,6 +281,9 @@ func _on_waiter_input(event: InputEvent) -> void:
 		_play_voice(VOICE_WELCOME)
 		_say("欢迎来到盐月旅馆，远道而来的客人", waiter_hotspot, 4.5)
 		return
+	GameState.set_flag("waiter_second_line")
+	desk_hotspot.visible = true
+	register_hotspot.visible = true
 	hud.set_prompt("服务生示意你到前台登记。")
 	_play_voice(VOICE_REGISTER)
 	_say("您可以在旁边的前台进行登记入住", waiter_hotspot, 4.5)
@@ -313,7 +319,7 @@ func _on_pen_input(event: InputEvent) -> void:
 	GameState.set_flag("pen_taken")
 	GameState.add_item("pen")
 	pen_hotspot.visible = false
-	await SceneTransition.transition(func() -> void: background.texture = REGISTER_NO_PEN_BG)
+	await SceneTransition.transition(func() -> void: background.texture = REGISTER_NO_PEN_BG, 0.18, 0.22)
 	hud.set_prompt("你拿起了桌上的钢笔。")
 
 
@@ -374,6 +380,9 @@ func _layout_checkin() -> void:
 
 func _on_desk_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	if not GameState.has_flag("waiter_second_line"):
+		hud.set_prompt("先听服务生说完。")
 		return
 	# Enter the front-desk close-up; do not grant an item.
 	_transition_to(State.FRONT_DESK)
