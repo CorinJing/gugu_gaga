@@ -9,6 +9,7 @@ const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const LOBBY_EMPTY_BG := preload("res://assets/art/backgrounds/ch1_lobby_empty.png")
 const LOBBY_FG := preload("res://assets/art/backgrounds/ch1_lobby_fg.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
+const REGISTER_NO_PEN_BG := preload("res://assets/art/backgrounds/ch1_register_no_pen.png")
 const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
@@ -178,7 +179,7 @@ func _set_state(next: State) -> void:
 			stairs_hotspot.visible = GameState.has_flag("registered")
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
-			background.texture = REGISTER_BG
+			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			desk_view.visible = false
 			desk_view_back.visible = true
@@ -312,6 +313,7 @@ func _on_pen_input(event: InputEvent) -> void:
 	GameState.set_flag("pen_taken")
 	GameState.add_item("pen")
 	pen_hotspot.visible = false
+	background.texture = REGISTER_NO_PEN_BG
 	hud.set_prompt("你拿起了桌上的钢笔。")
 
 
