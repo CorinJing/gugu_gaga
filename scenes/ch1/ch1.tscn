@@ -86,16 +86,6 @@ offset_right = 958.0
 offset_bottom = 700.0
 mouse_default_cursor_shape = 2
 
-[node name="RegisterHotspot" type="Control" parent="Stage"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = 690.0
-offset_top = 430.0
-offset_right = 785.0
-offset_bottom = 480.0
-mouse_default_cursor_shape = 2
-
 [node name="StairsHotspot" type="Control" parent="Stage"]
 unique_name_in_owner = true
 visible = false

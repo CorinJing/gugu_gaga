@@ -25,7 +25,6 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 @onready var desk_fg: TextureRect = %DeskForeground
 @onready var waiter_hotspot: Control = %WaiterHotspot
 @onready var desk_hotspot: Control = %DeskHotspot
-@onready var register_hotspot: Control = %RegisterHotspot
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var door113_hotspot: Control = %Door113Hotspot
 @onready var egret_hotspot: Control = %EgretHotspot
@@ -63,7 +62,6 @@ func _ready() -> void:
 	book_hotspot.gui_input.connect(_on_book_input)
 	checkin_back.pressed.connect(_on_checkin_back)
 	hud.drag_moved.connect(_on_drag_moved)
-	register_hotspot.gui_input.connect(_on_register_input)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	door113_hotspot.gui_input.connect(_on_door113_input)
 	egret_hotspot.gui_input.connect(_on_egret_input)
@@ -146,7 +144,6 @@ func _set_state(next: State) -> void:
 	desk_fg.visible = false
 	waiter_hotspot.visible = false
 	desk_hotspot.visible = false
-	register_hotspot.visible = false
 	stairs_hotspot.visible = false
 	door113_hotspot.visible = false
 	egret_hotspot.visible = false
@@ -174,12 +171,9 @@ func _set_state(next: State) -> void:
 			character.size = Vector2(150.0, 460.0)
 			desk_fg.visible = false
 			waiter_hotspot.visible = true
-			desk_hotspot.visible = true
-			register_hotspot.visible = true
 			stairs_hotspot.visible = GameState.has_flag("registered")
 			var waiter_ready: bool = GameState.has_flag("waiter_second_line")
 			desk_hotspot.visible = waiter_ready
-			register_hotspot.visible = waiter_ready
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
@@ -283,7 +277,6 @@ func _on_waiter_input(event: InputEvent) -> void:
 		return
 	GameState.set_flag("waiter_second_line")
 	desk_hotspot.visible = true
-	register_hotspot.visible = true
 	hud.set_prompt("服务生示意你到前台登记。")
 	_play_voice(VOICE_REGISTER)
 	_say("您可以在旁边的前台进行登记入住", waiter_hotspot, 4.5)
@@ -295,20 +288,6 @@ func _play_voice(stream: AudioStream) -> void:
 	voice.stop()
 	voice.stream = stream
 	voice.play()
-
-
-func _on_register_input(event: InputEvent) -> void:
-	if not _is_left_click(event) or state != State.LOBBY:
-		return
-	if not GameState.has_flag("waiter_greeted"):
-		hud.set_prompt("登记簿摊开着，还没有人招呼你。")
-		return
-	if GameState.has_flag("registered"):
-		hud.set_prompt("已经登记过了。")
-		return
-	GameState.set_flag("registered")
-	stairs_hotspot.visible = true
-	_transition_to(State.REGISTER)
 
 
 func _on_pen_input(event: InputEvent) -> void:
