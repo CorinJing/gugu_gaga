@@ -292,12 +292,7 @@ offset_bottom = 490.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.176471, 0.145098, 0.0980392, 1)
 theme_override_font_sizes/font_size = 18
-text = "一、夜间请勿在走廊停留。
-二、请勿向镜中的客人询问姓名。
-三、离店前请将钥匙留在前台。
-四、如听见敲门声，请先确认门外是否有影子。
-
-入住人："
+text = "一、请在前台登记，领取房号与钥匙。\n二、入夜后请勿在走廊停留。\n三、请勿向戴面具的客人询问姓名。\n四、请勿在镜前整理衣冠。\n五、113 号房的缝补服务，请在午夜前完成。\n六、离店前请将钥匙留在前台。\n\n入住人："
 autowrap_mode = 3
 
 [node name="SignHint" type="Label" parent="CheckInPanel"]
