@@ -333,7 +333,7 @@ func _finish_signature() -> void:
 	GameState.set_flag("registered")
 	checkin_panel.visible = false
 	stairs_hotspot.visible = true
-	hud.set_prompt("签名完成。")
+	await _transition_to(State.LOBBY)
 
 
 func _layout_checkin() -> void:
@@ -348,20 +348,20 @@ func _layout_checkin() -> void:
 	checkin_paper.size = Vector2(panel_w, vp.y)
 	checkin_title.position = Vector2(24.0, 22.0)
 	checkin_title.size = Vector2(panel_w - 48.0, 48.0 * s)
-	checkin_title.add_theme_font_size_override("font_size", int(40.0 * s))
+	checkin_title.add_theme_font_size_override("font_size", int(48.0 * s))
 	checkin_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	checkin_body.position = Vector2(24.0, 76.0)
-	checkin_body.size = Vector2(panel_w - 48.0, maxf(220.0, vp.y - 300.0))
-	checkin_body.add_theme_font_size_override("font_size", int(26.0 * s))
-	var line_y: float = vp.y - 145.0
-	sign_name.position = Vector2(24.0, line_y - 36.0)
-	sign_name.size = Vector2(100.0, 40.0)
-	sign_name.add_theme_font_size_override("font_size", int(26.0 * s))
+	checkin_body.position = Vector2(24.0, 80.0)
+	checkin_body.size = Vector2(panel_w - 48.0, maxf(260.0, vp.y - 220.0))
+	checkin_body.add_theme_font_size_override("font_size", int(30.0 * s))
+	var line_y: float = vp.y - 95.0
+	sign_name.position = Vector2(24.0, line_y - 30.0)
+	sign_name.size = Vector2(100.0, 44.0)
+	sign_name.add_theme_font_size_override("font_size", int(30.0 * s))
 	signature_line.position = Vector2(112.0, line_y)
-	signature_line.size = Vector2(panel_w - 140.0, 2.0)
+	signature_line.size = Vector2(panel_w - 140.0, 3.0)
 	# Very large invisible signing area, vertically centred on the underline.
-	signature_pad.position = Vector2(100.0, line_y - 100.0)
-	signature_pad.size = Vector2(panel_w - 124.0, 180.0)
+	signature_pad.position = Vector2(100.0, line_y - 140.0)
+	signature_pad.size = Vector2(panel_w - 124.0, 240.0)
 	checkin_back.position = Vector2(24.0, vp.y - 54.0)
 	checkin_back.size = Vector2(100.0, 40.0)
 
