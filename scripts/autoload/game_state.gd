@@ -15,6 +15,9 @@ const ITEM_NAMES := {
 	"door_handle": "白鹭把手",
 	"crank": "黄铜摇柄",
 	"brass_key": "黄铜钥匙",
+	"slip": "服务单",
+	"thread": "红线",
+	"brass_needle": "黄铜针",
 }
 
 const SLOT_COUNT := 5

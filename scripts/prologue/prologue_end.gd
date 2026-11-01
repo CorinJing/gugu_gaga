@@ -32,5 +32,4 @@ func _layout() -> void:
 
 
 func _on_back_pressed() -> void:
-	GameState.reset()
-	SceneTransition.change_scene("res://scenes/main.tscn")
+	SceneTransition.change_scene("res://scenes/ch1/ch1.tscn")
