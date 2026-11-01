@@ -110,6 +110,10 @@ func _is_left_click(event: InputEvent) -> bool:
 	return event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 
 
+func _transition_to(next: State) -> void:
+	await SceneTransition.transition(func() -> void: _set_state(next))
+
+
 func _say(text: String, anchor: Control, seconds: float = 3.0) -> void:
 	hud.show_speech(text, anchor.get_global_rect())
 	_speech_gen += 1
@@ -278,24 +282,24 @@ func _on_register_input(event: InputEvent) -> void:
 		return
 	GameState.set_flag("registered")
 	stairs_hotspot.visible = true
-	_set_state(State.REGISTER)
+	_transition_to(State.REGISTER)
 
 
 func _on_desk_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
 	# Enter the front-desk close-up; do not grant an item.
-	_set_state(State.FRONT_DESK)
+	_transition_to(State.FRONT_DESK)
 
 
 func _on_desk_view_back() -> void:
 	if state == State.FRONT_DESK:
-		_set_state(State.LOBBY)
+		_transition_to(State.LOBBY)
 
 
 func _on_register_back() -> void:
 	if state == State.REGISTER:
-		_set_state(State.LOBBY)
+		_transition_to(State.LOBBY)
 
 
 func _on_stairs_input(event: InputEvent) -> void:
@@ -304,14 +308,14 @@ func _on_stairs_input(event: InputEvent) -> void:
 	if not GameState.has_flag("registered"):
 		hud.set_prompt("先在前台登记。")
 		return
-	_set_state(State.HALL)
+	_transition_to(State.HALL)
 
 
 # ---------------------------------------------------------------- 走廊
 func _on_door113_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.HALL:
 		return
-	_set_state(State.ROOM)
+	_transition_to(State.ROOM)
 
 
 # ---------------------------------------------------------------- 113
@@ -365,7 +369,7 @@ func _on_room_door_input(event: InputEvent) -> void:
 	if not GameState.has_item("brass_needle"):
 		hud.set_prompt("还没拿到东西。")
 		return
-	_set_state(State.LOBBY_EMPTY)
+	_transition_to(State.LOBBY_EMPTY)
 
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
@@ -386,7 +390,7 @@ func _thread_needle() -> void:
 func _on_leave_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY_EMPTY:
 		return
-	_set_state(State.CHAPTER_END)
+	_transition_to(State.CHAPTER_END)
 
 
 func _on_card_back() -> void:
