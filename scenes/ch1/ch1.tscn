@@ -118,6 +118,29 @@ offset_right = 215.0
 offset_bottom = 560.0
 mouse_default_cursor_shape = 2
 
+[node name="DoorGlow" type="TextureRect" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 612.0
+offset_top = 180.0
+offset_right = 752.0
+offset_bottom = 540.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GlowingDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 605.0
+offset_top = 185.0
+offset_right = 745.0
+offset_bottom = 535.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
@@ -244,3 +267,20 @@ theme_override_colors/font_hover_color = Color(0.0, 0.0, 0.0, 1)
 theme_override_font_sizes/font_size = 17
 flat = true
 text = "← 返回"
+
+[node name="RoomBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
+theme_override_font_sizes/font_size = 24
+flat = true
+text = "←"

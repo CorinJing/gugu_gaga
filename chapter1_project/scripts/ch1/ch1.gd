@@ -3,12 +3,15 @@ extends Control
 ## 第一章：大堂 → 前台登记 → 取钢笔 → 签名 → 服务生交钥匙 → 左侧门 → 走廊。
 ## 走廊之后的房间、白鹭夫人和缝纫内容已移除。
 
-enum State { LOBBY, FRONT_DESK, REGISTER, HALL }
+enum State { LOBBY, FRONT_DESK, REGISTER, HALL, ROOM }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
 const REGISTER_NO_PEN_BG := preload("res://assets/art/backgrounds/ch1_register_no_pen.png")
 const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
+const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
+const EGRET := preload("res://assets/art/characters/egret_cutout.png")
+const DOOR_GLOW := preload("res://assets/art/ui/door_glow.png")
 const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
 const VOICE_WELCOME := preload("res://assets/audio/npc/waiter_01_welcome.mp3")
 const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
@@ -25,6 +28,9 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var book_hotspot: Control = %BookHotspot
 @onready var tray_hotspot: Control = %TrayHotspot
 @onready var left_door_hotspot: Control = %LeftDoorHotspot
+@onready var glowing_door_hotspot: Control = %GlowingDoorHotspot
+@onready var door_glow: TextureRect = %DoorGlow
+@onready var room_back: Button = %RoomBack
 @onready var desk_view_back: Button = %BackButton
 @onready var register_back: Button = %RegisterBack
 @onready var checkin_panel: Control = %CheckInPanel
@@ -48,6 +54,9 @@ func _ready() -> void:
 	book_hotspot.gui_input.connect(_on_book_input)
 	tray_hotspot.gui_input.connect(_on_tray_input)
 	left_door_hotspot.gui_input.connect(_on_left_door_input)
+	glowing_door_hotspot.gui_input.connect(_on_glowing_door_input)
+	room_back.pressed.connect(_on_room_back)
+	door_glow.texture = DOOR_GLOW
 	desk_view_back.pressed.connect(_on_desk_view_back)
 	register_back.pressed.connect(_on_register_back)
 	checkin_back.pressed.connect(_on_checkin_back)
@@ -90,6 +99,9 @@ func _set_state(next: State) -> void:
 	book_hotspot.visible = false
 	tray_hotspot.visible = false
 	left_door_hotspot.visible = false
+	glowing_door_hotspot.visible = false
+	door_glow.visible = false
+	room_back.visible = false
 	desk_view_back.visible = false
 	register_back.visible = false
 	checkin_panel.visible = false
@@ -124,6 +136,18 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.HALL:
 			background.texture = HALL_BG
+			glowing_door_hotspot.visible = true
+			door_glow.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.ROOM:
+			background.texture = ROOM_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			character.texture = EGRET
+			character.visible = true
+			character.position = Vector2(560.0, 110.0)
+			character.size = Vector2(160.0, 586.0)
+			room_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 	_layout()
@@ -217,6 +241,17 @@ func _on_tray_input(event: InputEvent) -> void:
 	GameState.add_item("corridor_key")
 	tray_hotspot.visible = false
 	hud.set_prompt("你从托盘上拿到了走廊钥匙。")
+
+func _on_glowing_door_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.HALL:
+		return
+	_transition_to(State.ROOM)
+
+
+func _on_room_back() -> void:
+	if state == State.ROOM:
+		_transition_to(State.HALL)
+
 
 func _on_left_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
