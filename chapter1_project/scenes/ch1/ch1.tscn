@@ -155,23 +155,24 @@ unique_name_in_owner = true
 visible = false
 z_index = 4
 layout_mode = 0
-offset_left = 430.0
-offset_top = 370.0
-offset_right = 530.0
-offset_bottom = 493.0
+offset_left = 340.0
+offset_top = 315.0
+offset_right = 440.0
+offset_bottom = 438.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+modulate = Color(0.65, 0.65, 0.65, 1)
 
 [node name="DollHotspot" type="Control" parent="Stage"]
 unique_name_in_owner = true
 visible = false
 z_index = 5
 layout_mode = 0
-offset_left = 415.0
-offset_top = 355.0
-offset_right = 545.0
-offset_bottom = 510.0
+offset_left = 325.0
+offset_top = 300.0
+offset_right = 455.0
+offset_bottom = 455.0
 mouse_default_cursor_shape = 2
 
 [node name="GameHUD" parent="." unique_id=29373300 instance=ExtResource("2_hud")]
