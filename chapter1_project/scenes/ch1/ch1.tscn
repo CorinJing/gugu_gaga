@@ -162,7 +162,7 @@ offset_bottom = 350.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-modulate = Color(0.52, 0.52, 0.52, 1)
+modulate = Color(0.40, 0.40, 0.40, 1)
 
 [node name="DollHotspot" type="Control" parent="Stage"]
 unique_name_in_owner = true
