@@ -141,6 +141,40 @@ offset_right = 745.0
 offset_bottom = 535.0
 mouse_default_cursor_shape = 2
 
+[node name="StairsHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 250.0
+offset_top = 120.0
+offset_right = 385.0
+offset_bottom = 520.0
+mouse_default_cursor_shape = 2
+
+[node name="DollSitting" type="TextureRect" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 430.0
+offset_top = 370.0
+offset_right = 530.0
+offset_bottom = 493.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DollHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+z_index = 5
+layout_mode = 0
+offset_left = 415.0
+offset_top = 355.0
+offset_right = 545.0
+offset_bottom = 510.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
@@ -269,6 +303,23 @@ flat = true
 text = "← 返回"
 
 [node name="RoomBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
+theme_override_font_sizes/font_size = 24
+flat = true
+text = "←"
+
+[node name="StairsBack" type="Button" parent="."]
 unique_name_in_owner = true
 visible = false
 z_index = 70

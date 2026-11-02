@@ -3,12 +3,14 @@ extends Control
 ## 第一章：大堂 → 前台登记 → 取钢笔 → 签名 → 服务生交钥匙 → 左侧门 → 走廊。
 ## 走廊之后的房间、白鹭夫人和缝纫内容已移除。
 
-enum State { LOBBY, FRONT_DESK, REGISTER, HALL, ROOM }
+enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
 const REGISTER_NO_PEN_BG := preload("res://assets/art/backgrounds/ch1_register_no_pen.png")
 const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
+const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
+const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const EGRET := preload("res://assets/art/characters/egret_cutout.png")
 const DOOR_GLOW := preload("res://assets/art/ui/door_glow.png")
@@ -31,6 +33,10 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var glowing_door_hotspot: Control = %GlowingDoorHotspot
 @onready var door_glow: TextureRect = %DoorGlow
 @onready var room_back: Button = %RoomBack
+@onready var stairs_hotspot: Control = %StairsHotspot
+@onready var doll_sitting: TextureRect = %DollSitting
+@onready var doll_hotspot: Control = %DollHotspot
+@onready var stairs_back: Button = %StairsBack
 @onready var desk_view_back: Button = %BackButton
 @onready var register_back: Button = %RegisterBack
 @onready var checkin_panel: Control = %CheckInPanel
@@ -56,6 +62,10 @@ func _ready() -> void:
 	left_door_hotspot.gui_input.connect(_on_left_door_input)
 	glowing_door_hotspot.gui_input.connect(_on_glowing_door_input)
 	room_back.pressed.connect(_on_room_back)
+	stairs_hotspot.gui_input.connect(_on_stairs_input)
+	doll_hotspot.gui_input.connect(_on_doll_input)
+	stairs_back.pressed.connect(_on_stairs_back)
+	doll_sitting.texture = DOLL_SIT
 	door_glow.texture = DOOR_GLOW
 	desk_view_back.pressed.connect(_on_desk_view_back)
 	register_back.pressed.connect(_on_register_back)
@@ -102,6 +112,10 @@ func _set_state(next: State) -> void:
 	glowing_door_hotspot.visible = false
 	door_glow.visible = false
 	room_back.visible = false
+	stairs_hotspot.visible = false
+	doll_sitting.visible = false
+	doll_hotspot.visible = false
+	stairs_back.visible = false
 	desk_view_back.visible = false
 	register_back.visible = false
 	checkin_panel.visible = false
@@ -118,6 +132,7 @@ func _set_state(next: State) -> void:
 			waiter_hotspot.visible = true
 			desk_hotspot.visible = GameState.has_flag("waiter_second_line")
 			left_door_hotspot.visible = true
+			stairs_hotspot.visible = true
 			tray_hotspot.visible = GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
 			hud.set_prompt("前台站着一位服务生。")
 		State.FRONT_DESK:
@@ -132,6 +147,15 @@ func _set_state(next: State) -> void:
 			background.texture = REGISTER_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			register_back.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.STAIRS:
+			background.texture = STAIRS_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			stairs_back.visible = true
+			if not GameState.has_flag("doll_taken"):
+				doll_sitting.visible = true
+				doll_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.HALL:
@@ -246,6 +270,29 @@ func _on_glowing_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.HALL:
 		return
 	_transition_to(State.ROOM)
+
+
+func _on_stairs_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	_transition_to(State.STAIRS)
+
+
+func _on_stairs_back() -> void:
+	if state == State.STAIRS:
+		_transition_to(State.LOBBY)
+
+
+func _on_doll_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.STAIRS:
+		return
+	if GameState.has_flag("doll_taken"):
+		return
+	GameState.set_flag("doll_taken")
+	GameState.add_item("doll")
+	doll_sitting.visible = false
+	doll_hotspot.visible = false
+	hud.set_prompt("你拿到了楼梯上的布偶。")
 
 
 func _on_room_back() -> void:

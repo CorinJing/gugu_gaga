@@ -12,6 +12,7 @@ const ICONS := {
 	"letter": preload("res://assets/art/ui/item_letter.png"),
 	"mailbox_key": preload("res://assets/art/ui/item_mailbox_key.png"),
 	"corridor_key": preload("res://assets/art/ui/item_corridor_key.png"),
+	"doll": preload("res://assets/art/ui/item_doll.png"),
 	"pen": preload("res://assets/art/ui/item_pen.png"),
 }
 const SLOT_CENTERS := [0.145, 0.367, 0.544, 0.715, 0.896]

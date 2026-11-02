@@ -16,6 +16,7 @@ const ITEM_NAMES := {
 	"crank": "黄铜摇柄",
 	"brass_key": "黄铜钥匙",
 	"corridor_key": "走廊钥匙",
+	"doll": "布偶",
 	"pen": "钢笔",
 }
 
