@@ -26,6 +26,8 @@ const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 const VOICE_EGRET_THREAD := preload("res://assets/audio/npc/egret_01_thread.mp3")
 const VOICE_EGRET_SHARP := preload("res://assets/audio/npc/egret_02_sharp.mp3")
+const VOICE_EGRET_MOON := preload("res://assets/audio/npc/egret_03_moon.mp3")
+const VOICE_EGRET_UPSTAIRS := preload("res://assets/audio/npc/egret_04_upstairs.mp3")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
@@ -456,6 +458,10 @@ func _on_egret_input(event: InputEvent) -> void:
 		_play_voice(VOICE_EGRET_THREAD)
 		_say("我的线断了", egret_hotspot, 4.0)
 		return
+	if GameState.has_flag("skeleton_given"):
+		_play_voice(VOICE_EGRET_UPSTAIRS)
+		_say("你可以上楼看看其他的客人了", egret_hotspot, 5.8)
+		return
 	if not GameState.has_flag("egret_line_2"):
 		GameState.set_flag("egret_line_2")
 		_play_voice(VOICE_EGRET_SHARP)
@@ -463,6 +469,22 @@ func _on_egret_input(event: InputEvent) -> void:
 		return
 	_play_voice(VOICE_EGRET_SHARP)
 	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
+
+
+func _give_skeleton() -> void:
+	if not GameState.has_flag("egret_line_2"):
+		hud.set_prompt("先听听白鹭夫人还缺什么。")
+		return
+	if not GameState.has_item("umbrella_frame"):
+		return
+	GameState.remove_item("umbrella_frame")
+	GameState.set_flag("skeleton_given")
+	GameState.set_flag("egret_line_3")
+	_play_voice(VOICE_EGRET_MOON)
+	await _say("好孩子，现在我将赐予你正视月亮的权利", egret_hotspot, 7.2)
+	GameState.set_flag("egret_line_4")
+	_play_voice(VOICE_EGRET_UPSTAIRS)
+	_say("你可以上楼看看其他的客人了", egret_hotspot, 5.8)
 
 
 func _give_thread() -> void:
@@ -653,6 +675,9 @@ func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) ->
 			return
 	if state == State.ROOM and item_id == "thread" and egret_hotspot.get_global_rect().has_point(screen_pos):
 		_give_thread()
+		return
+	if state == State.ROOM and item_id == "umbrella_frame" and egret_hotspot.get_global_rect().has_point(screen_pos):
+		_give_skeleton()
 		return
 	if state == State.LOBBY and item_id == "corridor_key" and left_door_hotspot.get_global_rect().has_point(screen_pos):
 		GameState.set_flag("corridor_unlocked")
