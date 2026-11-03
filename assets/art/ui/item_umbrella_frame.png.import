@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dyyfwdgcvll06"
-path="res://.godot/imported/ch1_register_no_pen.png-0a6ae5b98b7cf4ef5d05eafa40f4708a.ctex"
+uid="uid://d20ihu7x1f2rn"
+path="res://.godot/imported/item_umbrella_frame.png-aec2de9c69b663ddecb0f0b45b7d1b1a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/backgrounds/ch1_register_no_pen.png"
-dest_files=["res://.godot/imported/ch1_register_no_pen.png-0a6ae5b98b7cf4ef5d05eafa40f4708a.ctex"]
+source_file="res://assets/art/ui/item_umbrella_frame.png"
+dest_files=["res://.godot/imported/item_umbrella_frame.png-aec2de9c69b663ddecb0f0b45b7d1b1a.ctex"]
 
 [params]
 

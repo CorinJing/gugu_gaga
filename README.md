@@ -86,19 +86,22 @@ build/windows/SaltMoonHotel.exe    Windows x86_64
   - 第一次：“你还没有付船费” / `ferryman_01_unpaid.mp3`
   - 第二次及以后：“希望你能找到你所希望的答案” / `ferryman_02_answer.mp3`
 
-### 第一章独立工程
+### 第一章合并
 
-第一章不再直接接在序章后面开发，而是放在独立工程：
+第一章已经合并回主工程：
 
 ```text
-chapter1_project/project.godot
+序章标题卡
+→ 第一章大堂
+→ 走廊 / 113 / 阳台 / 杂物间
+→ 白鹭夫人最终对白
+→ 点击大堂楼梯
+→ 黑场
+→ 标题页
 ```
 
-- 用 Godot 4.7.2 打开 `chapter1_project/`。
-- 主场景直接进入第一章大堂。
-- 序章工程暂时停在「序章结束」页，不自动进入第一章。
-- 第一章验收完成后，再把 `chapter1_project/` 中的 `scenes/ch1/`、`scripts/ch1/` 和对应美术资源合并回主工程。
-- 当前独立工程使用桌面 `大堂.png`、`走廊.png`、`113房间内.jpg` 作为场景背景。
+- 主工程直接运行完整流程。
+- 独立开发目录 `chapter1_project/` 已移除。
 
 ### 旅馆正门
 
