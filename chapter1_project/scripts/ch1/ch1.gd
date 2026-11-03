@@ -501,6 +501,7 @@ func _on_umbrella_input(event: InputEvent) -> void:
 	GameState.set_flag("umbrella_frame_taken")
 	GameState.add_item("umbrella_frame")
 	umbrella_hotspot.visible = false
+	await _transition_to(State.HOTEL_DOOR_OPEN)
 	hud.set_prompt("你取下了伞骨。")
 
 
