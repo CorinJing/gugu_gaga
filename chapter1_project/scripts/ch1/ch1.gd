@@ -360,10 +360,12 @@ func _on_hall_back() -> void:
 func _on_left_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
-	if not GameState.has_item("corridor_key"):
+	if not GameState.has_item("corridor_key") and not GameState.has_flag("corridor_unlocked"):
 		hud.set_prompt("左侧的门锁着。")
 		return
-	GameState.remove_item("corridor_key")
+	GameState.set_flag("corridor_unlocked")
+	if GameState.has_item("corridor_key"):
+		GameState.remove_item("corridor_key")
 	_transition_to(State.HALL)
 
 func _on_drag_moved(item_id: String, screen_pos: Vector2) -> void:
@@ -413,6 +415,7 @@ func _layout_checkin() -> void:
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
 	if state == State.LOBBY and item_id == "corridor_key" and left_door_hotspot.get_global_rect().has_point(screen_pos):
+		GameState.set_flag("corridor_unlocked")
 		GameState.remove_item("corridor_key")
 		_transition_to(State.HALL)
 		return
