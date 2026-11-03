@@ -12,7 +12,7 @@ const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
 const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
-const EGRET := preload("res://assets/art/characters/egret_cutout.png")
+const EGRET := preload("res://assets/art/characters/egret_seated.png")
 const DOOR_GLOW := preload("res://assets/art/ui/door_glow.png")
 const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
 const VOICE_WELCOME := preload("res://assets/audio/npc/waiter_01_welcome.mp3")
@@ -169,8 +169,8 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			character.texture = EGRET
 			character.visible = true
-			character.position = Vector2(560.0, 110.0)
-			character.size = Vector2(160.0, 586.0)
+			character.position = Vector2(585.0, 135.0)
+			character.size = Vector2(200.0, 540.0)
 			room_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
