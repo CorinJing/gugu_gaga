@@ -540,24 +540,36 @@ func _layout_checkin() -> void:
 	checkin_back.position = Vector2(24.0, vp.y - 64.0)
 	checkin_back.size = Vector2(48.0, 48.0)
 
+func _fill_pot() -> void:
+	GameState.remove_item("pot")
+	GameState.add_item("filled_pot")
+
+
+func _place_pot_on_stove() -> void:
+	GameState.remove_item("filled_pot")
+	GameState.set_flag("pot_on_stove")
+	pot_on_stove.visible = true
+
+
+func _boil_doll() -> void:
+	GameState.remove_item("doll")
+	GameState.add_item("thread")
+	GameState.set_flag("thread_made")
+	pot_on_stove.visible = false
+
+
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
 	if state == State.BALCONY:
 		if item_id == "pot" and fountain_hotspot.get_global_rect().has_point(screen_pos):
-			GameState.remove_item("pot")
-			GameState.add_item("filled_pot")
+			await SceneTransition.transition(_fill_pot, 0.16, 0.20)
 			hud.set_prompt("锅装满了水。")
 			return
 		if item_id == "filled_pot" and stove_hotspot.get_global_rect().has_point(screen_pos):
-			GameState.remove_item("filled_pot")
-			GameState.set_flag("pot_on_stove")
-			pot_on_stove.visible = true
+			await SceneTransition.transition(_place_pot_on_stove, 0.16, 0.20)
 			hud.set_prompt("锅放在了炉子上。")
 			return
 		if item_id == "doll" and GameState.has_flag("pot_on_stove") and stove_hotspot.get_global_rect().has_point(screen_pos):
-			GameState.remove_item("doll")
-			GameState.add_item("thread")
-			GameState.set_flag("thread_made")
-			pot_on_stove.visible = false
+			await SceneTransition.transition(_boil_doll, 0.20, 0.24)
 			hud.set_prompt("布偶的缝线松开了，你得到了红线。")
 			return
 	if state == State.ROOM and item_id == "thread" and egret_hotspot.get_global_rect().has_point(screen_pos):
