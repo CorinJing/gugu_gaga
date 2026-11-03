@@ -3,13 +3,15 @@ extends Control
 ## 第一章：大堂 → 前台登记 → 取钢笔 → 签名 → 服务生交钥匙 → 左侧门 → 走廊。
 ## 走廊之后的房间、白鹭夫人和缝纫内容已移除。
 
-enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM }
+enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM, BALCONY, STORAGE }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
 const REGISTER_NO_PEN_BG := preload("res://assets/art/backgrounds/ch1_register_no_pen.png")
 const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
+const BALCONY_BG := preload("res://assets/art/backgrounds/ch1_balcony.png")
+const STORAGE_BG := preload("res://assets/art/backgrounds/ch1_storage.png")
 const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const EGRET := preload("res://assets/art/characters/egret_seated.png")
@@ -35,6 +37,10 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var room_back: Button = %RoomBack
 @onready var hall_back: Button = %HallBack
 @onready var room_door_hotspot: Control = %RoomDoorHotspot
+@onready var lobby_back_door_hotspot: Control = %LobbyBackDoorHotspot
+@onready var storage_door_hotspot: Control = %StorageDoorHotspot
+@onready var balcony_back: Button = %BalconyBack
+@onready var storage_back: Button = %StorageBack
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -66,6 +72,10 @@ func _ready() -> void:
 	room_back.pressed.connect(_on_room_back)
 	hall_back.pressed.connect(_on_hall_back)
 	room_door_hotspot.gui_input.connect(_on_room_door_input)
+	lobby_back_door_hotspot.gui_input.connect(_on_lobby_back_door_input)
+	storage_door_hotspot.gui_input.connect(_on_storage_door_input)
+	balcony_back.pressed.connect(_on_balcony_back)
+	storage_back.pressed.connect(_on_storage_back)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	doll_hotspot.gui_input.connect(_on_doll_input)
 	stairs_back.pressed.connect(_on_stairs_back)
@@ -96,7 +106,7 @@ func _apply_back_button_style() -> void:
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color(0.145098, 0.203922, 0.180392, 1)
 	hover.border_color = Color(0.760784, 0.627451, 0.439216, 1)
-	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back]:
+	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back, balcony_back, storage_back]:
 		btn.text = "←"
 		btn.flat = false
 		btn.size = Vector2(48.0, 48.0)
@@ -149,6 +159,10 @@ func _set_state(next: State) -> void:
 	room_back.visible = false
 	hall_back.visible = false
 	room_door_hotspot.visible = false
+	lobby_back_door_hotspot.visible = false
+	storage_door_hotspot.visible = false
+	balcony_back.visible = false
+	storage_back.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -172,6 +186,7 @@ func _set_state(next: State) -> void:
 			left_door_hotspot.visible = true
 			stairs_hotspot.visible = true
 			tray_hotspot.visible = not waiter_gone and GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
+			lobby_back_door_hotspot.visible = GameState.has_flag("corridor_unlocked")
 			hud.set_prompt("前台站着一位服务生。" if not waiter_gone else "前台没有人。")
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
@@ -199,8 +214,21 @@ func _set_state(next: State) -> void:
 		State.HALL:
 			background.texture = HALL_BG
 			glowing_door_hotspot.visible = true
+			storage_door_hotspot.visible = true
 			door_glow.visible = true
 			hall_back.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.BALCONY:
+			background.texture = BALCONY_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			balcony_back.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.STORAGE:
+			background.texture = STORAGE_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			storage_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.ROOM:
@@ -236,6 +264,10 @@ func _layout() -> void:
 	room_back.size = Vector2(48.0, 48.0)
 	hall_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
 	hall_back.size = Vector2(48.0, 48.0)
+	balcony_back.position = Vector2(24.0, 24.0)
+	balcony_back.size = Vector2(48.0, 48.0)
+	storage_back.position = Vector2(24.0, 24.0)
+	storage_back.size = Vector2(48.0, 48.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -348,6 +380,30 @@ func _on_room_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.ROOM:
 		return
 	_transition_to(State.HALL)
+
+
+func _on_lobby_back_door_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.LOBBY:
+		return
+	if not GameState.has_flag("corridor_unlocked"):
+		return
+	_transition_to(State.BALCONY)
+
+
+func _on_storage_door_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.HALL:
+		return
+	_transition_to(State.STORAGE)
+
+
+func _on_balcony_back() -> void:
+	if state == State.BALCONY:
+		_transition_to(State.LOBBY)
+
+
+func _on_storage_back() -> void:
+	if state == State.STORAGE:
+		_transition_to(State.HALL)
 
 
 func _on_hall_back() -> void:

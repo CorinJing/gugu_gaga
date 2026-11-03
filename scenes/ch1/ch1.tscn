@@ -198,6 +198,26 @@ offset_right = 960.0
 offset_bottom = 620.0
 mouse_default_cursor_shape = 2
 
+[node name="LobbyBackDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 430.0
+offset_top = 90.0
+offset_right = 560.0
+offset_bottom = 205.0
+mouse_default_cursor_shape = 2
+
+[node name="StorageDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 455.0
+offset_top = 170.0
+offset_right = 585.0
+offset_bottom = 530.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
@@ -379,3 +399,31 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_backbar")
 theme_override_styles/normal = SubResource("StyleBoxFlat_backbar")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_backbar")
 text = "← 返回大堂"
+
+[node name="BalconyBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+text = "←"
+
+[node name="StorageBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+text = "←"
