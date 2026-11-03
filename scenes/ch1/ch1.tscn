@@ -494,3 +494,31 @@ focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
 text = "←"
+
+[node name="LobbyExitBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 430.0
+offset_top = 650.0
+offset_right = 478.0
+offset_bottom = 698.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+text = "←"
+
+[node name="HotelFrontBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 430.0
+offset_top = 650.0
+offset_right = 478.0
+offset_bottom = 698.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+text = "←"

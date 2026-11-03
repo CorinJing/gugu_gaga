@@ -3,7 +3,7 @@ extends Control
 ## 第一章：大堂 → 前台登记 → 取钢笔 → 签名 → 服务生交钥匙 → 左侧门 → 走廊。
 ## 走廊之后的房间、白鹭夫人和缝纫内容已移除。
 
-enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM, BALCONY, STORAGE }
+enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM, BALCONY, STORAGE, HOTEL_FRONT }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
@@ -12,6 +12,7 @@ const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
 const BALCONY_BG := preload("res://assets/art/backgrounds/ch1_balcony.png")
 const STORAGE_BG := preload("res://assets/art/backgrounds/ch1_storage.png")
+const HOTEL_FRONT_BG := preload("res://assets/art/backgrounds/hotel_exterior.png")
 const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
 const POT_IMG := preload("res://assets/art/ui/item_pot.png")
 const FILLED_POT_IMG := preload("res://assets/art/ui/item_filled_pot.png")
@@ -51,6 +52,8 @@ const VOICE_EGRET_SHARP := preload("res://assets/audio/npc/egret_02_sharp.mp3")
 @onready var fountain_hotspot: Control = %FountainHotspot
 @onready var stove_hotspot: Control = %StoveHotspot
 @onready var pot_on_stove: TextureRect = %PotOnStove
+@onready var lobby_exit_back: Button = %LobbyExitBack
+@onready var hotel_front_back: Button = %HotelFrontBack
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -88,6 +91,8 @@ func _ready() -> void:
 	balcony_back.pressed.connect(_on_balcony_back)
 	storage_back.pressed.connect(_on_storage_back)
 	pot_hotspot.gui_input.connect(_on_pot_input)
+	lobby_exit_back.pressed.connect(_on_lobby_exit_back)
+	hotel_front_back.pressed.connect(_on_hotel_front_back)
 	storage_pot.texture = POT_IMG
 	pot_on_stove.texture = FILLED_POT_IMG
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
@@ -120,7 +125,7 @@ func _apply_back_button_style() -> void:
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color(0.145098, 0.203922, 0.180392, 1)
 	hover.border_color = Color(0.760784, 0.627451, 0.439216, 1)
-	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back, balcony_back, storage_back]:
+	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back, balcony_back, storage_back, lobby_exit_back, hotel_front_back]:
 		btn.text = "←"
 		btn.flat = false
 		btn.size = Vector2(48.0, 48.0)
@@ -183,6 +188,8 @@ func _set_state(next: State) -> void:
 	fountain_hotspot.visible = false
 	stove_hotspot.visible = false
 	pot_on_stove.visible = false
+	lobby_exit_back.visible = false
+	hotel_front_back.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -208,6 +215,7 @@ func _set_state(next: State) -> void:
 			tray_hotspot.visible = not waiter_gone and GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
 			lobby_back_door_hotspot.visible = GameState.has_flag("corridor_unlocked")
 			hud.set_prompt("前台站着一位服务生。" if not waiter_gone else "前台没有人。")
+			lobby_exit_back.visible = true
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -257,6 +265,12 @@ func _set_state(next: State) -> void:
 				pot_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
+		State.HOTEL_FRONT:
+			background.texture = HOTEL_FRONT_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			hotel_front_back.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
 		State.ROOM:
 			background.texture = ROOM_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -295,6 +309,10 @@ func _layout() -> void:
 	balcony_back.size = Vector2(48.0, 48.0)
 	storage_back.position = Vector2(24.0, 24.0)
 	storage_back.size = Vector2(48.0, 48.0)
+	lobby_exit_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
+	lobby_exit_back.size = Vector2(48.0, 48.0)
+	hotel_front_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
+	hotel_front_back.size = Vector2(48.0, 48.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -433,6 +451,16 @@ func _give_thread() -> void:
 	GameState.set_flag("egret_line_2")
 	_play_voice(VOICE_EGRET_SHARP)
 	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
+
+
+func _on_lobby_exit_back() -> void:
+	if state == State.LOBBY:
+		_transition_to(State.HOTEL_FRONT)
+
+
+func _on_hotel_front_back() -> void:
+	if state == State.HOTEL_FRONT:
+		_transition_to(State.LOBBY)
 
 
 func _on_pot_input(event: InputEvent) -> void:
