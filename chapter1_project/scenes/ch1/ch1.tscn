@@ -202,9 +202,9 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 0
 offset_left = 430.0
-offset_top = 90.0
-offset_right = 560.0
-offset_bottom = 205.0
+offset_top = 285.0
+offset_right = 530.0
+offset_bottom = 455.0
 mouse_default_cursor_shape = 2
 
 [node name="StorageDoorHotspot" type="Control" parent="Stage"]
