@@ -169,7 +169,7 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			character.texture = EGRET
 			character.visible = true
-			character.position = Vector2(548.0, 255.0)
+			character.position = Vector2(548.0, 273.0)
 			character.size = Vector2(172.0, 464.0)
 			room_back.visible = true
 			hud.set_location_visible(false)
