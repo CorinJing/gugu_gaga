@@ -56,7 +56,6 @@ const VOICE_EGRET_UPSTAIRS := preload("res://assets/audio/npc/egret_04_upstairs.
 @onready var stove_hotspot: Control = %StoveHotspot
 @onready var pot_on_stove: TextureRect = %PotOnStove
 @onready var lobby_exit_back: Button = %LobbyExitBack
-@onready var hotel_front_back: Button = %HotelFrontBack
 @onready var open_door_hotspot: Control = %OpenDoorHotspot
 @onready var door_umbrella_stand_hotspot: Control = %DoorUmbrellaStandHotspot
 @onready var umbrella_hotspot: Control = %UmbrellaHotspot
@@ -99,7 +98,6 @@ func _ready() -> void:
 	storage_back.pressed.connect(_on_storage_back)
 	pot_hotspot.gui_input.connect(_on_pot_input)
 	lobby_exit_back.pressed.connect(_on_lobby_exit_back)
-	hotel_front_back.pressed.connect(_on_hotel_front_back)
 	open_door_hotspot.gui_input.connect(_on_open_door_input)
 	door_umbrella_stand_hotspot.gui_input.connect(_on_door_umbrella_stand_input)
 	umbrella_hotspot.gui_input.connect(_on_umbrella_input)
@@ -201,7 +199,6 @@ func _set_state(next: State) -> void:
 	stove_hotspot.visible = false
 	pot_on_stove.visible = false
 	lobby_exit_back.visible = false
-	hotel_front_back.visible = false
 	open_door_hotspot.visible = false
 	door_umbrella_stand_hotspot.visible = false
 	umbrella_hotspot.visible = false
@@ -325,18 +322,17 @@ func _layout() -> void:
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
-	room_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
-	room_back.size = Vector2(48.0, 48.0)
-	hall_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
-	hall_back.size = Vector2(48.0, 48.0)
-	balcony_back.position = Vector2(24.0, 24.0)
-	balcony_back.size = Vector2(48.0, 48.0)
-	storage_back.position = Vector2(24.0, 24.0)
-	storage_back.size = Vector2(48.0, 48.0)
-	lobby_exit_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
-	lobby_exit_back.size = Vector2(48.0, 48.0)
-	umbrella_back.position = Vector2(24.0, 24.0)
-	umbrella_back.size = Vector2(48.0, 48.0)
+	var back_s: float = clampf(minf(area.size.x / 960.0, vp.y / 720.0), 0.62, 2.2)
+	var top_buttons: Array[Button] = [desk_view_back, register_back, stairs_back, balcony_back, storage_back, umbrella_back]
+	for btn in top_buttons:
+		btn.position = Vector2(18.0 * back_s, 18.0 * back_s)
+		btn.size = Vector2(48.0, 48.0) * back_s
+		btn.add_theme_font_size_override("font_size", int(26.0 * back_s))
+	var bottom_buttons: Array[Button] = [room_back, hall_back, lobby_exit_back]
+	for btn in bottom_buttons:
+		btn.position = Vector2(vp.x * 0.5 - 24.0 * back_s, vp.y - 70.0 * back_s)
+		btn.size = Vector2(48.0, 48.0) * back_s
+		btn.add_theme_font_size_override("font_size", int(26.0 * back_s))
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -540,10 +536,6 @@ func _on_umbrella_back() -> void:
 		_transition_to(State.HOTEL_DOOR_OPEN)
 
 
-func _on_hotel_front_back() -> void:
-	pass
-
-
 func _on_pot_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.STORAGE:
 		return
@@ -646,8 +638,10 @@ func _layout_checkin() -> void:
 	signature_line.size = Vector2(panel_w - 140.0, 3.0)
 	signature_pad.position = Vector2(100.0, line_y - 140.0)
 	signature_pad.size = Vector2(panel_w - 124.0, 240.0)
-	checkin_back.position = Vector2(24.0, vp.y - 64.0)
-	checkin_back.size = Vector2(48.0, 48.0)
+	var bs: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.62, 2.2)
+	checkin_back.position = Vector2(18.0 * bs, vp.y - 70.0 * bs)
+	checkin_back.size = Vector2(48.0, 48.0) * bs
+	checkin_back.add_theme_font_size_override("font_size", int(26.0 * bs))
 
 func _fill_pot() -> void:
 	GameState.remove_item("pot")
