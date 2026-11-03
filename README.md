@@ -58,8 +58,8 @@ assets/art/ui/                           1×5 道具栏边框、刀/鱼图标
 本机已完成两个版本：
 
 ```text
-build/macos/SaltMoonHotel.zip      macOS 通用版（x86_64 + arm64）
-build/windows/SaltMoonHotel.exe    Windows x86_64
+build/macos/盐月旅馆（玩法测试版）.zip      macOS 通用版（x86_64 + arm64）
+build/windows/盐月旅馆（玩法测试版）.exe    Windows x86_64
 ```
 
 说明：
@@ -146,8 +146,8 @@ build/windows/SaltMoonHotel.exe    Windows x86_64
 本机已完成两个版本：
 
 ```text
-build/macos/SaltMoonHotel.zip      macOS 通用版（x86_64 + arm64）
-build/windows/SaltMoonHotel.exe    Windows x86_64
+build/macos/盐月旅馆（玩法测试版）.zip      macOS 通用版（x86_64 + arm64）
+build/windows/盐月旅馆（玩法测试版）.exe    Windows x86_64
 ```
 
 说明：
