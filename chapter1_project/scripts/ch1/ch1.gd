@@ -76,7 +76,35 @@ func _ready() -> void:
 	hud.drag_moved.connect(_on_drag_moved)
 	hud.set_location_visible(false)
 	get_viewport().size_changed.connect(_layout)
+	_apply_back_button_style()
 	_set_state(State.LOBBY)
+
+func _apply_back_button_style() -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.0392157, 0.0509804, 0.0470588, 0.92)
+	normal.border_width_left = 1
+	normal.border_width_top = 1
+	normal.border_width_right = 1
+	normal.border_width_bottom = 1
+	normal.border_color = Color(0.560784, 0.462745, 0.309804, 1)
+	normal.corner_radius_top_left = 22
+	normal.corner_radius_top_right = 22
+	normal.corner_radius_bottom_right = 22
+	normal.corner_radius_bottom_left = 22
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.145098, 0.203922, 0.180392, 1)
+	hover.border_color = Color(0.760784, 0.627451, 0.439216, 1)
+	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back]:
+		btn.text = "←"
+		btn.flat = false
+		btn.size = Vector2(48.0, 48.0)
+		btn.add_theme_font_size_override("font_size", 26)
+		btn.add_theme_color_override("font_color", Color(0.909804, 0.87451, 0.784314, 1))
+		btn.add_theme_color_override("font_hover_color", Color(1, 0.941176, 0.827451, 1))
+		btn.add_theme_stylebox_override("normal", normal)
+		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_stylebox_override("pressed", normal)
+
 
 func _is_left_click(event: InputEvent) -> bool:
 	return event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
@@ -197,10 +225,10 @@ func _layout() -> void:
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
-	room_back.position = Vector2(vp.x * 0.5 - 90.0, vp.y - 70.0)
-	room_back.size = Vector2(180.0, 48.0)
-	hall_back.position = Vector2(vp.x * 0.5 - 90.0, vp.y - 70.0)
-	hall_back.size = Vector2(180.0, 48.0)
+	room_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
+	room_back.size = Vector2(48.0, 48.0)
+	hall_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
+	hall_back.size = Vector2(48.0, 48.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -367,8 +395,8 @@ func _layout_checkin() -> void:
 	signature_line.size = Vector2(panel_w - 140.0, 3.0)
 	signature_pad.position = Vector2(100.0, line_y - 140.0)
 	signature_pad.size = Vector2(panel_w - 124.0, 240.0)
-	checkin_back.position = Vector2(24.0, vp.y - 54.0)
-	checkin_back.size = Vector2(100.0, 40.0)
+	checkin_back.position = Vector2(24.0, vp.y - 64.0)
+	checkin_back.size = Vector2(48.0, 48.0)
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
 	if state == State.LOBBY and item_id == "corridor_key" and left_door_hotspot.get_global_rect().has_point(screen_pos):
