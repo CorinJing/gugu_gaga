@@ -309,10 +309,10 @@ mouse_default_cursor_shape = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
-offset_left = 390.0
-offset_top = 90.0
-offset_right = 660.0
-offset_bottom = 610.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 960.0
+offset_bottom = 720.0
 mouse_default_cursor_shape = 2
 
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]

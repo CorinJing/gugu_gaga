@@ -493,6 +493,9 @@ func _on_door_umbrella_stand_input(event: InputEvent) -> void:
 func _on_umbrella_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.UMBRELLA:
 		return
+	if not GameState.has_flag("egret_line_2"):
+		hud.set_prompt("伞骨卡得很紧。也许该先问问白鹭夫人。")
+		return
 	if GameState.has_flag("umbrella_frame_taken"):
 		return
 	GameState.set_flag("umbrella_frame_taken")
