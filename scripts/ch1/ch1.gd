@@ -197,10 +197,10 @@ func _layout() -> void:
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
-	room_back.position = Vector2(vp.x * 0.5 - 50.0, vp.y - 64.0)
-	room_back.size = Vector2(100.0, 40.0)
-	hall_back.position = Vector2(vp.x * 0.5 - 50.0, vp.y - 64.0)
-	hall_back.size = Vector2(100.0, 40.0)
+	room_back.position = Vector2(vp.x * 0.5 - 90.0, vp.y - 70.0)
+	room_back.size = Vector2(180.0, 48.0)
+	hall_back.position = Vector2(vp.x * 0.5 - 90.0, vp.y - 70.0)
+	hall_back.size = Vector2(180.0, 48.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 

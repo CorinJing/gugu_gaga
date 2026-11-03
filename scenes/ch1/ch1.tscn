@@ -4,6 +4,18 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/game_hud.tscn" id="2_hud"]
 [ext_resource type="Script" path="res://scripts/ui/signature_pad.gd" id="3_pad"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backbar"]
+bg_color = Color(0.0392157, 0.0509804, 0.0431373, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.690196, 0.596078, 0.411765, 0.8)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [node name="Chapter1" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -308,17 +320,19 @@ unique_name_in_owner = true
 visible = false
 z_index = 70
 layout_mode = 0
-offset_left = 430.0
-offset_top = 656.0
-offset_right = 530.0
-offset_bottom = 696.0
+offset_left = 540.0
+offset_top = 650.0
+offset_right = 720.0
+offset_bottom = 698.0
 focus_mode = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
-theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
-theme_override_font_sizes/font_size = 18
-flat = true
-text = "← 返回"
+theme_override_colors/font_color = Color(0.94902, 0.909804, 0.815686, 1)
+theme_override_colors/font_hover_color = Color(1, 0.968627, 0.87451, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_backbar")
+theme_override_styles/normal = SubResource("StyleBoxFlat_backbar")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_backbar")
+text = "← 返回走廊"
 
 [node name="StairsBack" type="Button" parent="."]
 unique_name_in_owner = true
@@ -342,14 +356,16 @@ unique_name_in_owner = true
 visible = false
 z_index = 70
 layout_mode = 0
-offset_left = 430.0
-offset_top = 656.0
-offset_right = 530.0
-offset_bottom = 696.0
+offset_left = 540.0
+offset_top = 650.0
+offset_right = 720.0
+offset_bottom = 698.0
 focus_mode = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
-theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
-theme_override_font_sizes/font_size = 18
-flat = true
-text = "← 返回"
+theme_override_colors/font_color = Color(0.94902, 0.909804, 0.815686, 1)
+theme_override_colors/font_hover_color = Color(1, 0.968627, 0.87451, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_backbar")
+theme_override_styles/normal = SubResource("StyleBoxFlat_backbar")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_backbar")
+text = "← 返回大堂"
