@@ -225,6 +225,16 @@ func _set_state(next: State) -> void:
 			desk_hotspot.visible = GameState.has_flag("waiter_second_line")
 			left_door_hotspot.visible = true
 			stairs_hotspot.visible = true
+			if GameState.has_flag("chapter_complete"):
+				stairs_hotspot.offset_left = 250.0
+				stairs_hotspot.offset_top = 120.0
+				stairs_hotspot.offset_right = 460.0
+				stairs_hotspot.offset_bottom = 520.0
+			else:
+				stairs_hotspot.offset_left = 335.0
+				stairs_hotspot.offset_top = 120.0
+				stairs_hotspot.offset_right = 405.0
+				stairs_hotspot.offset_bottom = 520.0
 			tray_hotspot.visible = not waiter_gone and GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
 			lobby_back_door_hotspot.visible = GameState.has_flag("corridor_unlocked")
 			hud.set_prompt("前台站着一位服务生。" if not waiter_gone else "前台没有人。")
