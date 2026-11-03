@@ -104,6 +104,9 @@ func _apply_back_button_style() -> void:
 		btn.add_theme_stylebox_override("normal", normal)
 		btn.add_theme_stylebox_override("hover", hover)
 		btn.add_theme_stylebox_override("pressed", normal)
+	# In 113 and the corridor, point down toward the bottom return bar.
+	room_back.text = "↓"
+	hall_back.text = "↓"
 
 
 func _is_left_click(event: InputEvent) -> bool:
