@@ -271,6 +271,26 @@ offset_right = 575.0
 offset_bottom = 520.0
 mouse_default_cursor_shape = 2
 
+[node name="UmbrellaStandHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 300.0
+offset_top = 360.0
+offset_right = 425.0
+offset_bottom = 650.0
+mouse_default_cursor_shape = 2
+
+[node name="UmbrellaHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 375.0
+offset_top = 90.0
+offset_right = 510.0
+offset_bottom = 450.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="BackArrow" type="Button" parent="."]
@@ -336,3 +356,22 @@ offset_bottom = 440.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="UmbrellaBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 200
+layout_mode = 0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 66.0
+offset_bottom = 66.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.909804, 0.87451, 0.784314, 1)
+theme_override_colors/font_hover_color = Color(1, 0.941176, 0.827451, 1)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/hover = SubResource("StyleBoxFlat_back_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_back")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_back")
+text = "←"

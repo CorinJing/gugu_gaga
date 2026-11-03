@@ -1,6 +1,6 @@
 extends Control
 
-enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, MAILBOX_CLOSED, MAILBOX_OPEN, HOTEL_NO_MAILBOX, HOTEL_DOOR_OPEN, PROLOGUE_LOGO, WAITER, EGRET }
+enum State { CABIN_CLOSED, CABIN_OPEN, CABIN_SEARCH, CABIN_BEAK, SUITCASE_VIEW, NIGHTSTAND_VIEW, BOAT, DOCK, FERRYMAN, HOTEL_EXTERIOR, UMBRELLA, MAILBOX_CLOSED, MAILBOX_OPEN, HOTEL_NO_MAILBOX, HOTEL_DOOR_OPEN, PROLOGUE_LOGO, WAITER, EGRET }
 
 const CABIN_CLOSED := preload("res://assets/art/backgrounds/cabin_closed.png")
 const CABIN_OPEN := preload("res://assets/art/backgrounds/cabin_open.png")
@@ -12,6 +12,7 @@ const BOAT := preload("res://assets/art/backgrounds/boat_moving.png")
 const DOCK := preload("res://assets/art/backgrounds/boat_dock.png")
 const HOTEL := preload("res://assets/art/backgrounds/hotel_exterior.png")
 const HOTEL_NO_MAILBOX := preload("res://assets/art/backgrounds/hotel_no_mailbox.png")
+const HOTEL_UMBRELLA := preload("res://assets/art/backgrounds/hotel_umbrella.png")
 const HOTEL_DOOR_OPEN := preload("res://assets/art/backgrounds/hotel_door_open.png")
 const LOGO := preload("res://assets/art/ui/salt_moon_logo.png")
 const MAILBOX_CLOSED := preload("res://assets/art/backgrounds/mailbox_closed.png")
@@ -44,6 +45,9 @@ const FERRYMAN_02 := preload("res://assets/audio/npc/ferryman_02_answer.mp3")
 @onready var mailbox_closeup_hotspot: Control = %MailboxCloseupHotspot
 @onready var mailbox_open_drop_hotspot: Control = %MailboxOpenDropHotspot
 @onready var hotel_return_arrow: Button = %HotelReturnArrow
+@onready var umbrella_stand_hotspot: Control = %UmbrellaStandHotspot
+@onready var umbrella_hotspot: Control = %UmbrellaHotspot
+@onready var umbrella_back: Button = %UmbrellaBack
 @onready var hotel_door_key_hotspot: Control = %HotelDoorKeyHotspot
 @onready var hotel_door_open_hotspot: Control = %HotelDoorOpenHotspot
 @onready var logo_overlay: Control = %LogoOverlay
@@ -75,6 +79,9 @@ func _ready() -> void:
 	mailbox_hotspot.gui_input.connect(_on_mailbox_input)
 	mailbox_closeup_hotspot.gui_input.connect(_on_mailbox_closeup_input)
 	hotel_return_arrow.pressed.connect(_on_hotel_return_pressed)
+	umbrella_stand_hotspot.gui_input.connect(_on_umbrella_stand_input)
+	umbrella_hotspot.gui_input.connect(_on_umbrella_input)
+	umbrella_back.pressed.connect(_on_umbrella_back)
 	hotel_door_open_hotspot.gui_input.connect(_on_hotel_door_open_input)
 	logo_image.texture = LOGO
 	hud.action_pressed.connect(_on_action_pressed)
@@ -129,6 +136,9 @@ func _set_state(next: State) -> void:
 	mailbox_closeup_hotspot.visible = false
 	mailbox_open_drop_hotspot.visible = false
 	hotel_return_arrow.visible = false
+	umbrella_stand_hotspot.visible = false
+	umbrella_hotspot.visible = false
+	umbrella_back.visible = false
 	hotel_door_key_hotspot.visible = false
 	hotel_door_open_hotspot.visible = false
 	logo_overlay.visible = false
@@ -227,8 +237,16 @@ func _set_state(next: State) -> void:
 			# Show the entire hotel image; do not crop it to fill the stage.
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			mailbox_hotspot.visible = true
+			umbrella_stand_hotspot.visible = true
 			hotel_return_arrow.visible = true
 			hud.set_location("序章 · 旅馆正门")
+			hud.hide_action()
+		State.UMBRELLA:
+			background.texture = HOTEL_UMBRELLA
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			umbrella_back.visible = true
+			umbrella_hotspot.visible = true
+			hud.set_location_visible(false)
 			hud.hide_action()
 		State.MAILBOX_CLOSED:
 			background.texture = MAILBOX_CLOSED
@@ -251,6 +269,7 @@ func _set_state(next: State) -> void:
 				GameState.set_flag("mailbox_key_taken")
 				GameState.add_item("mailbox_key")
 			hotel_door_key_hotspot.visible = true
+			umbrella_stand_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.HOTEL_DOOR_OPEN:
@@ -348,6 +367,9 @@ func _layout() -> void:
 	hotel_return_arrow.position = Vector2(18.0 * back_s, vp.y - 66.0 * back_s)
 	hotel_return_arrow.size = Vector2(48.0, 48.0) * back_s
 	hotel_return_arrow.add_theme_font_size_override("font_size", int(24.0 * back_s))
+	umbrella_back.position = Vector2(18.0 * back_s, 18.0 * back_s)
+	umbrella_back.size = Vector2(48.0, 48.0) * back_s
+	umbrella_back.add_theme_font_size_override("font_size", int(26.0 * back_s))
 	if logo_overlay.visible:
 		_layout_logo()
 
@@ -543,6 +565,29 @@ func _layout_logo() -> void:
 	logo_bg.size = vp
 	logo_image.position = Vector2((vp.x - w) * 0.5, (vp.y - h) * 0.5)
 	logo_image.size = Vector2(w, h)
+
+
+func _on_umbrella_stand_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or (state != State.HOTEL_EXTERIOR and state != State.HOTEL_NO_MAILBOX):
+		return
+	_cabin_return_state = State.HOTEL_EXTERIOR
+	_transition_to(State.UMBRELLA)
+
+
+func _on_umbrella_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.UMBRELLA:
+		return
+	if not GameState.has_flag("egret_met"):
+		hud.set_prompt("雨伞被卡住了。也许该先问问白鹭夫人。")
+		return
+	GameState.add_item("umbrella")
+	umbrella_hotspot.visible = false
+	hud.set_prompt("你取下了旧雨伞。")
+
+
+func _on_umbrella_back() -> void:
+	if state == State.UMBRELLA:
+		_transition_to(State.HOTEL_EXTERIOR)
 
 
 func _on_hotel_return_pressed() -> void:
