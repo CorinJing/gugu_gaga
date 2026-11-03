@@ -33,6 +33,7 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var glowing_door_hotspot: Control = %GlowingDoorHotspot
 @onready var door_glow: TextureRect = %DoorGlow
 @onready var room_back: Button = %RoomBack
+@onready var hall_back: Button = %HallBack
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -62,6 +63,7 @@ func _ready() -> void:
 	left_door_hotspot.gui_input.connect(_on_left_door_input)
 	glowing_door_hotspot.gui_input.connect(_on_glowing_door_input)
 	room_back.pressed.connect(_on_room_back)
+	hall_back.pressed.connect(_on_hall_back)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	doll_hotspot.gui_input.connect(_on_doll_input)
 	stairs_back.pressed.connect(_on_stairs_back)
@@ -112,6 +114,7 @@ func _set_state(next: State) -> void:
 	glowing_door_hotspot.visible = false
 	door_glow.visible = false
 	room_back.visible = false
+	hall_back.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -124,17 +127,18 @@ func _set_state(next: State) -> void:
 	match state:
 		State.LOBBY:
 			background.texture = LOBBY_BG
+			var waiter_gone: bool = GameState.has_flag("waiter_gone")
 			character.texture = WAITER
-			character.visible = true
+			character.visible = not waiter_gone
 			character.modulate = Color(0.82, 0.85, 0.82, 1.0)
 			character.position = Vector2(390.0, 220.0)
 			character.size = Vector2(150.0, 460.0)
-			waiter_hotspot.visible = true
+			waiter_hotspot.visible = not waiter_gone
 			desk_hotspot.visible = GameState.has_flag("waiter_second_line")
 			left_door_hotspot.visible = true
 			stairs_hotspot.visible = true
-			tray_hotspot.visible = GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
-			hud.set_prompt("前台站着一位服务生。")
+			tray_hotspot.visible = not waiter_gone and GameState.has_flag("key_dialogue_done") and not GameState.has_item("corridor_key")
+			hud.set_prompt("前台站着一位服务生。" if not waiter_gone else "前台没有人。")
 		State.FRONT_DESK:
 			background.texture = REGISTER_NO_PEN_BG if GameState.has_flag("pen_taken") else REGISTER_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -162,6 +166,7 @@ func _set_state(next: State) -> void:
 			background.texture = HALL_BG
 			glowing_door_hotspot.visible = true
 			door_glow.visible = true
+			hall_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.ROOM:
@@ -192,6 +197,10 @@ func _layout() -> void:
 	backdrop.texture = background.texture
 	backdrop.modulate = Color(0.22, 0.22, 0.22, 1.0)
 	hud.apply_layout(Rect2(stage_pos, stage_size), vp, Rect2())
+	room_back.position = Vector2(vp.x * 0.5 - 50.0, vp.y - 64.0)
+	room_back.size = Vector2(100.0, 40.0)
+	hall_back.position = Vector2(vp.x * 0.5 - 50.0, vp.y - 64.0)
+	hall_back.size = Vector2(100.0, 40.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -298,6 +307,13 @@ func _on_doll_input(event: InputEvent) -> void:
 func _on_room_back() -> void:
 	if state == State.ROOM:
 		_transition_to(State.HALL)
+
+
+func _on_hall_back() -> void:
+	if state != State.HALL:
+		return
+	GameState.set_flag("waiter_gone")
+	_transition_to(State.LOBBY)
 
 
 func _on_left_door_input(event: InputEvent) -> void:
