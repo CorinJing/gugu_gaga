@@ -420,7 +420,14 @@ func _on_glowing_door_input(event: InputEvent) -> void:
 func _on_stairs_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.LOBBY:
 		return
+	if GameState.has_flag("chapter_complete"):
+		_finish_chapter()
+		return
 	_transition_to(State.STAIRS)
+
+
+func _finish_chapter() -> void:
+	await SceneTransition.change_scene("res://scenes/main.tscn", 1.4, 1.0)
 
 
 func _on_stairs_back() -> void:
@@ -484,7 +491,8 @@ func _give_skeleton() -> void:
 	await _say("好孩子，现在我将赐予你正视月亮的权利", egret_hotspot, 7.2)
 	GameState.set_flag("egret_line_4")
 	_play_voice(VOICE_EGRET_UPSTAIRS)
-	_say("你可以上楼看看其他的客人了", egret_hotspot, 5.8)
+	await _say("你可以上楼看看其他的客人了", egret_hotspot, 5.8)
+	GameState.set_flag("chapter_complete")
 
 
 func _give_thread() -> void:
