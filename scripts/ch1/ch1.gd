@@ -13,6 +13,8 @@ const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
 const BALCONY_BG := preload("res://assets/art/backgrounds/ch1_balcony.png")
 const STORAGE_BG := preload("res://assets/art/backgrounds/ch1_storage.png")
 const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
+const POT_IMG := preload("res://assets/art/ui/item_pot.png")
+const FILLED_POT_IMG := preload("res://assets/art/ui/item_filled_pot.png")
 const ROOM_BG := preload("res://assets/art/backgrounds/ch1_113.png")
 const EGRET := preload("res://assets/art/characters/egret_seated.png")
 const DOOR_GLOW := preload("res://assets/art/ui/door_glow.png")
@@ -44,6 +46,11 @@ const VOICE_EGRET_SHARP := preload("res://assets/audio/npc/egret_02_sharp.mp3")
 @onready var storage_door_hotspot: Control = %StorageDoorHotspot
 @onready var balcony_back: Button = %BalconyBack
 @onready var storage_back: Button = %StorageBack
+@onready var storage_pot: TextureRect = %StoragePot
+@onready var pot_hotspot: Control = %PotHotspot
+@onready var fountain_hotspot: Control = %FountainHotspot
+@onready var stove_hotspot: Control = %StoveHotspot
+@onready var pot_on_stove: TextureRect = %PotOnStove
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -80,6 +87,9 @@ func _ready() -> void:
 	storage_door_hotspot.gui_input.connect(_on_storage_door_input)
 	balcony_back.pressed.connect(_on_balcony_back)
 	storage_back.pressed.connect(_on_storage_back)
+	pot_hotspot.gui_input.connect(_on_pot_input)
+	storage_pot.texture = POT_IMG
+	pot_on_stove.texture = FILLED_POT_IMG
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	doll_hotspot.gui_input.connect(_on_doll_input)
 	stairs_back.pressed.connect(_on_stairs_back)
@@ -168,6 +178,11 @@ func _set_state(next: State) -> void:
 	storage_door_hotspot.visible = false
 	balcony_back.visible = false
 	storage_back.visible = false
+	storage_pot.visible = false
+	pot_hotspot.visible = false
+	fountain_hotspot.visible = false
+	stove_hotspot.visible = false
+	pot_on_stove.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -228,12 +243,18 @@ func _set_state(next: State) -> void:
 			background.texture = BALCONY_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			balcony_back.visible = true
+			fountain_hotspot.visible = true
+			stove_hotspot.visible = true
+			pot_on_stove.visible = GameState.has_flag("pot_on_stove")
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.STORAGE:
 			background.texture = STORAGE_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			storage_back.visible = true
+			if not GameState.has_flag("pot_taken"):
+				storage_pot.visible = true
+				pot_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.ROOM:
@@ -414,6 +435,18 @@ func _give_thread() -> void:
 	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
 
 
+func _on_pot_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.STORAGE:
+		return
+	if GameState.has_flag("pot_taken"):
+		return
+	GameState.set_flag("pot_taken")
+	GameState.add_item("pot")
+	storage_pot.visible = false
+	pot_hotspot.visible = false
+	hud.set_prompt("你拿起了桌上的铁锅。")
+
+
 func _on_room_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.ROOM:
 		return
@@ -508,6 +541,25 @@ func _layout_checkin() -> void:
 	checkin_back.size = Vector2(48.0, 48.0)
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if state == State.BALCONY:
+		if item_id == "pot" and fountain_hotspot.get_global_rect().has_point(screen_pos):
+			GameState.remove_item("pot")
+			GameState.add_item("filled_pot")
+			hud.set_prompt("锅装满了水。")
+			return
+		if item_id == "filled_pot" and stove_hotspot.get_global_rect().has_point(screen_pos):
+			GameState.remove_item("filled_pot")
+			GameState.set_flag("pot_on_stove")
+			pot_on_stove.visible = true
+			hud.set_prompt("锅放在了炉子上。")
+			return
+		if item_id == "doll" and GameState.has_flag("pot_on_stove") and stove_hotspot.get_global_rect().has_point(screen_pos):
+			GameState.remove_item("doll")
+			GameState.add_item("thread")
+			GameState.set_flag("thread_made")
+			pot_on_stove.visible = false
+			hud.set_prompt("布偶的缝线松开了，你得到了红线。")
+			return
 	if state == State.ROOM and item_id == "thread" and egret_hotspot.get_global_rect().has_point(screen_pos):
 		_give_thread()
 		return

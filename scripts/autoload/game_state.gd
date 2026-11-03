@@ -18,6 +18,8 @@ const ITEM_NAMES := {
 	"corridor_key": "走廊钥匙",
 	"umbrella": "旧雨伞",
 	"thread": "红线",
+	"pot": "铁锅",
+	"filled_pot": "装水的锅",
 	"doll": "布偶",
 	"pen": "钢笔",
 }
