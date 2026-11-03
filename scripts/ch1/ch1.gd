@@ -391,11 +391,25 @@ func _on_egret_input(event: InputEvent) -> void:
 		_play_voice(VOICE_EGRET_THREAD)
 		_say("我的线断了", egret_hotspot, 4.0)
 		return
+	if not GameState.has_flag("thread_given"):
+		_play_voice(VOICE_EGRET_THREAD)
+		_say("我的线断了", egret_hotspot, 4.0)
+		return
 	if not GameState.has_flag("egret_line_2"):
 		GameState.set_flag("egret_line_2")
 		_play_voice(VOICE_EGRET_SHARP)
 		_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
 		return
+	_play_voice(VOICE_EGRET_SHARP)
+	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
+
+
+func _give_thread() -> void:
+	if not GameState.has_item("thread"):
+		return
+	GameState.remove_item("thread")
+	GameState.set_flag("thread_given")
+	GameState.set_flag("egret_line_2")
 	_play_voice(VOICE_EGRET_SHARP)
 	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
 
@@ -494,6 +508,9 @@ func _layout_checkin() -> void:
 	checkin_back.size = Vector2(48.0, 48.0)
 
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
+	if state == State.ROOM and item_id == "thread" and egret_hotspot.get_global_rect().has_point(screen_pos):
+		_give_thread()
+		return
 	if state == State.LOBBY and item_id == "corridor_key" and left_door_hotspot.get_global_rect().has_point(screen_pos):
 		GameState.set_flag("corridor_unlocked")
 		GameState.remove_item("corridor_key")
