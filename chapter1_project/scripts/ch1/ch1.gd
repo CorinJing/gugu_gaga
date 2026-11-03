@@ -34,6 +34,7 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var door_glow: TextureRect = %DoorGlow
 @onready var room_back: Button = %RoomBack
 @onready var hall_back: Button = %HallBack
+@onready var room_door_hotspot: Control = %RoomDoorHotspot
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -64,6 +65,7 @@ func _ready() -> void:
 	glowing_door_hotspot.gui_input.connect(_on_glowing_door_input)
 	room_back.pressed.connect(_on_room_back)
 	hall_back.pressed.connect(_on_hall_back)
+	room_door_hotspot.gui_input.connect(_on_room_door_input)
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
 	doll_hotspot.gui_input.connect(_on_doll_input)
 	stairs_back.pressed.connect(_on_stairs_back)
@@ -146,6 +148,7 @@ func _set_state(next: State) -> void:
 	door_glow.visible = false
 	room_back.visible = false
 	hall_back.visible = false
+	room_door_hotspot.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -208,6 +211,7 @@ func _set_state(next: State) -> void:
 			character.position = Vector2(548.0, 273.0)
 			character.size = Vector2(172.0, 464.0)
 			room_back.visible = true
+			room_door_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 	_layout()
@@ -338,6 +342,12 @@ func _on_doll_input(event: InputEvent) -> void:
 func _on_room_back() -> void:
 	if state == State.ROOM:
 		_transition_to(State.HALL)
+
+
+func _on_room_door_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.ROOM:
+		return
+	_transition_to(State.HALL)
 
 
 func _on_hall_back() -> void:

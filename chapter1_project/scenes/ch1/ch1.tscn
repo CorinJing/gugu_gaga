@@ -187,6 +187,16 @@ offset_right = 445.0
 offset_bottom = 367.0
 mouse_default_cursor_shape = 2
 
+[node name="RoomDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 875.0
+offset_top = 55.0
+offset_right = 960.0
+offset_bottom = 620.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." unique_id=29373300 instance=ExtResource("2_hud")]
 layout_mode = 1
 
