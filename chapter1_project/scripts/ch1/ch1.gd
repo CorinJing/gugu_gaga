@@ -20,6 +20,8 @@ const WAITER := preload("res://assets/art/characters/waiter_cutout.png")
 const VOICE_WELCOME := preload("res://assets/audio/npc/waiter_01_welcome.mp3")
 const VOICE_REGISTER := preload("res://assets/audio/npc/waiter_02_register.mp3")
 const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
+const VOICE_EGRET_THREAD := preload("res://assets/audio/npc/egret_01_thread.mp3")
+const VOICE_EGRET_SHARP := preload("res://assets/audio/npc/egret_02_sharp.mp3")
 
 @onready var hud: Control = $GameHUD
 @onready var stage: Control = $Stage
@@ -37,6 +39,7 @@ const VOICE_KEY := preload("res://assets/audio/npc/waiter_03_key.mp3")
 @onready var room_back: Button = %RoomBack
 @onready var hall_back: Button = %HallBack
 @onready var room_door_hotspot: Control = %RoomDoorHotspot
+@onready var egret_hotspot: Control = %EgretHotspot
 @onready var lobby_back_door_hotspot: Control = %LobbyBackDoorHotspot
 @onready var storage_door_hotspot: Control = %StorageDoorHotspot
 @onready var balcony_back: Button = %BalconyBack
@@ -72,6 +75,7 @@ func _ready() -> void:
 	room_back.pressed.connect(_on_room_back)
 	hall_back.pressed.connect(_on_hall_back)
 	room_door_hotspot.gui_input.connect(_on_room_door_input)
+	egret_hotspot.gui_input.connect(_on_egret_input)
 	lobby_back_door_hotspot.gui_input.connect(_on_lobby_back_door_input)
 	storage_door_hotspot.gui_input.connect(_on_storage_door_input)
 	balcony_back.pressed.connect(_on_balcony_back)
@@ -159,6 +163,7 @@ func _set_state(next: State) -> void:
 	room_back.visible = false
 	hall_back.visible = false
 	room_door_hotspot.visible = false
+	egret_hotspot.visible = false
 	lobby_back_door_hotspot.visible = false
 	storage_door_hotspot.visible = false
 	balcony_back.visible = false
@@ -240,6 +245,7 @@ func _set_state(next: State) -> void:
 			character.size = Vector2(172.0, 464.0)
 			room_back.visible = true
 			room_door_hotspot.visible = true
+			egret_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 	_layout()
@@ -374,6 +380,24 @@ func _on_doll_input(event: InputEvent) -> void:
 func _on_room_back() -> void:
 	if state == State.ROOM:
 		_transition_to(State.HALL)
+
+
+func _on_egret_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.ROOM:
+		return
+	if not GameState.has_flag("egret_line_1"):
+		GameState.set_flag("egret_line_1")
+		GameState.set_flag("egret_met")
+		_play_voice(VOICE_EGRET_THREAD)
+		_say("我的线断了", egret_hotspot, 4.0)
+		return
+	if not GameState.has_flag("egret_line_2"):
+		GameState.set_flag("egret_line_2")
+		_play_voice(VOICE_EGRET_SHARP)
+		_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
+		return
+	_play_voice(VOICE_EGRET_SHARP)
+	_say("还需要尖锐一点的东西", egret_hotspot, 4.0)
 
 
 func _on_room_door_input(event: InputEvent) -> void:
