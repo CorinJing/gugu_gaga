@@ -3,7 +3,7 @@ extends Control
 ## 第一章：大堂 → 前台登记 → 取钢笔 → 签名 → 服务生交钥匙 → 左侧门 → 走廊。
 ## 走廊之后的房间、白鹭夫人和缝纫内容已移除。
 
-enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM, BALCONY, STORAGE, HOTEL_FRONT }
+enum State { LOBBY, FRONT_DESK, REGISTER, STAIRS, HALL, ROOM, BALCONY, STORAGE, HOTEL_DOOR_OPEN, UMBRELLA }
 
 const LOBBY_BG := preload("res://assets/art/backgrounds/ch1_lobby.png")
 const REGISTER_BG := preload("res://assets/art/backgrounds/ch1_register.png")
@@ -12,7 +12,8 @@ const HALL_BG := preload("res://assets/art/backgrounds/ch1_hall.png")
 const STAIRS_BG := preload("res://assets/art/backgrounds/ch1_stairs.png")
 const BALCONY_BG := preload("res://assets/art/backgrounds/ch1_balcony.png")
 const STORAGE_BG := preload("res://assets/art/backgrounds/ch1_storage.png")
-const HOTEL_FRONT_BG := preload("res://assets/art/backgrounds/hotel_exterior.png")
+const HOTEL_DOOR_OPEN_BG := preload("res://assets/art/backgrounds/hotel_door_open.png")
+const HOTEL_UMBRELLA_BG := preload("res://assets/art/backgrounds/hotel_umbrella.png")
 const DOLL_SIT := preload("res://assets/art/ui/doll_sitting.png")
 const POT_IMG := preload("res://assets/art/ui/item_pot.png")
 const FILLED_POT_IMG := preload("res://assets/art/ui/item_filled_pot.png")
@@ -54,6 +55,10 @@ const VOICE_EGRET_SHARP := preload("res://assets/audio/npc/egret_02_sharp.mp3")
 @onready var pot_on_stove: TextureRect = %PotOnStove
 @onready var lobby_exit_back: Button = %LobbyExitBack
 @onready var hotel_front_back: Button = %HotelFrontBack
+@onready var open_door_hotspot: Control = %OpenDoorHotspot
+@onready var door_umbrella_stand_hotspot: Control = %DoorUmbrellaStandHotspot
+@onready var umbrella_hotspot: Control = %UmbrellaHotspot
+@onready var umbrella_back: Button = %UmbrellaBack
 @onready var stairs_hotspot: Control = %StairsHotspot
 @onready var doll_sitting: TextureRect = %DollSitting
 @onready var doll_hotspot: Control = %DollHotspot
@@ -93,6 +98,10 @@ func _ready() -> void:
 	pot_hotspot.gui_input.connect(_on_pot_input)
 	lobby_exit_back.pressed.connect(_on_lobby_exit_back)
 	hotel_front_back.pressed.connect(_on_hotel_front_back)
+	open_door_hotspot.gui_input.connect(_on_open_door_input)
+	door_umbrella_stand_hotspot.gui_input.connect(_on_door_umbrella_stand_input)
+	umbrella_hotspot.gui_input.connect(_on_umbrella_input)
+	umbrella_back.pressed.connect(_on_umbrella_back)
 	storage_pot.texture = POT_IMG
 	pot_on_stove.texture = FILLED_POT_IMG
 	stairs_hotspot.gui_input.connect(_on_stairs_input)
@@ -125,7 +134,7 @@ func _apply_back_button_style() -> void:
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color(0.145098, 0.203922, 0.180392, 1)
 	hover.border_color = Color(0.760784, 0.627451, 0.439216, 1)
-	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back, balcony_back, storage_back, lobby_exit_back, hotel_front_back]:
+	for btn in [desk_view_back, register_back, stairs_back, room_back, hall_back, checkin_back, balcony_back, storage_back, lobby_exit_back, umbrella_back]:
 		btn.text = "←"
 		btn.flat = false
 		btn.size = Vector2(48.0, 48.0)
@@ -138,6 +147,7 @@ func _apply_back_button_style() -> void:
 	# In 113 and the corridor, point down toward the bottom return bar.
 	room_back.text = "↓"
 	hall_back.text = "↓"
+	lobby_exit_back.text = "↓"
 
 
 func _is_left_click(event: InputEvent) -> bool:
@@ -190,6 +200,10 @@ func _set_state(next: State) -> void:
 	pot_on_stove.visible = false
 	lobby_exit_back.visible = false
 	hotel_front_back.visible = false
+	open_door_hotspot.visible = false
+	door_umbrella_stand_hotspot.visible = false
+	umbrella_hotspot.visible = false
+	umbrella_back.visible = false
 	stairs_hotspot.visible = false
 	doll_sitting.visible = false
 	doll_hotspot.visible = false
@@ -265,10 +279,18 @@ func _set_state(next: State) -> void:
 				pot_hotspot.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
-		State.HOTEL_FRONT:
-			background.texture = HOTEL_FRONT_BG
+		State.HOTEL_DOOR_OPEN:
+			background.texture = HOTEL_DOOR_OPEN_BG
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hotel_front_back.visible = true
+			open_door_hotspot.visible = true
+			door_umbrella_stand_hotspot.visible = true
+			hud.set_location_visible(false)
+			hud.hide_action()
+		State.UMBRELLA:
+			background.texture = HOTEL_UMBRELLA_BG
+			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			umbrella_hotspot.visible = true
+			umbrella_back.visible = true
 			hud.set_location_visible(false)
 			hud.hide_action()
 		State.ROOM:
@@ -311,8 +333,8 @@ func _layout() -> void:
 	storage_back.size = Vector2(48.0, 48.0)
 	lobby_exit_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
 	lobby_exit_back.size = Vector2(48.0, 48.0)
-	hotel_front_back.position = Vector2(vp.x * 0.5 - 24.0, vp.y - 70.0)
-	hotel_front_back.size = Vector2(48.0, 48.0)
+	umbrella_back.position = Vector2(24.0, 24.0)
+	umbrella_back.size = Vector2(48.0, 48.0)
 	if checkin_panel.visible:
 		_layout_checkin()
 
@@ -455,12 +477,37 @@ func _give_thread() -> void:
 
 func _on_lobby_exit_back() -> void:
 	if state == State.LOBBY:
-		_transition_to(State.HOTEL_FRONT)
+		_transition_to(State.HOTEL_DOOR_OPEN)
+
+
+func _on_open_door_input(event: InputEvent) -> void:
+	if _is_left_click(event) and state == State.HOTEL_DOOR_OPEN:
+		_transition_to(State.LOBBY)
+
+
+func _on_door_umbrella_stand_input(event: InputEvent) -> void:
+	if _is_left_click(event) and state == State.HOTEL_DOOR_OPEN:
+		_transition_to(State.UMBRELLA)
+
+
+func _on_umbrella_input(event: InputEvent) -> void:
+	if not _is_left_click(event) or state != State.UMBRELLA:
+		return
+	if GameState.has_flag("umbrella_frame_taken"):
+		return
+	GameState.set_flag("umbrella_frame_taken")
+	GameState.add_item("umbrella_frame")
+	umbrella_hotspot.visible = false
+	hud.set_prompt("你取下了伞骨。")
+
+
+func _on_umbrella_back() -> void:
+	if state == State.UMBRELLA:
+		_transition_to(State.HOTEL_DOOR_OPEN)
 
 
 func _on_hotel_front_back() -> void:
-	if state == State.HOTEL_FRONT:
-		_transition_to(State.LOBBY)
+	pass
 
 
 func _on_pot_input(event: InputEvent) -> void:

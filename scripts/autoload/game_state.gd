@@ -17,6 +17,7 @@ const ITEM_NAMES := {
 	"brass_key": "黄铜钥匙",
 	"corridor_key": "走廊钥匙",
 	"umbrella": "旧雨伞",
+	"umbrella_frame": "骨架",
 	"thread": "红线",
 	"pot": "铁锅",
 	"filled_pot": "装水的锅",

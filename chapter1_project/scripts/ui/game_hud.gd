@@ -12,6 +12,7 @@ const ICONS := {
 	"letter": preload("res://assets/art/ui/item_letter.png"),
 	"mailbox_key": preload("res://assets/art/ui/item_mailbox_key.png"),
 	"corridor_key": preload("res://assets/art/ui/item_corridor_key.png"),
+	"umbrella_frame": preload("res://assets/art/ui/item_umbrella_frame.png"),
 	"doll": preload("res://assets/art/ui/item_doll.png"),
 	"pot": preload("res://assets/art/ui/item_pot.png"),
 	"filled_pot": preload("res://assets/art/ui/item_filled_pot.png"),

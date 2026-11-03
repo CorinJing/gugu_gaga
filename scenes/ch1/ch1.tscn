@@ -285,6 +285,36 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="OpenDoorHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 430.0
+offset_top = 225.0
+offset_right = 580.0
+offset_bottom = 650.0
+mouse_default_cursor_shape = 2
+
+[node name="DoorUmbrellaStandHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 150.0
+offset_top = 330.0
+offset_right = 300.0
+offset_bottom = 700.0
+mouse_default_cursor_shape = 2
+
+[node name="UmbrellaHotspot" type="Control" parent="Stage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 390.0
+offset_top = 90.0
+offset_right = 660.0
+offset_bottom = 610.0
+mouse_default_cursor_shape = 2
+
 [node name="GameHUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
@@ -518,6 +548,20 @@ offset_left = 430.0
 offset_top = 650.0
 offset_right = 478.0
 offset_bottom = 698.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+text = "←"
+
+[node name="UmbrellaBack" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 72.0
 focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
