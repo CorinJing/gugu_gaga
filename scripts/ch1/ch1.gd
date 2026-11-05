@@ -639,15 +639,16 @@ func _layout_checkin() -> void:
 	checkin_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	checkin_body.position = Vector2(24.0, 80.0)
 	checkin_body.size = Vector2(panel_w - 48.0, maxf(260.0, vp.y - 220.0))
-	checkin_body.add_theme_font_size_override("font_size", int(30.0 * s))
-	var line_y: float = vp.y - 95.0
-	sign_name.position = Vector2(24.0, line_y - 30.0)
+	checkin_body.add_theme_font_size_override("font_size", int(26.0 * s))
+	var line_y: float = vp.y - 180.0
+	sign_name.position = Vector2(24.0, line_y - 34.0)
 	sign_name.size = Vector2(100.0, 44.0)
 	sign_name.add_theme_font_size_override("font_size", int(30.0 * s))
 	signature_line.position = Vector2(112.0, line_y)
 	signature_line.size = Vector2(panel_w - 140.0, 3.0)
-	signature_pad.position = Vector2(100.0, line_y - 140.0)
-	signature_pad.size = Vector2(panel_w - 124.0, 240.0)
+	# Large invisible signing area, moved up with the line and extended vertically.
+	signature_pad.position = Vector2(100.0, line_y - 170.0)
+	signature_pad.size = Vector2(panel_w - 124.0, 340.0)
 	var bs: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.62, 2.2)
 	checkin_back.position = Vector2(18.0 * bs, vp.y - 70.0 * bs)
 	checkin_back.size = Vector2(48.0, 48.0) * bs
