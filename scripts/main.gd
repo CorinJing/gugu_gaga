@@ -11,6 +11,7 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 	start_button.grab_focus()
+	AudioDirector.set_scene("title", "")
 
 
 func _layout() -> void:
@@ -37,9 +38,12 @@ func _layout() -> void:
 
 
 func _on_start_pressed() -> void:
+	AudioDirector.ui("click")
+	AudioDirector.set_music("", 0.3)
 	GameState.reset()
 	SceneTransition.change_scene("res://scenes/prologue/prologue_demo.tscn")
 
 
 func _on_quit_pressed() -> void:
+	AudioDirector.ui("click")
 	get_tree().quit()

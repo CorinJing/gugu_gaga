@@ -167,12 +167,14 @@ func _say(text: String, anchor: Control, seconds: float = 3.0) -> void:
 func _play_voice(stream: AudioStream) -> void:
 	if voice == null:
 		return
+	AudioDirector.duck(maxf(stream.get_length(), 1.2))
 	voice.stop()
 	voice.stream = stream
 	voice.play()
 
 func _set_state(next: State) -> void:
 	state = next
+	AudioDirector.set_scene(_music_for_state(), _ambience_for_state())
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_speech_gen += 1
 	hud.hide_speech()
@@ -413,6 +415,7 @@ func _on_tray_input(event: InputEvent) -> void:
 		return
 	if not GameState.has_flag("key_dialogue_done") or GameState.has_item("corridor_key"):
 		return
+	AudioDirector.sfx("key_appear")
 	GameState.add_item("corridor_key")
 	tray_hotspot.visible = false
 	hud.set_prompt("你从托盘上拿到了走廊钥匙。")
@@ -446,6 +449,7 @@ func _on_doll_input(event: InputEvent) -> void:
 		return
 	if GameState.has_flag("doll_taken"):
 		return
+	AudioDirector.sfx("cloth_shift")
 	GameState.set_flag("doll_taken")
 	GameState.add_item("doll")
 	doll_sitting.visible = false
@@ -491,6 +495,7 @@ func _give_skeleton() -> void:
 	if not GameState.has_item("umbrella_frame"):
 		return
 	GameState.remove_item("umbrella_frame")
+	AudioDirector.sfx("cloth_shift")
 	GameState.set_flag("skeleton_given")
 	GameState.set_flag("egret_line_3")
 	_play_voice(VOICE_EGRET_MOON)
@@ -505,6 +510,7 @@ func _give_thread() -> void:
 	if not GameState.has_item("thread"):
 		return
 	GameState.remove_item("thread")
+	AudioDirector.sfx("thread_cut")
 	GameState.set_flag("thread_given")
 	GameState.set_flag("egret_line_2")
 	_play_voice(VOICE_EGRET_SHARP)
@@ -518,6 +524,7 @@ func _on_lobby_exit_back() -> void:
 
 func _on_open_door_input(event: InputEvent) -> void:
 	if _is_left_click(event) and state == State.HOTEL_DOOR_OPEN:
+		AudioDirector.sfx("hotel_door")
 		_transition_to(State.LOBBY)
 
 
@@ -534,6 +541,7 @@ func _on_umbrella_input(event: InputEvent) -> void:
 		return
 	if GameState.has_flag("umbrella_frame_taken"):
 		return
+	AudioDirector.sfx("cloth_shift")
 	GameState.set_flag("umbrella_frame_taken")
 	GameState.add_item("umbrella_frame")
 	umbrella_hotspot.visible = false
@@ -551,6 +559,7 @@ func _on_pot_input(event: InputEvent) -> void:
 		return
 	if GameState.has_flag("pot_taken"):
 		return
+	AudioDirector.sfx("cloth_shift")
 	GameState.set_flag("pot_taken")
 	GameState.add_item("pot")
 	storage_pot.visible = false
@@ -561,6 +570,7 @@ func _on_pot_input(event: InputEvent) -> void:
 func _on_room_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.ROOM:
 		return
+	AudioDirector.sfx("door_cabin")
 	_transition_to(State.HALL)
 
 
@@ -602,6 +612,7 @@ func _on_left_door_input(event: InputEvent) -> void:
 		hud.set_prompt("左侧的门锁着。")
 		return
 	GameState.set_flag("corridor_unlocked")
+	AudioDirector.sfx("key_insert")
 	if GameState.has_item("corridor_key"):
 		GameState.remove_item("corridor_key")
 	_transition_to(State.HALL)
@@ -618,6 +629,7 @@ func _finish_signature() -> void:
 		hud.set_prompt("请拖动钢笔，在下方签名。")
 		return
 	GameState.remove_item("pen")
+	AudioDirector.ui("drop_ok")
 	GameState.set_flag("signed")
 	GameState.set_flag("registered")
 	checkin_panel.visible = false
@@ -667,6 +679,7 @@ func _place_pot_on_stove() -> void:
 
 func _boil_doll() -> void:
 	GameState.remove_item("doll")
+	AudioDirector.sfx("thread_cut")
 	GameState.add_item("thread")
 	GameState.set_flag("thread_made")
 	pot_on_stove.visible = false
@@ -704,3 +717,21 @@ func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) ->
 			hud.set_prompt("请拖动钢笔，在下方签名。")
 		return
 	hud.set_prompt("这里用不了这个东西。")
+
+
+func _music_for_state() -> String:
+	match state:
+		State.LOBBY, State.FRONT_DESK, State.REGISTER, State.STAIRS, State.HALL, State.ROOM, State.BALCONY, State.STORAGE, State.HOTEL_DOOR_OPEN, State.UMBRELLA:
+			return "hotel_night"
+		_:
+			return ""
+
+
+func _ambience_for_state() -> String:
+	match state:
+		State.FRONT_DESK, State.REGISTER, State.ROOM, State.STORAGE, State.BALCONY:
+			return "interior"
+		State.LOBBY, State.STAIRS, State.HALL, State.HOTEL_DOOR_OPEN, State.UMBRELLA:
+			return "hotel_night"
+		_:
+			return ""

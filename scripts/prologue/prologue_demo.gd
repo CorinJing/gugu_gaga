@@ -110,6 +110,7 @@ func _transition_to(next: State) -> void:
 
 func _set_state(next: State) -> void:
 	state = next
+	AudioDirector.set_scene(_music_for_state(), _ambience_for_state())
 	character.material = null
 	back_arrow.visible = false
 	suitcase_knife.visible = false
@@ -398,6 +399,7 @@ func _drop_coin_from_beak() -> void:
 	coin_overlay.rotation = 0.0
 	coin_overlay.visible = true
 	hud.set_prompt("白鹭吞下鱼。一枚硬币从它嘴里掉出来。")
+	AudioDirector.sfx("coin_drop", -2.0)
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -416,6 +418,7 @@ func _on_coin_pickup(event: InputEvent) -> void:
 		return
 	coin_hotspot.visible = false
 	coin_overlay.visible = false
+	AudioDirector.sfx("coin_pickup")
 	GameState.add_item("coin")
 	hud.set_prompt("你从地板上捡起一枚黄铜硬币。")
 	hud.set_action("离开船舱")
@@ -424,6 +427,7 @@ func _on_coin_pickup(event: InputEvent) -> void:
 func _on_boat_click(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.BOAT:
 		return
+	AudioDirector.sfx("dock_step")
 	# The boat is already arriving: go straight to the dock WITH the ferryman.
 	_transition_to(State.FERRYMAN)
 
@@ -431,6 +435,7 @@ func _on_boat_click(event: InputEvent) -> void:
 func _on_window_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.CABIN_CLOSED:
 		return
+	AudioDirector.sfx("window_latch")
 	GameState.set_flag("prologue_window_open")
 	_transition_to(State.CABIN_OPEN)
 
@@ -439,6 +444,7 @@ func _on_suitcase_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.CABIN_SEARCH:
 		return
 	_cabin_return_state = State.CABIN_SEARCH
+	AudioDirector.sfx("suitcase_open")
 	_transition_to(State.SUITCASE_VIEW)
 
 
@@ -453,6 +459,7 @@ func _on_suitcase_knife_input(event: InputEvent) -> void:
 	if GameState.has_flag("knife_taken"):
 		hud.set_prompt("箱子里的刀已经拿走了。")
 		return
+	AudioDirector.sfx("knife_take")
 	GameState.set_flag("knife_taken")
 	GameState.add_item("knife")
 	suitcase_knife.visible = false
@@ -464,6 +471,7 @@ func _on_fish_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
 	if not GameState.has_item("fish"):
+		AudioDirector.sfx("fish_take")
 		GameState.add_item("fish")
 		hud.set_prompt("你从水桶里拿起一条死鱼。")
 	else:
@@ -473,6 +481,7 @@ func _on_fish_input(event: InputEvent) -> void:
 func _on_heron_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
+	AudioDirector.sfx("heron_sewn")
 	if GameState.has_flag("heron_fed"):
 		hud.set_prompt("白鹭一动不动。")
 	elif not GameState.has_flag("heron_cut"):
@@ -484,6 +493,8 @@ func _on_heron_input(event: InputEvent) -> void:
 func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) -> void:
 	if state == State.HOTEL_NO_MAILBOX and item_id == "mailbox_key" and hotel_door_key_hotspot.get_global_rect().has_point(screen_pos):
 		GameState.remove_item("mailbox_key")
+		AudioDirector.sfx("key_insert")
+		AudioDirector.ui("drop_ok")
 		_transition_to(State.HOTEL_DOOR_OPEN)
 		return
 	if state == State.MAILBOX_OPEN and item_id == "letter" and mailbox_open_drop_hotspot.get_global_rect().has_point(screen_pos):
@@ -494,6 +505,7 @@ func _on_item_dropped(item_id: String, _slot_index: int, screen_pos: Vector2) ->
 	elif state == State.FERRYMAN and ferryman_hotspot.visible and ferryman_hotspot.get_global_rect().has_point(screen_pos):
 		_use_on_ferryman(item_id)
 	else:
+		AudioDirector.ui("drop_fail")
 		hud.set_prompt("这里用不了这个东西。")
 
 
@@ -503,6 +515,8 @@ func _use_on_heron(item_id: String) -> void:
 			hud.set_prompt("红线已经割开了。")
 			return
 		GameState.remove_item("knife")
+		AudioDirector.sfx("thread_cut")
+		AudioDirector.sfx("beak_open", -5.0)
 		GameState.set_flag("heron_cut")
 		hud.set_prompt("你用刀割开喙上的红线。白鹭慢慢张开嘴。")
 		await _transition_to(State.CABIN_BEAK)
@@ -515,6 +529,7 @@ func _use_on_heron(item_id: String) -> void:
 			hud.set_prompt("它已经吃饱了。")
 			return
 		GameState.remove_item("fish")
+		AudioDirector.sfx("heron_swallow")
 		GameState.set_flag("heron_fed")
 		hud.set_prompt("白鹭吞下鱼。它抖了抖脖子。")
 		await _drop_coin_from_beak()
@@ -534,10 +549,12 @@ func _on_note_hotspot_input(event: InputEvent) -> void:
 		return
 	if not GameState.has_flag("letter_read"):
 		GameState.set_flag("letter_read")
+		AudioDirector.ui("note_open")
 		hud.show_note("Ms.Yanqiu于三周前失踪。\n请继承人于盐月朔日前抵达盐月旅馆。")
 		return
 	if GameState.has_flag("letter_taken"):
 		return
+	AudioDirector.sfx("letter_take")
 	GameState.set_flag("letter_taken")
 	GameState.add_item("letter")
 	note_hotspot.visible = false
@@ -546,10 +563,14 @@ func _on_note_hotspot_input(event: InputEvent) -> void:
 func _on_hotel_door_open_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.HOTEL_DOOR_OPEN:
 		return
+	AudioDirector.sfx("hotel_door")
+	AudioDirector.set_music("", 1.4)
 	await SceneTransition.transition(func() -> void: _set_state(State.PROLOGUE_LOGO), 1.4, 1.2)
 
 
 func _start_logo_sequence() -> void:
+	AudioDirector.stop_all(0.4)
+	AudioDirector.sting("logo")
 	await get_tree().create_timer(5.0).timeout
 	if state == State.PROLOGUE_LOGO:
 		# 序章标题卡结束后直接进入第一章大堂。
@@ -599,6 +620,8 @@ func _post_letter() -> void:
 	if not GameState.has_item("letter"):
 		return
 	GameState.remove_item("letter")
+	AudioDirector.sfx("letter_insert")
+	AudioDirector.ui("drop_ok")
 	GameState.set_flag("mailbox_letter")
 	_transition_to(State.HOTEL_EXTERIOR)
 
@@ -606,6 +629,7 @@ func _post_letter() -> void:
 func _on_mailbox_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.HOTEL_EXTERIOR:
 		return
+	AudioDirector.ui("click")
 	if GameState.has_flag("mailbox_letter"):
 		_transition_to(State.HOTEL_NO_MAILBOX)
 		return
@@ -616,6 +640,7 @@ func _on_mailbox_input(event: InputEvent) -> void:
 func _on_mailbox_closeup_input(event: InputEvent) -> void:
 	if not _is_left_click(event) or state != State.MAILBOX_CLOSED:
 		return
+	AudioDirector.sfx("mailbox_open")
 	_transition_to(State.MAILBOX_OPEN)
 
 
@@ -625,12 +650,14 @@ func _on_nightstand_input(event: InputEvent) -> void:
 	if state != State.CABIN_OPEN and state != State.CABIN_SEARCH:
 		return
 	_cabin_return_state = state
+	AudioDirector.sfx("nightstand_touch")
 	_transition_to(State.NIGHTSTAND_VIEW)
 
 
 func _on_door_input(event: InputEvent) -> void:
 	if not _is_left_click(event):
 		return
+	AudioDirector.sfx("door_cabin")
 	if state == State.CABIN_OPEN:
 		_transition_to(State.BOAT)
 	elif state == State.CABIN_SEARCH or state == State.CABIN_BEAK:
@@ -649,6 +676,8 @@ func _pay_ferryman() -> void:
 		hud.set_prompt("你还没付钱。")
 		return
 	GameState.remove_item("coin")
+	AudioDirector.sfx("coin_palm")
+	AudioDirector.ui("drop_ok")
 	GameState.set_flag("ferry_paid")
 	cabin_hotspot.visible = false
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
@@ -692,6 +721,7 @@ func _say_ferryman(index: int) -> void:
 	voice.stop()
 	voice.stream = line["audio"]
 	voice.play()
+	AudioDirector.duck(1.6)
 	_speech_generation += 1
 	var generation := _speech_generation
 	var duration: float = (line["audio"] as AudioStream).get_length()
@@ -707,6 +737,7 @@ func _on_hotel_hotspot_input(event: InputEvent) -> void:
 		return
 	if not GameState.has_flag("ferry_paid"):
 		return
+	AudioDirector.sfx("hotel_arrive")
 	_transition_to(State.HOTEL_EXTERIOR)
 
 
@@ -732,3 +763,37 @@ func _on_action_pressed() -> void:
 			_transition_to(State.EGRET)
 		State.EGRET:
 			SceneTransition.change_scene("res://scenes/prologue/prologue_end.tscn")
+
+
+func _music_for_state() -> String:
+	match state:
+		State.CABIN_CLOSED, State.CABIN_OPEN, State.CABIN_SEARCH, State.CABIN_BEAK, State.SUITCASE_VIEW, State.NIGHTSTAND_VIEW:
+			return "cabin_warm"
+		State.BOAT:
+			return "boat_drift"
+		State.DOCK, State.FERRYMAN:
+			return "dock_dusk"
+		State.HOTEL_EXTERIOR, State.UMBRELLA, State.MAILBOX_CLOSED, State.MAILBOX_OPEN, State.HOTEL_NO_MAILBOX, State.HOTEL_DOOR_OPEN:
+			return "hotel_night"
+		_:
+			return ""
+
+
+func _ambience_for_state() -> String:
+	match state:
+		State.CABIN_CLOSED:
+			return "cabin_closed"
+		State.CABIN_OPEN, State.CABIN_SEARCH, State.CABIN_BEAK:
+			return "cabin_open"
+		State.SUITCASE_VIEW, State.NIGHTSTAND_VIEW:
+			return "interior"
+		State.BOAT:
+			return "boat_moving"
+		State.DOCK, State.FERRYMAN:
+			return "dock_dusk"
+		State.MAILBOX_CLOSED, State.MAILBOX_OPEN:
+			return "mailbox"
+		State.HOTEL_EXTERIOR, State.UMBRELLA, State.HOTEL_NO_MAILBOX, State.HOTEL_DOOR_OPEN:
+			return "hotel_night"
+		_:
+			return ""

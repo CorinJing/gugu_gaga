@@ -197,6 +197,7 @@ func _on_slot_gui_input(event: InputEvent, index: int) -> void:
 
 
 func _start_drag(id: String, index: int, mouse_pos: Vector2) -> void:
+	AudioDirector.ui("drag_pick")
 	_dragging = true
 	_drag_item = id
 	_drag_slot = index
@@ -239,6 +240,7 @@ func _input(event: InputEvent) -> void:
 
 
 func show_speech(text: String, anchor_rect: Rect2) -> void:
+	AudioDirector.ui("speech_pop", -6.0)
 	var vp := get_viewport_rect().size
 	var column_w: float = clampf((vp.y - 40.0) * (381.0 / 1514.0), 170.0, 240.0)
 	var area_right: float = vp.x - column_w - 16.0
@@ -265,12 +267,14 @@ func hide_speech() -> void:
 
 
 func show_note(text: String) -> void:
+	AudioDirector.ui("note_open")
 	note_label.text = text
 	note_overlay.visible = true
 	_layout_note()
 
 
 func hide_note() -> void:
+	AudioDirector.ui("note_close")
 	note_overlay.visible = false
 
 

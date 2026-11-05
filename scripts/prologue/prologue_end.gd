@@ -7,6 +7,7 @@ extends Control
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	AudioDirector.set_scene("end_card", "")
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
@@ -32,4 +33,6 @@ func _layout() -> void:
 
 
 func _on_back_pressed() -> void:
+	AudioDirector.ui("click")
+	AudioDirector.set_music("", 0.3)
 	SceneTransition.change_scene("res://scenes/main.tscn")

@@ -62,6 +62,7 @@ func add_item(id: String) -> void:
 	if index < 0:
 		return
 	slots[index] = id
+	AudioDirector.ui("item_gain")
 	inventory_changed.emit()
 
 

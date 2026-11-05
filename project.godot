@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+AudioDirector="*res://scripts/autoload/audio_director.gd"
+
 SettingsMenu="*res://scenes/ui/settings_menu.tscn"
 
 GameState="*res://scripts/autoload/game_state.gd"
