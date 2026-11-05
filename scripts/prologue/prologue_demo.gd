@@ -157,6 +157,7 @@ func _set_state(next: State) -> void:
 			hud.hide_action()
 		State.CABIN_OPEN:
 			background.texture = CABIN_OPEN
+			AudioDirector.sfx("window_open")
 			door_hotspot.visible = true
 			nightstand_hotspot.visible = true
 			hud.set_location("序章 · 船舱")
@@ -268,6 +269,7 @@ func _set_state(next: State) -> void:
 			background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			if not GameState.has_flag("mailbox_key_taken"):
 				GameState.set_flag("mailbox_key_taken")
+				AudioDirector.sfx("key_appear")
 				GameState.add_item("mailbox_key")
 			hotel_door_key_hotspot.visible = true
 			umbrella_stand_hotspot.visible = true
@@ -631,6 +633,7 @@ func _on_mailbox_input(event: InputEvent) -> void:
 		return
 	AudioDirector.ui("click")
 	if GameState.has_flag("mailbox_letter"):
+		AudioDirector.sfx("mailbox_close")
 		_transition_to(State.HOTEL_NO_MAILBOX)
 		return
 	_cabin_return_state = State.HOTEL_EXTERIOR
@@ -679,6 +682,7 @@ func _pay_ferryman() -> void:
 	AudioDirector.sfx("coin_palm")
 	AudioDirector.ui("drop_ok")
 	GameState.set_flag("ferry_paid")
+	AudioDirector.sfx("cloth_shift")
 	cabin_hotspot.visible = false
 	hud.set_prompt("船夫收下黄铜硬币，侧身让开。")
 	hud.hide_action()
