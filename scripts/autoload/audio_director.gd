@@ -126,8 +126,6 @@ func _preload_streams() -> void:
 	var paths: Array[String] = []
 	for key in MUSIC_PATHS:
 		paths.append(MUSIC_PATHS[key])
-	for key in AMBIENCE_PATHS:
-		paths.append(AMBIENCE_PATHS[key])
 	for path in paths:
 		_stream(path)
 		await get_tree().process_frame
@@ -172,10 +170,11 @@ func _looped(stream: AudioStream) -> AudioStream:
 
 
 ## 一次性设置当前场景的音乐和底噪；同一首不会重播。
-func set_scene(music_id: String, ambience_id: String, music_fade: float = 0.22, ambience_fade: float = 0.28) -> void:
+func set_scene(music_id: String, _ambience_id: String, music_fade: float = 0.22, ambience_fade: float = 0.28) -> void:
 	set_music(music_id, music_fade)
-	set_ambience(ambience_id, ambience_fade)
-	mood_changed.emit(music_id, ambience_id)
+	# 白噪音/底噪已关闭：保留调用签名，避免影响现有场景代码。
+	set_ambience("", ambience_fade)
+	mood_changed.emit(music_id, "")
 
 
 ## 旧的一路先退干净，新的一路再起来，两条噪声床不重叠。
@@ -198,23 +197,11 @@ func set_music(music_id: String, fade: float = 0.22) -> void:
 	_fade_in(next, fade + 0.1, fade)
 
 
-func set_ambience(ambience_id: String, fade: float = 0.28) -> void:
-	if ambience_id == _current_ambience:
-		return
-	_current_ambience = ambience_id
-	var old := _ambience_players[_ambience_index]
-	var next := _ambience_players[1 - _ambience_index]
-	_ambience_index = 1 - _ambience_index
-	_fade_out(old, fade)
-	if ambience_id.is_empty() or not AMBIENCE_PATHS.has(ambience_id):
-		return
-	var stream := _stream(AMBIENCE_PATHS[ambience_id])
-	if stream == null:
-		return
-	next.stream = _looped(stream)
-	next.volume_db = -40.0
-	next.play()
-	_fade_in(next, fade + 0.14, fade)
+func set_ambience(_ambience_id: String, fade: float = 0.28) -> void:
+	# 底噪/白噪音全部停用，只保留音乐和交互音效。
+	_current_ambience = ""
+	for p in _ambience_players:
+		_fade_out(p, fade)
 
 
 func stop_all(fade: float = 0.6) -> void:
