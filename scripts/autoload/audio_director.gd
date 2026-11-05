@@ -90,12 +90,14 @@ var _current_ambience := ""
 var _sting_player: AudioStreamPlayer
 var _duck_tween: Tween
 var _cache: Dictionary = {}
+var _tweens: Dictionary = {}
 
 
 func _enter_tree() -> void:
 	_ensure_bus("Music", MUSIC_BUS_DB)
 	_ensure_bus("Ambience", AMBIENCE_BUS_DB)
 	_ensure_bus("SFX", SFX_BUS_DB)
+	_ensure_master_limiter()
 
 	for i in 2:
 		var p := _make_player("Music")
@@ -207,8 +209,10 @@ func stop_all(fade: float = 0.6) -> void:
 func _fade_out(player: AudioStreamPlayer, seconds: float) -> void:
 	if not player.playing:
 		return
+	_kill_tween(player)
 	var stream_at_call := player.stream
 	var tw := create_tween()
+	_tweens[player] = tw
 	tw.tween_property(player, "volume_db", -40.0, maxf(seconds, 0.01))
 	tw.tween_callback(func() -> void:
 		if player.stream == stream_at_call:
@@ -216,8 +220,17 @@ func _fade_out(player: AudioStreamPlayer, seconds: float) -> void:
 
 
 func _fade_in(player: AudioStreamPlayer, seconds: float) -> void:
+	_kill_tween(player)
 	var tw := create_tween()
+	_tweens[player] = tw
 	tw.tween_property(player, "volume_db", 0.0, maxf(seconds, 0.01))
+
+
+func _kill_tween(player: AudioStreamPlayer) -> void:
+	var tw: Tween = _tweens.get(player)
+	if tw != null and tw.is_valid():
+		tw.kill()
+	_tweens.erase(player)
 
 
 func sfx(id: String, volume_db: float = 0.0, pitch: float = 1.0) -> void:
@@ -259,7 +272,7 @@ func sting(id: String, volume_db: float = 0.0) -> void:
 	_sting_player.play()
 
 
-## 对白响起时压低音乐和底噪，duration 秒后恢复。
+## 对白响起时压低音乐和底噪，duration 秒后恢复。用渐变而不是瞬跳，避免爆音。
 func duck(duration: float = 1.2, music_db: float = -7.0, ambience_db: float = -5.0) -> void:
 	var mi := AudioServer.get_bus_index("Music")
 	var ai := AudioServer.get_bus_index("Ambience")
@@ -267,10 +280,35 @@ func duck(duration: float = 1.2, music_db: float = -7.0, ambience_db: float = -5
 		return
 	if _duck_tween != null and _duck_tween.is_valid():
 		_duck_tween.kill()
-	AudioServer.set_bus_volume_db(mi, MUSIC_BUS_DB + music_db)
-	AudioServer.set_bus_volume_db(ai, AMBIENCE_BUS_DB + ambience_db)
+	var target_m := MUSIC_BUS_DB + music_db
+	var target_a := AMBIENCE_BUS_DB + ambience_db
 	_duck_tween = create_tween()
+	_duck_tween.tween_method(_set_bus_db.bind(mi), AudioServer.get_bus_volume_db(mi), target_m, 0.08)
+	_duck_tween.parallel().tween_method(_set_bus_db.bind(ai), AudioServer.get_bus_volume_db(ai), target_a, 0.08)
 	_duck_tween.tween_interval(maxf(duration, 0.2))
-	_duck_tween.tween_callback(func() -> void:
-		AudioServer.set_bus_volume_db(mi, MUSIC_BUS_DB)
-		AudioServer.set_bus_volume_db(ai, AMBIENCE_BUS_DB))
+	_duck_tween.tween_method(_set_bus_db.bind(mi), target_m, MUSIC_BUS_DB, 0.3)
+	_duck_tween.parallel().tween_method(_set_bus_db.bind(ai), target_a, AMBIENCE_BUS_DB, 0.3)
+
+
+func _set_bus_db(value: float, bus_idx: int) -> void:
+	AudioServer.set_bus_volume_db(bus_idx, value)
+
+
+## Master 上加一道硬限幅，防止多声叠加削波。
+func _ensure_master_limiter() -> void:
+	var idx := AudioServer.get_bus_index("Master")
+	if idx < 0 or AudioServer.get_bus_effect_count(idx) > 0:
+		return
+	var fx: AudioEffect
+	if ClassDB.class_exists("AudioEffectHardLimiter"):
+		var lim := AudioEffectHardLimiter.new()
+		lim.ceiling_db = -1.0
+		fx = lim
+	else:
+		var comp := AudioEffectCompressor.new()
+		comp.threshold = -6.0
+		comp.ratio = 16.0
+		comp.attack_us = 800.0
+		comp.release_ms = 90.0
+		fx = comp
+	AudioServer.add_bus_effect(idx, fx)
