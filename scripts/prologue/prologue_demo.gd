@@ -571,6 +571,8 @@ func _on_hotel_door_open_input(event: InputEvent) -> void:
 
 
 func _start_logo_sequence() -> void:
+	# 标题卡的 5 秒里先把第一章预读进内存，黑场切过去时不会因为读图卡住音频线程。
+	ResourceLoader.load_threaded_request("res://scenes/ch1/ch1.tscn")
 	AudioDirector.stop_all(0.4)
 	AudioDirector.sting("logo")
 	await get_tree().create_timer(5.0).timeout

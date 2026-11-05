@@ -97,21 +97,38 @@ func _enter_tree() -> void:
 	_ensure_bus("Music", MUSIC_BUS_DB)
 	_ensure_bus("Ambience", AMBIENCE_BUS_DB)
 	_ensure_bus("SFX", SFX_BUS_DB)
-	_ensure_master_limiter()
 
 	for i in 2:
-		var p := _make_player("Music")
-		p.volume_db = -40.0
-		_music_players.append(p)
+		var pm := _make_player("Music")
+		pm.volume_db = -40.0
+		_music_players.append(pm)
 	for i in 2:
-		var p := _make_player("Ambience")
-		p.volume_db = -40.0
-		_ambience_players.append(p)
+		var pa := _make_player("Ambience")
+		pa.volume_db = -40.0
+		_ambience_players.append(pa)
 	for i in SFX_POOL_SIZE:
 		_sfx_players.append(_make_player("SFX"))
 	for i in UI_POOL_SIZE:
 		_ui_players.append(_make_player("SFX"))
 	_sting_player = _make_player("SFX")
+
+	call_deferred("_ensure_master_limiter")
+
+
+func _ready() -> void:
+	# 预读所有长音频：切场景时不再从磁盘读 2–3MB 的底噪，避免音频线程欠载。
+	call_deferred("_preload_streams")
+
+
+func _preload_streams() -> void:
+	var paths: Array[String] = []
+	for key in MUSIC_PATHS:
+		paths.append(MUSIC_PATHS[key])
+	for key in AMBIENCE_PATHS:
+		paths.append(AMBIENCE_PATHS[key])
+	for path in paths:
+		_stream(path)
+		await get_tree().process_frame
 
 
 func _make_player(bus_name: String) -> AudioStreamPlayer:

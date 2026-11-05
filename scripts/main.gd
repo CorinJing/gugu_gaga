@@ -12,6 +12,8 @@ func _ready() -> void:
 	_layout()
 	start_button.grab_focus()
 	AudioDirector.set_scene("title", "")
+	# 标题页停留时预读序章，点开始的黑场里不再临时读图。
+	ResourceLoader.load_threaded_request("res://scenes/prologue/prologue_demo.tscn")
 
 
 func _layout() -> void:
