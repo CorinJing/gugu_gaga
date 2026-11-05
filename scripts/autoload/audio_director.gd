@@ -89,6 +89,8 @@ var _current_music := ""
 var _current_ambience := ""
 var _sting_player: AudioStreamPlayer
 var _duck_tween: Tween
+var _master_tween: Tween
+var _master_base_db := 0.0
 var _cache: Dictionary = {}
 var _tweens: Dictionary = {}
 
@@ -170,13 +172,14 @@ func _looped(stream: AudioStream) -> AudioStream:
 
 
 ## 一次性设置当前场景的音乐和底噪；同一首不会重播。
-func set_scene(music_id: String, ambience_id: String, music_fade: float = 0.3, ambience_fade: float = 0.8) -> void:
+func set_scene(music_id: String, ambience_id: String, music_fade: float = 0.22, ambience_fade: float = 0.28) -> void:
 	set_music(music_id, music_fade)
 	set_ambience(ambience_id, ambience_fade)
 	mood_changed.emit(music_id, ambience_id)
 
 
-func set_music(music_id: String, fade: float = 0.3) -> void:
+## 旧的一路先退干净，新的一路再起来，两条噪声床不重叠。
+func set_music(music_id: String, fade: float = 0.22) -> void:
 	if music_id == _current_music:
 		return
 	_current_music = music_id
@@ -192,10 +195,10 @@ func set_music(music_id: String, fade: float = 0.3) -> void:
 	next.stream = _looped(stream)
 	next.volume_db = -40.0
 	next.play()
-	_fade_in(next, fade)
+	_fade_in(next, fade + 0.1, fade)
 
 
-func set_ambience(ambience_id: String, fade: float = 0.8) -> void:
+func set_ambience(ambience_id: String, fade: float = 0.28) -> void:
 	if ambience_id == _current_ambience:
 		return
 	_current_ambience = ambience_id
@@ -211,7 +214,7 @@ func set_ambience(ambience_id: String, fade: float = 0.8) -> void:
 	next.stream = _looped(stream)
 	next.volume_db = -40.0
 	next.play()
-	_fade_in(next, fade)
+	_fade_in(next, fade + 0.14, fade)
 
 
 func stop_all(fade: float = 0.6) -> void:
@@ -236,10 +239,12 @@ func _fade_out(player: AudioStreamPlayer, seconds: float) -> void:
 			player.stop())
 
 
-func _fade_in(player: AudioStreamPlayer, seconds: float) -> void:
+func _fade_in(player: AudioStreamPlayer, seconds: float, delay: float = 0.0) -> void:
 	_kill_tween(player)
 	var tw := create_tween()
 	_tweens[player] = tw
+	if delay > 0.0:
+		tw.tween_interval(delay)
 	tw.tween_property(player, "volume_db", 0.0, maxf(seconds, 0.01))
 
 
@@ -309,6 +314,28 @@ func duck(duration: float = 1.2, music_db: float = -7.0, ambience_db: float = -5
 
 func _set_bus_db(value: float, bus_idx: int) -> void:
 	AudioServer.set_bus_volume_db(bus_idx, value)
+
+
+## 换场景读盘期间把总音量压下去，回来再抬起来，掩盖加载造成的欠载声。
+func fade_master_out(seconds: float = 0.12) -> void:
+	var mi := AudioServer.get_bus_index("Master")
+	if mi < 0:
+		return
+	if _master_tween != null and _master_tween.is_valid():
+		_master_tween.kill()
+	_master_base_db = AudioServer.get_bus_volume_db(mi)
+	_master_tween = create_tween()
+	_master_tween.tween_method(_set_bus_db.bind(mi), _master_base_db, -60.0, maxf(seconds, 0.01))
+
+
+func fade_master_in(seconds: float = 0.45) -> void:
+	var mi := AudioServer.get_bus_index("Master")
+	if mi < 0:
+		return
+	if _master_tween != null and _master_tween.is_valid():
+		_master_tween.kill()
+	_master_tween = create_tween()
+	_master_tween.tween_method(_set_bus_db.bind(mi), AudioServer.get_bus_volume_db(mi), _master_base_db, maxf(seconds, 0.01))
 
 
 ## Master 上加一道硬限幅，防止多声叠加削波。

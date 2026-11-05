@@ -48,9 +48,25 @@ func change_scene(path: String, fade_out: float = FADE_OUT, fade_in: float = FAD
 	_busy = true
 	_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	await _fade_to(1.0, fade_out)
+	# 黑场里先把声音压掉：读图和建场景期间音频线程容易欠载，压掉就听不见了。
+	AudioDirector.fade_master_out(0.12)
+	await get_tree().create_timer(0.12).timeout
+	await _await_threaded(path)
 	get_tree().change_scene_to_file(path)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	AudioDirector.fade_master_in(0.45)
 	await _fade_to(0.0, fade_in)
 	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_busy = false
+
+
+## 如果这个场景已经在后台预读，就在黑场里等它读完，避免切场景时主线程卡住。
+## ThreadLoadStatus: 0=INVALID 1=IN_PROGRESS 2=FAILED 3=DONE
+func _await_threaded(path: String) -> void:
+	if int(ResourceLoader.load_threaded_get_status(path)) != 1:
+		return
+	var guard := 0
+	while int(ResourceLoader.load_threaded_get_status(path)) == 1 and guard < 240:
+		guard += 1
+		await get_tree().process_frame
