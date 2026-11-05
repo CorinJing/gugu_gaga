@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+SettingsMenu="*res://scenes/ui/settings_menu.tscn"
+
 GameState="*res://scripts/autoload/game_state.gd"
 WindowManager="*res://scripts/autoload/window_manager.gd"
 SceneTransition="*res://scripts/autoload/scene_transition.gd"
@@ -26,6 +28,10 @@ SceneTransition="*res://scripts/autoload/scene_transition.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
 
 [gui]
 
